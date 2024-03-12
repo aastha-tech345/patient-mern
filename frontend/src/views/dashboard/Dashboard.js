@@ -56,6 +56,8 @@ import WidgetsDropdown from '../widgets/WidgetsDropdown'
 import { API_URL } from 'src/constant'
 
 const Dashboard = () => {
+  // let data = process.env.API_URL
+  // console.log('data', data)
   // const random = (min, max) => Math.floor(Math.random() * (max - min + 1) + min)
 
   // const progressExample = [
