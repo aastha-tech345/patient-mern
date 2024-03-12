@@ -58,7 +58,7 @@ const createPatient = async (req, res) => {
 
 const updatePatient = async (req, res) => {
   try {
-    console.log(req.body);
+    // console.log(req.body);
     const { name, age, sex, crn, desc, doctor_id, nextApointmentDate } =
       req.body;
     const patientId = req.params.id;
@@ -70,7 +70,7 @@ const updatePatient = async (req, res) => {
     patient.diagnosis.push(...newDiagnosisData);
 
     const patientUpdate = await patient.save();
-    console.log("patientUpdate", patientUpdate);
+    // console.log("patientUpdate", patientUpdate);
     return res.status(200).json({
       success: true,
       message: "Patient Updated Successfully",
@@ -143,23 +143,22 @@ const getPatientByDoctor = async (req, res) => {
   try {
     console.log("req.params.doctor_id", req.params.doctor_id);
     const patient = await Patient.find({
-      doctor_id: (req.params.doc_id),
+      doctor_id: req.params.doc_id,
     });
-     console.log("patient", patient);
-   // const patient = await Patient.find({});
+    //  console.log("patient", patient);
+    // const patient = await Patient.find({});
     if (!patient) {
       return res.status(404).json({
         success: false,
         message: "Patient Not Found with this doctor",
       });
-    }else{
+    } else {
       return res.status(200).json({
         success: true,
         message: "Patient Found Successfully",
         data: patient,
       });
     }
-    
   } catch (error) {
     console.log(error);
   }

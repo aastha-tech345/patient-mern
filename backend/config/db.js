@@ -8,7 +8,7 @@ mongoose.connection.on("end", () => {
   console.log("Database disConnected");
 });
 
-const url = "mongodb://127.0.0.1:27017/doctor";
+const url = "mongodb://127.0.0.1:27017/patientdb";
 
 const startDatabase = async () => {
   try {
