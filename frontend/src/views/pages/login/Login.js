@@ -19,6 +19,7 @@ import { postFetchData } from 'src/api/Api'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { faL } from '@fortawesome/free-solid-svg-icons'
+import { API_URL } from 'src/constant'
 const Login = () => {
   const navigate = useNavigate()
   const [data, setData] = useState({
@@ -34,7 +35,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     try {
       e.preventDefault()
-      const dataa = await postFetchData('http://localhost:8090/api/user/login', data)
+      const dataa = await postFetchData(`${API_URL}/api/user/login`, data)
       console.log('data', dataa)
       if (dataa.success == true) {
         toast.success('Login successfully')
