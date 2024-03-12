@@ -25,7 +25,7 @@ const PatientInfoData = ({ patientSearch, getSearchByPatient }) => {
 
   return (
     <div>
-      {patientSearch.map((patient) => {
+      {patientSearch?.map((patient) => {
         const { name, crn, phone, age, sex, diagnosis, _id, desc, nextApointmentDate } = patient
         const isDetailsOpen = selectedPatientId === _id
         const isAddDiagnosisOpen = addDiagnosisPatientId === _id
@@ -48,7 +48,7 @@ const PatientInfoData = ({ patientSearch, getSearchByPatient }) => {
             <div style={{ marginTop: '2rem' }}>
               <div className="card" style={{ width: '100%' }}>
                 <div className="card-body">
-                  <h5 className="card-title">Patient CRN No : {crn}</h5>
+                  <h5 className="card-title">Patient CR No : {crn}</h5>
                   <h6 className="card-subtitle mt-2">
                     <h5>Name : {name}</h5>
                   </h6>

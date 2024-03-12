@@ -7,9 +7,10 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import { API_URL } from 'src/constant'
+// import { API_URL } from 'src/constant'
 
 const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, setIsDetailed }) => {
+  let API_URL = process.env.REACT_APP_API_URL
   let patientData = localStorage.getItem('patientRecord')
   let patientRecord = JSON.parse(patientData)
   PatientAddNewRecord.propTypes = {
@@ -34,7 +35,7 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
 
   const fetchProblems = async () => {
     try {
-      const problems = await getFetch(`${API_URL}/api/problem/${patientRecord?.department_id}`)
+      const problems = await getFetch(`${API_URL}/api/problem/${patientRecord?.department_id?._id}`)
       setProblems(problems?.data?.data[0]?.problemName)
     } catch (error) {
       console.error('Error fetching problems:', error)
@@ -144,6 +145,11 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
     }
   }
 
+  const handleClose = () => {
+    setIsAddNewDiagnosis(false)
+    setIsDetailed(true)
+  }
+
   useEffect(() => {
     if (patientById.desc) {
       setFormData((prevFormData) => ({
@@ -160,7 +166,7 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
   return (
     <div style={{ margin: '1rem auto 1rem 1rem' }}>
       <div style={{ margin: '1rem auto 1rem 0' }}>
-        <h4>Diagnosis</h4>
+        <h4>Diagnosis: ({patientRecord?.department_id?.departmentName})</h4>
         <div className="row">
           <div className="row">
             <div className="col-md-4 alignCenterAndMiddle" style={{ border: '1px solid black' }}>
@@ -192,7 +198,7 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
                   value={problem.name}
                   onChange={(e) => handleCheckboxChange(problem.name, e.target.checked)}
                 />
-                <label>{problem.name}</label>
+                <label>&nbsp;{problem.name}</label>
               </div>
               <div className="col-sm-8">
                 <div className="row">
@@ -241,7 +247,7 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
           <textarea
             rows={4}
             className="form-control col-12"
-            placeholder="description"
+            placeholder="Prescription"
             name="desc"
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
@@ -261,10 +267,19 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
             </LocalizationProvider>
           </div>
         </div>
-
-        <button type="submit" className="btn btn-primary mt-4">
-          Submit
-        </button>
+        <div className="text-end">
+          <button type="submit" className="btn btn-primary mt-4" style={{ width: '10rem' }}>
+            Submit
+          </button>
+          <button
+            type="submit"
+            className="btn btn-danger mt-4 ms-2"
+            style={{ width: '10rem' }}
+            onClick={() => handleClose()}
+          >
+            Close
+          </button>
+        </div>
       </form>
       <ToastContainer />
     </div>

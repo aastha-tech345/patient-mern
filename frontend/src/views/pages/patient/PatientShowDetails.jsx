@@ -117,7 +117,7 @@ const PatientShowDetails = ({ diagnosis, desc }) => {
                   <div style={{ margin: '1rem auto 1rem 1rem' }}>
                     <div className="row" style={{ marginTop: '1rem' }}>
                       <div className="col-md-2 d-flex align-items-center">
-                        <h5>Discription:</h5>
+                        <h5>Prescription:</h5>
                       </div>
                       <div className="col-md-10 d-flex align-items-center">
                         <div className="card" style={{ width: '87%', padding: '1rem 2rem' }}>

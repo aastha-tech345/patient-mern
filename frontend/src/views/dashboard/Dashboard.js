@@ -53,7 +53,7 @@ import { getFetch } from '../../api/Api'
 
 // import WidgetsBrand from '../widgets/WidgetsBrand'
 import WidgetsDropdown from '../widgets/WidgetsDropdown'
-import { API_URL } from 'src/constant'
+// import { API_URL } from 'src/constant'
 
 const Dashboard = () => {
   // let data = process.env.API_URL
@@ -180,26 +180,64 @@ const Dashboard = () => {
   //     activity: 'Last week',
   //   },
   // ]
-
+  let API_URL = process.env.REACT_APP_API_URL
+  // console.log('dataenv', API_URL)
   let patientData = localStorage.getItem('patientRecord')
   let patientRecord = JSON.parse(patientData)
-  let [numberOfPatient, setNumberOfPatient] = useState('')
+  // console.log('patientRecord', patientRecord?.name)
+  const [numberOfPatient, setNumberOfPatient] = useState('')
+  const [apointmentList, setAppointmentList] = useState([])
+  const [greeting, setGreeting] = useState('')
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getFetch(`${API_URL}/api/patient/doc/${patientRecord._id}`)
+        // const response = await getFetch(`${API_URL}/api/patient/doc/${patientRecord._id}`)
+        const response = await getFetch(`${API_URL}/api/patient/patientByDoctor`)
         console.log('dasRes', response)
         setNumberOfPatient(response?.data?.data?.length)
+        setAppointmentList(response?.data?.data)
       } catch (error) {
         console.error('Error fetching data:', error)
       }
     }
     fetchData()
-  }, []) // Empty dependency array ensures useEffect runs only once on component mount
+  }, [])
+
+  let appointmentDataList = []
+  const today = new Date()
+  const todayYear = today?.getFullYear()
+  const todayMonth = today?.getMonth()
+  const todayDay = today?.getDate()
+  for (let i = 0; i < apointmentList.length; i++) {
+    const element = new Date(apointmentList[i]?.nextApointmentDate)
+    const givenYear = element?.getFullYear()
+    const givenMonth = element?.getMonth()
+    const givenDay = element?.getDate()
+    if (todayYear === givenYear && todayMonth === givenMonth && todayDay === givenDay) {
+      appointmentDataList.push(apointmentList[i])
+      console.log('hello')
+    } else {
+      console.log("Today's date does not match the given date.")
+    }
+  }
+
+  console.log('appointmentDataList', appointmentDataList)
 
   return (
     <>
-      <WidgetsDropdown numberOfPatient={numberOfPatient} />
+      <div className="mb-5 mt-2" style={{ textAlign: 'center' }}>
+        <h2>Welcome, {patientRecord?.name} </h2>
+      </div>
+      <WidgetsDropdown
+        numberOfPatient={numberOfPatient}
+        appointmentDataList={appointmentDataList}
+      />
+      {/* <div style={{ display: 'flx' }}>
+        <div></div>
+        <div>
+          <WidgetsDropdown numberOfPatient={numberOfPatient} />
+        </div>
+      </div> */}
       {/* <CCard className="mb-4">
         <CCardBody>
           <CRow>

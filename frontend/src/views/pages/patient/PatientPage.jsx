@@ -12,9 +12,10 @@ import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Loader from '../loader/Loader'
 import AddPatientLoader from '../loader/AddPatientLoader'
-import { API_URL } from 'src/constant'
+// import { API_URL } from 'src/constant'
 
 const PatientPage = () => {
+  let API_URL = process.env.REACT_APP_API_URL
   // const API_URL = process.env.API_URL
   let patientData = localStorage.getItem('patientRecord')
   let patientRecord = JSON.parse(patientData)
@@ -52,7 +53,7 @@ const PatientPage = () => {
 
   const fetchProblems = async () => {
     try {
-      const problems = await getFetch(`${API_URL}/api/problem/${patientRecord?.department_id}`)
+      const problems = await getFetch(`${API_URL}/api/problem/${patientRecord?.department_id?._id}`)
 
       setProblems(problems?.data?.data[0]?.problemName)
     } catch (error) {
@@ -112,8 +113,8 @@ const PatientPage = () => {
     try {
       setLoader(true)
 
-      const data = await getFetch(`${API_URL}/api/patient/${search}/${patientRecord?._id}`)
-
+      const data = await getFetch(`${API_URL}/api/patient/${search}`)
+      console.log('searchData', data)
       setPatientSearch(data?.data?.data)
       setTimeout(() => {
         setLoader(false)
@@ -196,6 +197,13 @@ const PatientPage = () => {
     }
   }
 
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      getSearchByPatient()
+    }
+  }
+
   useEffect(() => {
     if (updateState === true) {
       getSearchByPatient()
@@ -215,30 +223,15 @@ const PatientPage = () => {
                 <input
                   style={{ paddingLeft: '5px' }}
                   className="form-control"
-                  placeholder="CRN or PhoneNumber"
+                  placeholder="CR no. or Phone no."
                   type="text"
                   name="search"
                   value={search}
                   // autoComplete={false}
+                  onKeyPress={handleKeyPress}
                   onChange={(e) => setSearch(e.target.value)}
                 />
 
-                {search?.length ? (
-                  <FontAwesomeIcon
-                    icon={faXmark}
-                    style={{
-                      marginLeft: '1rem',
-                      borderRadius: '5px',
-                      position: 'absolute',
-                      marginLeft: '240px',
-                      marginTop: '10px',
-                      cursor: 'pointer',
-                    }}
-                    onClick={clearSearch}
-                  />
-                ) : (
-                  ''
-                )}
                 {/* </button> */}
                 <button
                   className="btn btn-primary"
@@ -248,6 +241,30 @@ const PatientPage = () => {
                 >
                   Search
                 </button>
+                {search?.length ? (
+                  // <FontAwesomeIcon
+                  //   icon={faXmark}
+                  //   style={{
+                  //     marginLeft: '1rem',
+                  //     borderRadius: '5px',
+                  //     position: 'absolute',
+                  //     marginLeft: '240px',
+                  //     marginTop: '10px',
+                  //     cursor: 'pointer',
+                  //   }}
+                  //   onClick={clearSearch}
+                  // />
+                  <button
+                    className="btn btn-danger text-light"
+                    style={{ marginLeft: '1rem', borderRadius: '5px' }}
+                    type="button"
+                    onClick={clearSearch}
+                  >
+                    Clear
+                  </button>
+                ) : (
+                  ''
+                )}
               </div>
               <div>
                 <button
@@ -325,13 +342,13 @@ const PatientPage = () => {
                       </div>
                     </div>
                     <div className="row mt-4">
-                      <div className="col-md-5">
+                      {/* <div className="col-md-5">
                         <div>
                           <label className="col-sm-4 mt-2 patientNamediv">Phone Number*</label>
                           <div className="col-sm-7">
                             <input
                               className="form-control"
-                              type="tel"
+                              type="phone"
                               name="phone"
                               value={formData.phone}
                               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -339,14 +356,34 @@ const PatientPage = () => {
                             />
                           </div>
                         </div>
-                      </div>
+                      </div> */}
                       <div className="col-md-5">
                         <div>
-                          <label className="col-sm-4 mt-2 patientNamediv">CRN Number*</label>
+                          <label className="col-sm-4 mt-2 patientNamediv">Phone Number*</label>
                           <div className="col-sm-7">
                             <input
                               className="form-control"
-                              type="tel"
+                              type="text"
+                              name="phone"
+                              value={formData.phone}
+                              onChange={(e) => {
+                                if (/^\d*$/.test(e.target.value) || e.target.value === '') {
+                                  setFormData({ ...formData, phone: e.target.value })
+                                }
+                              }}
+                              required={true}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="col-md-5">
+                        <div>
+                          <label className="col-sm-4 mt-2 patientNamediv">CR Number*</label>
+                          <div className="col-sm-7">
+                            <input
+                              className="form-control"
+                              type="test"
                               name="crn"
                               value={formData.crn}
                               onChange={(e) => setFormData({ ...formData, crn: e.target.value })}
@@ -359,7 +396,7 @@ const PatientPage = () => {
                   </div>
                   <hr />
                   <div style={{ margin: '1rem auto 1rem 0' }}>
-                    <h4>Diagnosis</h4>
+                    <h4>Diagnosis: ({patientRecord?.department_id?.departmentName})</h4>
                     <div className="row">
                       <div className="row">
                         <div

@@ -19,8 +19,9 @@ import { postFetchData } from 'src/api/Api'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { faL } from '@fortawesome/free-solid-svg-icons'
-import { API_URL } from 'src/constant'
+// import { API_URL } from 'src/constant'
 const Login = () => {
+  let API_URL = process.env.REACT_APP_API_URL
   const navigate = useNavigate()
   const [data, setData] = useState({
     email: '',

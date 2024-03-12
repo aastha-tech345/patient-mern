@@ -23,7 +23,7 @@ const _nav = [
   },
   {
     component: CNavItem,
-    name: 'Patient',
+    name: 'Patients',
     to: '/patientPage',
   },
   // {
