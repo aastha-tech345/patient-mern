@@ -35,6 +35,7 @@ const WidgetsDropdown = ({ numberOfPatient, appointmentDataList, filteredAppoint
             </>
           }
           onClick={() => navigate('/patientPage')}
+          style={{ cursor: 'pointer' }}
           // title="Users"
           // action={
           //   <CDropdown alignment="end">

@@ -114,9 +114,10 @@ const PatientPage = () => {
 
   const getSearchByPatient = async () => {
     try {
+      let searchData = search || location?.state?.crn
       setLoader(true)
 
-      const data = await getFetch(`${API_URL}/api/patient/${search}`)
+      const data = await getFetch(`${API_URL}/api/patient/${searchData}`)
       console.log('searchData', data)
       setPatientSearch(data?.data?.data)
       setTimeout(() => {
@@ -128,8 +129,11 @@ const PatientPage = () => {
   }
 
   const handleSubmit = async () => {
-    console.log('hello')
-    setSearch('')
+    // console.log('hello')
+    if (search?.length === 0) {
+      return
+    }
+    // setSearch('')
     // Check if required fields are filled
     if (!formData.name || !formData.age || !formData.sex || !formData.phone || !formData.crn) {
       return toast.warning('Please fill all Patient details')
@@ -215,8 +219,10 @@ const PatientPage = () => {
 
   let [dateAndTime, setDateAndTime] = useState(new Date())
   useEffect(() => {
-    setSearch(location?.state?.crn)
-    // if (location?.state?.crn?.length) getSearchByPatient()
+    if (location?.state?.crn) {
+      setSearch(location?.state?.crn)
+      getSearchByPatient()
+    }
   }, [location])
 
   return (
