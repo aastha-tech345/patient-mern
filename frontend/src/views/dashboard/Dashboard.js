@@ -234,12 +234,12 @@ const Dashboard = () => {
       }
       const date = new Date(startingDate)
       const date1 = new Date(endDate)
-      const formattedStartDate = date.toISOString().split('T')[0] + 'T00:00:00.000Z'
-      const formattedEndDate = date1.toISOString().split('T')[0] + 'T00:00:00.000Z'
-      console.log(formattedStartDate, formattedEndDate)
+      // const formattedStartDate = date.toISOString().split('T')[0] + 'T00:00:00.000Z'
+      // const formattedEndDate = date1.toISOString().split('T')[0] + 'T00:00:00.000Z'
+      console.log(date, date1)
 
       const res = await getFetch(
-        `${API_URL}/api/patient/nextAppointmentDate?startDate=${formattedStartDate}&endDate=${formattedEndDate}`,
+        `${API_URL}/api/patient/nextAppointmentDate?startDate=${date}&endDate=${date1}`,
       )
       setFilteredAppointment(res?.data?.data)
       // console.log('resData', res)
@@ -254,8 +254,14 @@ const Dashboard = () => {
     setUpdateState(!updateState)
   }
   useEffect(() => {
+    // dateSubmit()
+    setStartingDate(todayDate)
+    setEndDate(todayDate)
+  }, [])
+  useEffect(() => {
     dateSubmit()
   }, [updateState])
+
   const getFilteredDate = () => {
     try {
       const today = new Date(startingDate)
@@ -350,7 +356,7 @@ const Dashboard = () => {
       name: record.name,
     }),
   }
-  console.log('appointmentDataList', appointmentDataList)
+  console.log('appointmentDataList', filteredAppointment)
   return (
     <>
       <div className="mb-5 mt-2" style={{ textAlign: 'center' }}>

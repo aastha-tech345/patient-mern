@@ -115,8 +115,10 @@ const PatientPage = () => {
   const getSearchByPatient = async () => {
     try {
       let searchData = search || location?.state?.crn
+      if (searchData?.length === 0) {
+        return
+      }
       setLoader(true)
-
       const data = await getFetch(`${API_URL}/api/patient/${searchData}`)
       console.log('searchData', data)
       setPatientSearch(data?.data?.data)
@@ -130,10 +132,10 @@ const PatientPage = () => {
 
   const handleSubmit = async () => {
     // console.log('hello')
-    if (search?.length === 0) {
-      return
-    }
-    // setSearch('')
+    // if (search?.length === 0) {
+    //   return
+    // }
+    setSearch('')
     // Check if required fields are filled
     if (!formData.name || !formData.age || !formData.sex || !formData.phone || !formData.crn) {
       return toast.warning('Please fill all Patient details')
@@ -535,6 +537,7 @@ const PatientPage = () => {
                             label="Next Appointment Date"
                             value={startingDate}
                             onChange={handleStartingDateChange}
+                            // ampm={false}
                           />
                         </DemoContainer>
                       </LocalizationProvider>
