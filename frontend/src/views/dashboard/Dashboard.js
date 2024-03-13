@@ -52,7 +52,17 @@ import { getFetch } from '../../api/Api'
 // import avatar6 from 'src/assets/images/avatars/6.jpg'
 
 // import WidgetsBrand from '../widgets/WidgetsBrand'
+import { Divider, Radio, Table } from 'antd'
 import WidgetsDropdown from '../widgets/WidgetsDropdown'
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import dayjs from 'dayjs'
+import { DateTimePicker } from '@mui/x-date-pickers'
+import { DateRangePicker } from '@mui/lab'
+import { Button } from '@coreui/coreui'
+import { useNavigate } from 'react-router-dom'
 // import { API_URL } from 'src/constant'
 
 const Dashboard = () => {
@@ -180,11 +190,11 @@ const Dashboard = () => {
   //     activity: 'Last week',
   //   },
   // ]
+
   let API_URL = process.env.REACT_APP_API_URL
-  // console.log('dataenv', API_URL)
   let patientData = localStorage.getItem('patientRecord')
   let patientRecord = JSON.parse(patientData)
-  // console.log('patientRecord', patientRecord?.name)
+
   const [numberOfPatient, setNumberOfPatient] = useState('')
   const [apointmentList, setAppointmentList] = useState([])
   const [greeting, setGreeting] = useState('')
@@ -203,26 +213,144 @@ const Dashboard = () => {
     fetchData()
   }, [])
 
-  let appointmentDataList = []
-  const today = new Date()
-  const todayYear = today?.getFullYear()
-  const todayMonth = today?.getMonth()
-  const todayDay = today?.getDate()
-  for (let i = 0; i < apointmentList.length; i++) {
-    const element = new Date(apointmentList[i]?.nextApointmentDate)
-    const givenYear = element?.getFullYear()
-    const givenMonth = element?.getMonth()
-    const givenDay = element?.getDate()
-    if (todayYear === givenYear && todayMonth === givenMonth && todayDay === givenDay) {
-      appointmentDataList.push(apointmentList[i])
-      console.log('hello')
-    } else {
-      console.log("Today's date does not match the given date.")
+  const [filteredAppointment, setFilteredAppointment] = useState([])
+  const [appointmentDataList, setAppointmentDataList] = useState([])
+  const todayDate = dayjs()
+  const [startingDate, setStartingDate] = useState(todayDate)
+  const [endDate, setEndDate] = useState(todayDate)
+  const [updateState, setUpdateState] = useState(false)
+  const handleStartingDateChange = (date) => {
+    setStartingDate(date)
+  }
+  const handleEndDateChange = (date) => {
+    setEndDate(date)
+  }
+
+  const dateSubmit = async (e) => {
+    try {
+      if (endDate.isBefore(startingDate)) {
+        alert('End date cannot be earlier than start date')
+        return
+      }
+      const date = new Date(startingDate)
+      const date1 = new Date(endDate)
+      const formattedStartDate = date.toISOString().split('T')[0] + 'T00:00:00.000Z'
+      const formattedEndDate = date1.toISOString().split('T')[0] + 'T00:00:00.000Z'
+      console.log(formattedStartDate, formattedEndDate)
+
+      const res = await getFetch(
+        `${API_URL}/api/patient/nextAppointmentDate?startDate=${formattedStartDate}&endDate=${formattedEndDate}`,
+      )
+      setFilteredAppointment(res?.data?.data)
+      // console.log('resData', res)
+    } catch (error) {
+      console.log(error)
     }
   }
 
-  console.log('appointmentDataList', appointmentDataList)
+  const dateReset = () => {
+    setStartingDate(todayDate)
+    setEndDate(todayDate)
+    setUpdateState(!updateState)
+  }
+  useEffect(() => {
+    dateSubmit()
+  }, [updateState])
+  const getFilteredDate = () => {
+    try {
+      const today = new Date(startingDate)
+      console.log('today', today)
+      const todayYear = today?.getFullYear()
+      const todayMonth = today?.getMonth()
+      const todayDay = today?.getDate()
+      const filteredList = apointmentList.filter((appointment) => {
+        const element = new Date(appointment?.nextApointmentDate)
+        const givenYear = element?.getFullYear()
+        const givenMonth = element?.getMonth()
+        const givenDay = element?.getDate()
+        return todayYear === givenYear && todayMonth === givenMonth && todayDay === givenDay
+      })
+      setAppointmentDataList(filteredList)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
+  useEffect(() => {
+    getFilteredDate()
+  }, [startingDate])
+  console.log('dateValue', startingDate)
+  // console.log('appointmentDataList', appointmentDataList)
+  const [selectionType, setSelectionType] = useState('checkbox')
+  const navigate = useNavigate()
+  const columns = [
+    {
+      title: 'CR no',
+      dataIndex: 'crn',
+    },
+    {
+      title: 'Phone no',
+      dataIndex: 'phone',
+      render: (text) => <a>{text}</a>,
+    },
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      render: (text) => <a>{text}</a>,
+    },
+    {
+      title: 'Age',
+      dataIndex: 'age',
+    },
+    {
+      title: 'Sex',
+      dataIndex: 'sex',
+    },
+    {
+      title: 'Appointment',
+      dataIndex: 'nextApointmentDate',
+      render: (text) => {
+        const date = new Date(text)
+        const formattedDate = date
+          .toLocaleString('en-IN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+          })
+          .replace(/\//g, '/')
+        return formattedDate
+      },
+    },
+    {
+      title: 'Action',
+      // dataIndex: 'sex',
+      render: (text) => {
+        return (
+          <button
+            className="btn btn-primary"
+            onClick={(e) => navigate('/patientPage', { state: text })}
+          >
+            View
+          </button>
+        )
+      },
+    },
+  ]
+
+  const rowSelection = {
+    onChange: (selectedRowKeys, selectedRows) => {
+      console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows)
+    },
+    getCheckboxProps: (record) => ({
+      disabled: record.name === 'Disabled User',
+      // Column configuration not to be checked
+      name: record.name,
+    }),
+  }
+  console.log('appointmentDataList', appointmentDataList)
   return (
     <>
       <div className="mb-5 mt-2" style={{ textAlign: 'center' }}>
@@ -231,7 +359,96 @@ const Dashboard = () => {
       <WidgetsDropdown
         numberOfPatient={numberOfPatient}
         appointmentDataList={appointmentDataList}
+        filteredAppointment={filteredAppointment}
       />
+      {/* <hr /> */}
+      <div className="row">
+        <div className="col-sm-2">
+          <div style={{ fontFamily: 'sans-serif', marginTop: '1rem' }}>
+            <h4>{'Appointments'}</h4>
+          </div>
+        </div>
+        {/* <div>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DemoContainer components={['DatePicker']}>
+              <DatePicker
+                label="Basic date picker"
+                value={startingDate}
+                onChange={handleStartingDateChange}
+              />
+            </DemoContainer>
+          </LocalizationProvider>
+        </div> */}
+
+        <div className="col-sm-10 ">
+          <div className="row justify-content-center">
+            <div className="col-sm-4">
+              {' '}
+              <div className="">
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DemoContainer components={['DateTimePicker']}>
+                    <DateTimePicker
+                      label="From"
+                      value={startingDate}
+                      onChange={handleStartingDateChange}
+                      inputFormat="YYYY-MM-DD"
+                      ampm={false}
+                      ampmInClock={false}
+                      views={['year', 'month', 'day']}
+                      // sx={{ width: '100px' }}
+                      // className="w-75"
+                    />
+                  </DemoContainer>
+                </LocalizationProvider>
+              </div>
+            </div>
+            <div className="col-sm-4">
+              {' '}
+              <div>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DemoContainer components={['DateTimePicker']}>
+                    <DateTimePicker
+                      label="To"
+                      value={endDate}
+                      onChange={handleEndDateChange}
+                      inputFormat="YYYY-MM-DD"
+                      ampm={false}
+                      ampmInClock={false}
+                      views={['year', 'month', 'day']}
+                      // className="w-75"
+                    />
+                  </DemoContainer>
+                </LocalizationProvider>
+              </div>
+            </div>
+            <div className="col-sm-2 d-flex  mb-3">
+              {/* <div className=""> */}
+              {/* <div> */}
+              <button className="btn btn-primary mt-3 me-2" onClick={dateSubmit}>
+                Search
+              </button>
+              {/* </div> */}
+              {/* <div> */}
+              <button className="btn btn-primary mt-3 " onClick={dateReset}>
+                Reset
+              </button>
+              {/* </div> */}
+              {/* </div> */}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-2 table-responsive">
+        <Table
+          rowSelection={{
+            type: selectionType,
+            ...rowSelection,
+          }}
+          columns={columns}
+          dataSource={filteredAppointment}
+        />
+      </div>
       {/* <div style={{ display: 'flx' }}>
         <div></div>
         <div>
@@ -366,7 +583,6 @@ const Dashboard = () => {
       </CCard>
 
       <WidgetsBrand withCharts /> */}
-
       {/* <CRow>
         <CCol xs>
           <CCard className="mb-4">

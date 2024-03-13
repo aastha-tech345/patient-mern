@@ -227,11 +227,41 @@ const getPatientByDoctor = async (req, res) => {
   }
 };
 
+const getPatientAppointment = async (req, res) => {
+  try {
+    // const startDate = new Date(req.query.startDate);
+    // const endDate = new Date(req.query.endDate);
+    let startDate = req.query.startDate
+      ? new Date(req.query.startDate)
+      : new Date();
+    let endDate = req.query.endDate ? new Date(req.query.endDate) : new Date();
+    endDate.setHours(23, 59, 59, 999);
+    // console.log("req.query", startDate, endDate);
+    const appointments = await Patient.find({
+      nextApointmentDate: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    });
+
+    // res.json(appointments);
+    return res.status(200).json({
+      success: true,
+      message: "Patient Found Successfully",
+      data: appointments,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
   createPatient,
   searchPatient,
   updatePatient,
   getPatientById,
   getPatientByDoctor,
+  getPatientAppointment,
   // getPatient,
 };

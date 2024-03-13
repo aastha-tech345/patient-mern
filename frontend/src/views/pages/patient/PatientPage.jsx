@@ -12,9 +12,12 @@ import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Loader from '../loader/Loader'
 import AddPatientLoader from '../loader/AddPatientLoader'
+import { useLocation } from 'react-router-dom'
 // import { API_URL } from 'src/constant'
 
 const PatientPage = () => {
+  const location = useLocation()
+  console.log('location', Number(location?.state?.crn))
   let API_URL = process.env.REACT_APP_API_URL
   // const API_URL = process.env.API_URL
   let patientData = localStorage.getItem('patientRecord')
@@ -211,6 +214,10 @@ const PatientPage = () => {
   }, [updateState])
 
   let [dateAndTime, setDateAndTime] = useState(new Date())
+  useEffect(() => {
+    setSearch(location?.state?.crn)
+    // if (location?.state?.crn?.length) getSearchByPatient()
+  }, [location])
 
   return (
     <>

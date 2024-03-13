@@ -13,13 +13,15 @@ import { CChartBar, CChartLine } from '@coreui/react-chartjs'
 import CIcon from '@coreui/icons-react'
 import { cilArrowBottom, cilArrowTop, cilOptions } from '@coreui/icons'
 import PropTypes from 'prop-types'
+import { useNavigate } from 'react-router-dom'
 
-const WidgetsDropdown = ({ numberOfPatient, appointmentDataList }) => {
+const WidgetsDropdown = ({ numberOfPatient, appointmentDataList, filteredAppointment }) => {
   WidgetsDropdown.propTypes = {
     numberOfPatient: PropTypes.any.isRequired,
     appointmentDataList: PropTypes.any.isRequired,
+    filteredAppointment: PropTypes.any.isRequired,
   }
-
+  const navigate = useNavigate()
   // console.log(numberOfPatient)
   return (
     <CRow>
@@ -32,6 +34,7 @@ const WidgetsDropdown = ({ numberOfPatient, appointmentDataList }) => {
               Patient <div className="fs-6 fw-normal">Number of Patients : {numberOfPatient}</div>
             </>
           }
+          onClick={() => navigate('/patientPage')}
           // title="Users"
           // action={
           //   <CDropdown alignment="end">
@@ -113,9 +116,9 @@ const WidgetsDropdown = ({ numberOfPatient, appointmentDataList }) => {
           color="primary"
           value={
             <>
-              Patient{' '}
+              {'Appointments'}{' '}
               <div className="fs-6 fw-normal">
-                Today Appointment : {appointmentDataList?.length}
+                Today Appointment : {filteredAppointment?.length}
               </div>
             </>
           }
