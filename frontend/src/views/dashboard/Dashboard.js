@@ -313,14 +313,17 @@ const Dashboard = () => {
       title: 'Name',
       dataIndex: 'name',
       render: (text) => <a>{text}</a>,
+      sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
       title: 'Age',
       dataIndex: 'age',
+      sorter: (a, b) => a.age - b.age,
     },
     {
       title: 'Sex',
       dataIndex: 'sex',
+      sorter: (a, b) => a.sex.localeCompare(b.sex),
     },
     {
       title: 'Appointment',
@@ -339,6 +342,7 @@ const Dashboard = () => {
           .replace(/\//g, '/')
         return formattedDate
       },
+      sorter: (a, b) => a.nextApointmentDate.localeCompare(b.nextApointmentDate),
     },
     {
       title: 'Action',
