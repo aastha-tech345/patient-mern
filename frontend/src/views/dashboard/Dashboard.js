@@ -204,7 +204,7 @@ const Dashboard = () => {
         // const response = await getFetch(`${API_URL}/api/patient/doc/${patientRecord._id}`)
         const response = await getFetch(`${API_URL}/api/patient/patientByDoctor`)
         console.log('dasRes', response)
-        setNumberOfPatient(response?.data?.data?.length)
+        setNumberOfPatient(response?.data?.count)
         setAppointmentList(response?.data?.data)
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -214,6 +214,7 @@ const Dashboard = () => {
   }, [])
 
   const [filteredAppointment, setFilteredAppointment] = useState([])
+  const [filteredAppointmentNumber, setFilteredAppointmentNumber] = useState([])
   const [appointmentDataList, setAppointmentDataList] = useState([])
   const todayDate = dayjs()
   const [startingDate, setStartingDate] = useState(todayDate)
@@ -242,6 +243,7 @@ const Dashboard = () => {
         `${API_URL}/api/patient/nextAppointmentDate?startDate=${date}&endDate=${date1}`,
       )
       setFilteredAppointment(res?.data?.data)
+      setFilteredAppointmentNumber(res?.data?.count)
       // console.log('resData', res)
     } catch (error) {
       console.log(error)
@@ -365,7 +367,7 @@ const Dashboard = () => {
       <WidgetsDropdown
         numberOfPatient={numberOfPatient}
         appointmentDataList={appointmentDataList}
-        filteredAppointment={filteredAppointment}
+        filteredAppointmentNumber={filteredAppointmentNumber}
       />
       {/* <hr /> */}
       <div className="row">

@@ -15,11 +15,11 @@ import { cilArrowBottom, cilArrowTop, cilOptions } from '@coreui/icons'
 import PropTypes from 'prop-types'
 import { useNavigate } from 'react-router-dom'
 
-const WidgetsDropdown = ({ numberOfPatient, appointmentDataList, filteredAppointment }) => {
+const WidgetsDropdown = ({ numberOfPatient, appointmentDataList, filteredAppointmentNumber }) => {
   WidgetsDropdown.propTypes = {
     numberOfPatient: PropTypes.any.isRequired,
     appointmentDataList: PropTypes.any.isRequired,
-    filteredAppointment: PropTypes.any.isRequired,
+    filteredAppointmentNumber: PropTypes.any.isRequired,
   }
   const navigate = useNavigate()
   // console.log(numberOfPatient)
@@ -118,9 +118,7 @@ const WidgetsDropdown = ({ numberOfPatient, appointmentDataList, filteredAppoint
           value={
             <>
               {'Appointments'}{' '}
-              <div className="fs-6 fw-normal">
-                Today Appointment : {filteredAppointment?.length}
-              </div>
+              <div className="fs-6 fw-normal">Today Appointment : {filteredAppointmentNumber}</div>
             </>
           }
           // title="Users"

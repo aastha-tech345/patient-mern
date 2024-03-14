@@ -205,6 +205,9 @@ const getPatientById = async (req, res) => {
 const getPatientByDoctor = async (req, res) => {
   try {
     // console.log("req.params.doctor_id", req.params.doctor_id);
+    const countDocument = await Patient.countDocuments({
+      doctor_id: req.user.id,
+    });
     const patient = await Patient.find({
       doctor_id: req.user.id,
     });
@@ -220,6 +223,7 @@ const getPatientByDoctor = async (req, res) => {
         success: true,
         message: "Patient Found Successfully",
         data: patient,
+        count: countDocument,
       });
     }
   } catch (error) {
@@ -273,6 +277,13 @@ const getPatientAppointment = async (req, res) => {
 
     // console.log("req.query", startDate, endDate);
 
+    const countDocument = await Patient.countDocuments({
+      nextApointmentDate: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    });
+    // console.log("countDocument", countDocument);
     const appointments = await Patient.find({
       nextApointmentDate: {
         $gte: startDate,
@@ -284,6 +295,7 @@ const getPatientAppointment = async (req, res) => {
       success: true,
       message: "Patient Found Successfully",
       data: appointments,
+      count: countDocument,
     });
   } catch (error) {
     console.log(error);
