@@ -202,30 +202,30 @@ const getPatientById = async (req, res) => {
   }
 };
 
-const getPatientByDoctor = async (req, res) => {
+const getPatientByDoctorCount = async (req, res) => {
   try {
     // console.log("req.params.doctor_id", req.params.doctor_id);
     const countDocument = await Patient.countDocuments({
       doctor_id: req.user.id,
     });
-    const patient = await Patient.find({
-      doctor_id: req.user.id,
-    });
+    // const patient = await Patient.find({
+    //   doctor_id: req.user.id,
+    // });
     //  console.log("patient", patient);
     // const patient = await Patient.find({});
-    if (!patient) {
-      return res.status(404).json({
-        success: false,
-        message: "Patient Not Found with this doctor",
-      });
-    } else {
-      return res.status(200).json({
-        success: true,
-        message: "Patient Found Successfully",
-        data: patient,
-        count: countDocument,
-      });
-    }
+    // if (!patient) {
+    //   return res.status(404).json({
+    //     success: false,
+    //     message: "Patient Not Found with this doctor",
+    //   });
+    // } else {
+    return res.status(200).json({
+      success: true,
+      message: "Patient Found Successfully",
+      // data: patient,
+      count: countDocument,
+    });
+    // }
   } catch (error) {
     console.log(error);
   }
@@ -262,6 +262,44 @@ const getPatientByDoctor = async (req, res) => {
 //     res.status(500).json({ error: "Internal server error" });
 //   }
 // };
+
+// const getPatientAppointmentCount = async (req, res) => {
+//   try {
+//     let startDate = req.query.startDate
+//       ? new Date(req.query.startDate)
+//       : new Date();
+//     let endDate = req.query.endDate ? new Date(req.query.endDate) : new Date();
+
+//     startDate.setHours(0, 0, 0, 0);
+
+//     endDate.setHours(23, 59, 59, 999);
+
+//     const countDocument = await Patient.countDocuments({
+//       nextApointmentDate: {
+//         $gte: startDate,
+//         $lte: endDate,
+//       },
+//     });
+//     // console.log("countDocument", countDocument);
+//     // const appointments = await Patient.find({
+//     //   nextApointmentDate: {
+//     //     $gte: startDate,
+//     //     $lte: endDate,
+//     //   },
+//     // });
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Patient Found Successfully",
+//       // data: appointments,
+//       count: countDocument,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
+
 const getPatientAppointment = async (req, res) => {
   try {
     let startDate = req.query.startDate
@@ -269,34 +307,90 @@ const getPatientAppointment = async (req, res) => {
       : new Date();
     let endDate = req.query.endDate ? new Date(req.query.endDate) : new Date();
 
-    // Set time part of startDate to 00:00:00
     startDate.setHours(0, 0, 0, 0);
 
-    // Set time part of endDate to 23:59:59
     endDate.setHours(23, 59, 59, 999);
 
-    // console.log("req.query", startDate, endDate);
+    // const countDocument = await Patient.countDocuments({
+    //   nextApointmentDate: {
+    //     $gte: startDate,
+    //     $lte: endDate,
+    //   },
+    // });
+    // console.log("countDocument", countDocument);
+    // const appointments = await Patient.find({
+    //   nextApointmentDate: {
+    //     $gte: startDate,
+    //     $lte: endDate,
+    //   },
+    // });
 
+    const resultPerPage = 10;
+
+    // const searchKey = req.params.searchKey;
     const countDocument = await Patient.countDocuments({
       nextApointmentDate: {
         $gte: startDate,
         $lte: endDate,
       },
     });
-    // console.log("countDocument", countDocument);
-    const appointments = await Patient.find({
-      nextApointmentDate: {
-        $gte: startDate,
-        $lte: endDate,
-      },
-    });
+    let pageCount = Math.ceil(countDocument / resultPerPage);
+    // const result = await Patient.find({
+    //   // doctor_id: req.params.doctor_id,
+    //   doctor_id: req.user.id,
+    //   $or: [{ crn: { $regex: searchKey } }, { phone: { $regex: searchKey } }],
+    // }).populate("doctor_id");
+    // return res.status(200).json({
+    //   success: true,
+    //   message: "Patient Found Successfully",
+    //   data: result,
+    // });
+
+    const apiFeatures = new ApiFeatures(
+      Patient.find({
+        nextApointmentDate: {
+          $gte: startDate,
+          $lte: endDate,
+        },
+      }),
+      req.query
+    )
+      .reverse()
+      .pagination(resultPerPage);
+    const result = await apiFeatures.query;
+
+    if (result?.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Patient not found",
+      });
+    }
+
+    if (apiFeatures.getCurrentPage() > pageCount) {
+      apiFeatures.setCurrentPage(pageCount);
+      const updatedResult = await apiFeatures.pagination(resultPerPage).query;
+      return res.status(200).json({
+        success: true,
+        message: "Patient Found Successfully",
+        data: updatedResult,
+        pageCount: pageCount,
+      });
+    }
 
     return res.status(200).json({
       success: true,
+      data: result,
       message: "Patient Found Successfully",
-      data: appointments,
+      pageCount: pageCount,
+      data: result,
       count: countDocument,
     });
+
+    // return res.status(200).json({
+    //   success: true,
+    //   message: "Patient Found Successfully",
+    //   data: appointments,
+    //   count: countDocument,
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Internal server error" });
@@ -307,7 +401,7 @@ module.exports = {
   searchPatient,
   updatePatient,
   getPatientById,
-  getPatientByDoctor,
+  getPatientByDoctorCount,
   getPatientAppointment,
   // getPatient,
 };

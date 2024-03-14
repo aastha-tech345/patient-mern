@@ -63,6 +63,9 @@ import { DateTimePicker } from '@mui/x-date-pickers'
 import { DateRangePicker } from '@mui/lab'
 import { Button } from '@coreui/coreui'
 import { useNavigate } from 'react-router-dom'
+import Typography from '@mui/material/Typography'
+import Pagination from '@mui/material/Pagination'
+import Stack from '@mui/material/Stack'
 // import { API_URL } from 'src/constant'
 
 const Dashboard = () => {
@@ -194,10 +197,14 @@ const Dashboard = () => {
   let API_URL = process.env.REACT_APP_API_URL
   let patientData = localStorage.getItem('patientRecord')
   let patientRecord = JSON.parse(patientData)
-
+  const [page, setPage] = React.useState(1)
+  const [pageCount, setPageCount] = useState(1)
   const [numberOfPatient, setNumberOfPatient] = useState('')
   const [apointmentList, setAppointmentList] = useState([])
   const [greeting, setGreeting] = useState('')
+  const handleChange = (event, value) => {
+    setPage(value)
+  }
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -240,10 +247,11 @@ const Dashboard = () => {
       console.log(date, date1)
 
       const res = await getFetch(
-        `${API_URL}/api/patient/nextAppointmentDate?startDate=${date}&endDate=${date1}`,
+        `${API_URL}/api/patient/nextAppointmentDate?startDate=${date}&endDate=${date1}&page=${page}`,
       )
       setFilteredAppointment(res?.data?.data)
       setFilteredAppointmentNumber(res?.data?.count)
+      setPageCount(res?.data?.pageCount)
       // console.log('resData', res)
     } catch (error) {
       console.log(error)
@@ -262,7 +270,7 @@ const Dashboard = () => {
   }, [])
   useEffect(() => {
     dateSubmit()
-  }, [updateState])
+  }, [updateState, page])
 
   const getFilteredDate = () => {
     try {
@@ -455,7 +463,14 @@ const Dashboard = () => {
           }}
           columns={columns}
           dataSource={filteredAppointment}
+          pagination={false}
         />
+      </div>
+      <div className="d-flex justify-content-end mt-2">
+        <Stack spacing={2}>
+          {/* <Typography>Page: {page}</Typography> */}
+          <Pagination count={pageCount} page={page} onChange={handleChange} />
+        </Stack>
       </div>
       {/* <div style={{ display: 'flx' }}>
         <div></div>
