@@ -66,6 +66,7 @@ import { useNavigate } from 'react-router-dom'
 import Typography from '@mui/material/Typography'
 import Pagination from '@mui/material/Pagination'
 import Stack from '@mui/material/Stack'
+import '../dashboard/Dashboard.css'
 // import { API_URL } from 'src/constant'
 
 const Dashboard = () => {
@@ -404,7 +405,7 @@ const Dashboard = () => {
           <div className="row justify-content-center">
             <div className="col-sm-4">
               {' '}
-              <div className="">
+              <div>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DemoContainer components={['DateTimePicker']}>
                     <DateTimePicker
@@ -416,13 +417,15 @@ const Dashboard = () => {
                       ampmInClock={false}
                       views={['year', 'month', 'day']}
                       // sx={{ width: '100px' }}
-                      // className="w-75"
+                      // className="w-50"
+                      // className="w-auto"
+                      style={{ overflowX: 'hidden !important' }}
                     />
                   </DemoContainer>
                 </LocalizationProvider>
               </div>
             </div>
-            <div className="col-sm-4">
+            <div className="col-sm-4 ">
               {' '}
               <div>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -435,7 +438,7 @@ const Dashboard = () => {
                       ampm={false}
                       ampmInClock={false}
                       views={['year', 'month', 'day']}
-                      // className="w-75"
+                      // className="w-50"
                     />
                   </DemoContainer>
                 </LocalizationProvider>
@@ -458,7 +461,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-
+      {/* class="ant-table-tbody" */}
       <div className="mt-2 table-responsive">
         <Table
           rowSelection={{
@@ -468,6 +471,7 @@ const Dashboard = () => {
           columns={columns}
           dataSource={filteredAppointment}
           pagination={false}
+          // className="table-responsive"
         />
       </div>
       <div className="d-flex justify-content-end mt-2">

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
+import '../../dashboard/Dashboard.css'
 const PatientShowDetails = ({ diagnosis, desc }) => {
   // console.log('DateBuDat', Date())
   PatientShowDetails.propTypes = {
@@ -62,8 +63,11 @@ const PatientShowDetails = ({ diagnosis, desc }) => {
         const formattedDate = datee.toLocaleDateString('en-IN', options).replace(/\//g, '/')
         return (
           <>
-            <div className="row">
-              <div style={{ margin: '1rem auto 1rem 1rem' }}>
+            <div
+              className="row"
+              // style={{ overflow: 'scroll !important', background: 'white' }}
+            >
+              <div style={{ margin: '1rem auto 1rem 1rem', overflow: 'auto !important' }}>
                 <h5>Diagnose Date : {formattedDate}</h5>
 
                 <table

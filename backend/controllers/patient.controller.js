@@ -311,23 +311,8 @@ const getPatientAppointment = async (req, res) => {
 
     endDate.setHours(23, 59, 59, 999);
 
-    // const countDocument = await Patient.countDocuments({
-    //   nextApointmentDate: {
-    //     $gte: startDate,
-    //     $lte: endDate,
-    //   },
-    // });
-    // console.log("countDocument", countDocument);
-    // const appointments = await Patient.find({
-    //   nextApointmentDate: {
-    //     $gte: startDate,
-    //     $lte: endDate,
-    //   },
-    // });
-
     const resultPerPage = 10;
 
-    // const searchKey = req.params.searchKey;
     const countDocument = await Patient.countDocuments({
       nextApointmentDate: {
         $gte: startDate,
@@ -335,16 +320,6 @@ const getPatientAppointment = async (req, res) => {
       },
     });
     let pageCount = Math.ceil(countDocument / resultPerPage);
-    // const result = await Patient.find({
-    //   // doctor_id: req.params.doctor_id,
-    //   doctor_id: req.user.id,
-    //   $or: [{ crn: { $regex: searchKey } }, { phone: { $regex: searchKey } }],
-    // }).populate("doctor_id");
-    // return res.status(200).json({
-    //   success: true,
-    //   message: "Patient Found Successfully",
-    //   data: result,
-    // });
 
     const apiFeatures = new ApiFeatures(
       Patient.find({

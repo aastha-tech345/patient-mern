@@ -47,7 +47,7 @@ const PatientInfoData = ({ patientSearch, getSearchByPatient }) => {
           <div key={_id} className="row">
             <div style={{ marginTop: '2rem' }}>
               <div className="card" style={{ width: '100%' }}>
-                <div className="card-body">
+                <div className="card-body overflow-auto ">
                   <h5 className="card-title">Patient CR No : {crn}</h5>
                   <h6 className="card-subtitle mt-2">
                     <h5>Name : {name}</h5>
@@ -78,7 +78,7 @@ const PatientInfoData = ({ patientSearch, getSearchByPatient }) => {
                       Next Appointment Date : {formattedDate}
                     </p> */}
                   </div>
-                  <div style={{ textAlign: 'end' }}>
+                  <div className="text-end">
                     <button
                       type="button"
                       className="btn btn-success"

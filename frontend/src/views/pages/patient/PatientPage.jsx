@@ -313,11 +313,11 @@ const PatientPage = () => {
                   <div className="row">
                     <div className="col-md-4">
                       <div>
-                        <label className="col-sm-2 mt-2 patientNamediv">Name*</label>
+                        <label className="col-sm-4 mt-2 patientNamediv">Name*</label>
                         <div className="col-sm-8">
                           <input
                             type="text"
-                            className="form-control"
+                            className="form-control "
                             name="name"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -327,11 +327,11 @@ const PatientPage = () => {
                     </div>
                     <div className="col-md-4">
                       <div>
-                        <label className="col-sm-2 mt-2 patientNamediv">Age*</label>
+                        <label className="col-sm-4 mt-2 patientNamediv">Age*</label>
                         <div className="col-sm-8">
                           <input
                             type="number"
-                            className="form-control"
+                            className="form-control "
                             name="age"
                             value={formData.age}
                             onChange={(e) => setFormData({ ...formData, age: e.target.value })}
@@ -341,10 +341,10 @@ const PatientPage = () => {
                     </div>
                     <div className="col-md-4">
                       <div>
-                        <label className="col-sm-2 mt-2 patientNamediv">Sex*</label>
+                        <label className="col-sm-4 mt-2 patientNamediv">Sex*</label>
                         <div className="col-sm-8">
                           <select
-                            className="form-control"
+                            className="form-control "
                             name="sex"
                             value={formData.sex}
                             onChange={(e) => setFormData({ ...formData, sex: e.target.value })}
@@ -373,11 +373,11 @@ const PatientPage = () => {
                         </div>
                       </div> */}
                       <div className="col-md-5">
-                        <div>
+                        <div style={{ width: '23.3rem' }}>
                           <label className="col-sm-4 mt-2 patientNamediv">Phone Number*</label>
-                          <div className="col-sm-7">
+                          <div className=" col-lg-8 col-sm-8">
                             <input
-                              className="form-control"
+                              className="form-control "
                               type="text"
                               name="phone"
                               value={formData.phone}
@@ -393,11 +393,11 @@ const PatientPage = () => {
                       </div>
 
                       <div className="col-md-5">
-                        <div>
+                        <div style={{ width: '23.3rem' }}>
                           <label className="col-sm-4 mt-2 patientNamediv">CR Number*</label>
-                          <div className="col-sm-7">
+                          <div className="col-sm-8">
                             <input
-                              className="form-control"
+                              className="form-control "
                               type="test"
                               name="crn"
                               value={formData.crn}
@@ -530,7 +530,7 @@ const PatientPage = () => {
                     />
                   </LocalizationProvider> */}
                   <div className="d-flex mt-2">
-                    <div className="w-50">
+                    <div className="w-auto">
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DemoContainer components={['DateTimePicker']}>
                           <DateTimePicker
@@ -546,15 +546,15 @@ const PatientPage = () => {
                 </div>
                 <div className="text-end m-4">
                   <button
-                    className="btn btn-info mt-3 mx-2"
-                    style={{ width: '10%' }}
+                    className="btn btn-info mt-3 mx-2 w-auto"
+                    // style={{ width: '10%' }}
                     onClick={handleSubmit}
                   >
                     Submit
                   </button>
                   <button
-                    className="btn btn-info mt-3"
-                    style={{ width: '10%' }}
+                    className="btn btn-info mt-3 w-auto"
+                    // style={{ width: '10%' }}
                     onClick={() => setData(false)}
                   >
                     Close
