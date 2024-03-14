@@ -310,53 +310,61 @@ const PatientPage = () => {
                 <div>
                   <hr />
                   <h4>Patient Details</h4>
-                  <div className="row">
-                    <div className="col-md-4">
-                      <div>
-                        <label className="col-sm-4 mt-2 patientNamediv">Name*</label>
-                        <div className="col-sm-8">
-                          <input
-                            type="text"
-                            className="form-control "
-                            name="name"
-                            value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          />
+                  <div>
+                    <div className="row">
+                      <div className="col-md-4">
+                        <div>
+                          <label className="col-sm-4 mt-2 patientNamediv">
+                            Name <span style={{ color: 'red' }}>*</span>
+                          </label>
+                          <div className="col-sm-8">
+                            <input
+                              type="text"
+                              className="form-control "
+                              name="name"
+                              value={formData.name}
+                              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-md-4">
+                        <div>
+                          <label className="col-sm-4 mt-2 patientNamediv">
+                            Age <span style={{ color: 'red' }}>*</span>
+                          </label>
+                          <div className="col-sm-8">
+                            <input
+                              type="number"
+                              className="form-control "
+                              name="age"
+                              value={formData.age}
+                              onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-md-4">
+                        <div>
+                          <label className="col-sm-4 mt-2 patientNamediv">
+                            Sex <span style={{ color: 'red' }}>*</span>
+                          </label>
+                          <div className="col-sm-8">
+                            <select
+                              className="form-control "
+                              name="sex"
+                              value={formData.sex}
+                              onChange={(e) => setFormData({ ...formData, sex: e.target.value })}
+                            >
+                              <option value="male">Male</option>
+                              <option value="female">Female</option>
+                              <option value="other">Other</option>
+                            </select>
+                          </div>
                         </div>
                       </div>
                     </div>
-                    <div className="col-md-4">
-                      <div>
-                        <label className="col-sm-4 mt-2 patientNamediv">Age*</label>
-                        <div className="col-sm-8">
-                          <input
-                            type="number"
-                            className="form-control "
-                            name="age"
-                            value={formData.age}
-                            onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-md-4">
-                      <div>
-                        <label className="col-sm-4 mt-2 patientNamediv">Sex*</label>
-                        <div className="col-sm-8">
-                          <select
-                            className="form-control "
-                            name="sex"
-                            value={formData.sex}
-                            onChange={(e) => setFormData({ ...formData, sex: e.target.value })}
-                          >
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="row mt-4">
+                    <div className="row ">
                       {/* <div className="col-md-5">
                         <div>
                           <label className="col-sm-4 mt-2 patientNamediv">Phone Number*</label>
@@ -372,9 +380,11 @@ const PatientPage = () => {
                           </div>
                         </div>
                       </div> */}
-                      <div className="col-md-5">
-                        <div style={{ width: '23.3rem' }}>
-                          <label className="col-sm-4 mt-2 patientNamediv">Phone Number*</label>
+                      <div className="col-md-4 mt-4">
+                        <div>
+                          <label className="col-lg-4 patientNamediv">
+                            Phone No <span style={{ color: 'red' }}>*</span>
+                          </label>
                           <div className=" col-lg-8 col-sm-8">
                             <input
                               className="form-control "
@@ -392,9 +402,11 @@ const PatientPage = () => {
                         </div>
                       </div>
 
-                      <div className="col-md-5">
-                        <div style={{ width: '23.3rem' }}>
-                          <label className="col-sm-4 mt-2 patientNamediv">CR Number*</label>
+                      <div className="col-md-4 mt-4">
+                        <div>
+                          <label className="col-sm-4  patientNamediv">
+                            CR No <span style={{ color: 'red' }}>*</span>
+                          </label>
                           <div className="col-sm-8">
                             <input
                               className="form-control "
