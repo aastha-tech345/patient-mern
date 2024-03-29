@@ -125,7 +125,7 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
     e.preventDefault()
 
     if (inputs.length === 1 && inputs[0].problem === '') {
-      return toast.warning('Please select at least one problem')
+      return toast.warning('Please select at least one Chief complaint')
     }
 
     for (const data of inputs) {
@@ -327,7 +327,7 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
                     value={input.problem}
                     onChange={(event) => handleInputChange(index, event)}
                   >
-                    <option value="">Select Problem</option>
+                    <option value="">Chief complaint</option>
                     {problems.map((problem, problemIndex) => (
                       <option key={problemIndex} value={problem}>
                         {problem}
@@ -345,7 +345,7 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
                     value={input.test}
                     onChange={(event) => handleInputChange(index, event)}
                   >
-                    <option value="">Select Test</option>
+                    <option value="">Test</option>
                     {tests.map((test, testIndex) => (
                       <option key={testIndex} value={test}>
                         {test}
@@ -421,7 +421,7 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
           <textarea
             rows={4}
             className="form-control col-12"
-            placeholder="Notes"
+            placeholder="Notes : (Optional)"
             name="desc"
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
