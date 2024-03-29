@@ -250,6 +250,10 @@ const Dashboard = () => {
       const res = await getFetch(
         `${API_URL}/api/patient/nextAppointmentDate?startDate=${date}&endDate=${date1}&page=${page}`,
       )
+      console.log('Gaurav', res?.data?.success)
+      // if (res?.data?.success === 'success') {
+      //   setFilteredAppointmentNumber(0)
+      // }
       setFilteredAppointment(res?.data?.data)
       setFilteredAppointmentNumber(res?.data?.count)
       setPageCount(res?.data?.pageCount)

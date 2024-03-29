@@ -118,7 +118,9 @@ const WidgetsDropdown = ({ numberOfPatient, appointmentDataList, filteredAppoint
           value={
             <>
               {'Appointments'}{' '}
-              <div className="fs-6 fw-normal">Today Appointment : {filteredAppointmentNumber}</div>
+              <div className="fs-6 fw-normal">
+                Today Appointment : {filteredAppointmentNumber || 0}
+              </div>
             </>
           }
           // title="Users"

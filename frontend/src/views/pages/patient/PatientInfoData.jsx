@@ -85,7 +85,7 @@ const PatientInfoData = ({ patientSearch, getSearchByPatient }) => {
                       onClick={() => handleToggleDetails(_id)}
                     >
                       {/* {isDetails ? 'Close Details' : 'Show Details'} */}
-                      Show Details
+                      Show Diagnosis
                     </button>
                     <button
                       type="button"
