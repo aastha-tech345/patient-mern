@@ -1,10 +1,20 @@
 // Here you can add other styles
-.patientNamediv{
-    font-weight: bolder;
-    margin-right: 1rem;
+.patientNamediv {
+  font-weight: bolder;
+  margin-right: 1rem;
 }
 
-.alignCenterAndMiddle{
-    text-align: center;
-    padding: auto;
+.alignCenterAndMiddle {
+  text-align: center;
+  padding: auto;
+}
+
+.missing-input {
+  border: 1px solid red; /* Add a red border */
+  /* or */
+  background-color: #ffcccc; /* Add a red background color */
+}
+
+.redColor {
+  color: red;
 }

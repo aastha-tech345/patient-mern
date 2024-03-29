@@ -27,12 +27,13 @@ const patientSchema = new mongoose.Schema(
     },
     diagnosis: [
       {
-        problem: [
+        diagnosData: [
           {
-            name: String,
-            scale1: String,
-            scale2: String,
-            scale3: String,
+            problem: String,
+            test: String,
+            testInput: String,
+            scale: String,
+            value: String,
           },
         ],
         date: Date,

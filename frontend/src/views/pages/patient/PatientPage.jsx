@@ -31,6 +31,9 @@ const PatientPage = () => {
   const [search, setSearch] = useState('')
   const [patientSearch, setPatientSearch] = useState([])
   const [problems, setProblems] = useState([])
+  const [tests, setTests] = useState([])
+  const [scales, setScales] = useState([])
+
   const [desc, setDesc] = useState('')
   const [formData, setFormData] = useState({
     name: '',
@@ -42,7 +45,7 @@ const PatientPage = () => {
     desc: '',
     doctor_id: patientRecord?._id,
   })
-  const [diagnosis, setDiagnosis] = useState([])
+  // const [diagnosis, setDiagnosis] = useState([])
 
   const handleStartingDateChange = (date) => {
     setStartingDate(date)
@@ -54,53 +57,90 @@ const PatientPage = () => {
     fetchProblems()
   }, [])
 
+  // const fetchProblems = async () => {
+  //   try {
+  //     const problems = await getFetch(`${API_URL}/api/problem/${patientRecord?.department_id?._id}`)
+  //     const problemFilter = await problems?.data?.data[0]?.problemName.filter(
+  //       (item) => item.type === 'problem',
+  //     )
+  //     const testFilter = await problems?.data?.data[0]?.problemName.filter(
+  //       (item) => item.type === 'test',
+  //     )
+  //     const scaleFilter = await problems?.data?.data[0]?.problemName.filter(
+  //       (item) => item.type === 'scale',
+  //     )
+  //     console.log('Gaurav', problemFilter)
+  //     setTests(testFilter)
+  //     setScales(scaleFilter)
+  //     setProblems(problemFilter)
+  //   } catch (error) {
+  //     console.error('Error fetching problems:', error)
+  //   }
+  // }
   const fetchProblems = async () => {
     try {
-      const problems = await getFetch(`${API_URL}/api/problem/${patientRecord?.department_id?._id}`)
-
-      setProblems(problems?.data?.data[0]?.problemName)
+      const problemsResponse = await getFetch(
+        `${API_URL}/api/problem/${patientRecord?.department_id?._id}`,
+      )
+      const problemsData = problemsResponse?.data?.data[0]
+      if (problemsData) {
+        const problemFilter = problemsData.problemName
+          .filter((item) => item.type === 'problem')
+          .map((problem) => problem.name)
+        const testFilter = problemsData.problemName
+          .filter((item) => item.type === 'test')
+          .map((test) => test.name)
+        const scaleFilter = problemsData.problemName
+          .filter((item) => item.type === 'scale')
+          .map((scale) => scale.name)
+        setTests(testFilter)
+        setScales(scaleFilter)
+        setProblems(problemFilter)
+      }
     } catch (error) {
       console.error('Error fetching problems:', error)
     }
   }
-  console.log('problems', problems)
-  const handleCheckboxChange = (problemName, checked) => {
-    if (checked) {
-      setDiagnosis((prevDiagnosis) => [
-        ...prevDiagnosis,
-        {
-          problem: {
-            name: problemName,
-            scale1: '',
-            scale2: '',
-            scale3: '',
-          },
-          // date: Date(),
-        },
-      ])
-    } else {
-      setDiagnosis((prevDiagnosis) =>
-        prevDiagnosis.filter((item) => item.problem.name !== problemName),
-      )
-    }
-  }
 
-  const handleInputChange = (problemName, key, value) => {
-    setDiagnosis((prevDiagnosis) =>
-      prevDiagnosis.map((item) => {
-        if (item.problem.name === problemName) {
-          return {
-            ...item,
-            problem: {
-              ...item.problem,
-              [key]: value,
-            },
-          }
-        }
-        return item
-      }),
-    )
-  }
+  console.log('problems', problems)
+
+  // const handleCheckboxChange = (problemName, checked) => {
+  //   if (checked) {
+  //     setDiagnosis((prevDiagnosis) => [
+  //       ...prevDiagnosis,
+  //       {
+  //         problem: {
+  //           name: problemName,
+  //           scale1: '',
+  //           scale2: '',
+  //           scale3: '',
+  //         },
+  //         // date: Date(),
+  //       },
+  //     ])
+  //   } else {
+  //     setDiagnosis((prevDiagnosis) =>
+  //       prevDiagnosis.filter((item) => item.problem.name !== problemName),
+  //     )
+  //   }
+  // }
+
+  // const handleInputChange = (problemName, key, value) => {
+  //   setDiagnosis((prevDiagnosis) =>
+  //     prevDiagnosis.map((item) => {
+  //       if (item.problem.name === problemName) {
+  //         return {
+  //           ...item,
+  //           problem: {
+  //             ...item.problem,
+  //             [key]: value,
+  //           },
+  //         }
+  //       }
+  //       return item
+  //     }),
+  //   )
+  // }
 
   const clearSearch = () => {
     try {
@@ -131,54 +171,64 @@ const PatientPage = () => {
   }
 
   const handleSubmit = async () => {
-    // console.log('hello')
-    // if (search?.length === 0) {
-    //   return
-    // }
     setSearch('')
+
     // Check if required fields are filled
     if (!formData.name || !formData.age || !formData.sex || !formData.phone || !formData.crn) {
       return toast.warning('Please fill all Patient details')
     }
 
-    if (diagnosis.length === 0) {
+    if (inputs.length === 1 && inputs[0].problem === '') {
       return toast.warning('Please select at least one problem')
     }
 
-    let dataP = []
-    diagnosis?.map((elem) => {
-      dataP.push(elem.problem)
-    })
+    for (const data of inputs) {
+      if (data.test !== '' && data.testInput === '') {
+        toast.warning('Please give input for selected test')
+        return // Stop further execution
+      }
+      if (data.scale !== '' && data.value === '') {
+        toast.warning('Please give input for selected scale')
+        return // Stop further execution
+      }
+      console.log('data', data)
+    }
+
+    // let dataP = []
+    // inputs?.map((elem) => {
+    //   dataP.push(elem.problem)
+    // })
     const updatedFormData = {
       ...formData,
       diagnosis: [
         {
-          problem: dataP,
+          diagnosData: inputs,
           date: Date(),
           desc,
         },
       ],
       nextApointmentDate: startingDate,
     }
-    console.log('updatedFormData', updatedFormData)
+
+    // console.log('updatedFormData', updatedFormData)
     try {
-      console.log('pre', updatedFormData)
+      // console.log('pre', updatedFormData)\
       const data = await postFetchData(`${API_URL}/api/patient/create`, updatedFormData)
-      console.log('Data', data)
       if (data.success === true) {
         toast.success('Patient Created Successfully', {
           autoClose: 2000,
         })
+
         setaddPatientLoader(true)
         setData(false)
-
         setTimeout(() => {
           // toast.success('Patient Created Successfully')
           setUpdateState(true)
           setaddPatientLoader(false)
-          setDiagnosis([])
+          // setDiagnosis([])
           setDesc('')
           setStartingDate(null)
+          setInputs([{ problem: '', test: '', testInput: '', scale: '', value: '' }])
         }, 2000)
         setFormData({
           name: '',
@@ -206,6 +256,10 @@ const PatientPage = () => {
     }
   }
 
+  // const handleSubmit = async () => {
+  //   console.log(inputs)
+  // }
+
   const handleKeyPress = (event) => {
     if (event.key === 'Enter') {
       event.preventDefault()
@@ -227,6 +281,41 @@ const PatientPage = () => {
     }
   }, [location])
 
+  //////// new updates
+
+  let [removeAndAddInput, setremoveAndAddInput] = useState(false)
+
+  const [inputs, setInputs] = useState([
+    { problem: '', test: '', testInput: '', scale: '', value: '' },
+  ])
+
+  const handleInputChange = (index, event) => {
+    const { name, value } = event.target
+    const updatedInputs = [...inputs]
+    updatedInputs[index][name] = value
+    setInputs(updatedInputs)
+  }
+
+  const handleAddInput = () => {
+    setInputs([...inputs, { problem: '', test: '', testInput: '', scale: '', value: '' }])
+  }
+
+  const handleRemoveInput = (index) => {
+    const updatedInputs = [...inputs]
+    updatedInputs.splice(index, 1)
+    setInputs(updatedInputs)
+  }
+
+  useEffect(() => {
+    if (inputs.length > 1) {
+      setremoveAndAddInput(true)
+    } else {
+      setremoveAndAddInput(false)
+    }
+  }, [handleRemoveInput, handleAddInput, handleInputChange])
+  useEffect(() => {
+    console.log('Updated inputs:', inputs)
+  }, [inputs])
   return (
     <>
       <div>
@@ -310,6 +399,7 @@ const PatientPage = () => {
                 <div>
                   <hr />
                   <h4>Patient Details</h4>
+                  {/* <h1 className="redColor">Hero</h1> */}
                   <div>
                     <div className="row">
                       <div className="col-md-4">
@@ -424,7 +514,7 @@ const PatientPage = () => {
                   <hr />
                   <div style={{ margin: '1rem auto 1rem 0' }}>
                     <h4>Diagnosis: ({patientRecord?.department_id?.departmentName})</h4>
-                    <div className="row">
+                    {/* <div className="row">
                       <div className="row">
                         <div
                           className="col-md-4 alignCenterAndMiddle"
@@ -446,9 +536,119 @@ const PatientPage = () => {
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
-                  <form>
+                  <div>
+                    {/* newely Added */}
+                    <form className="mb-3">
+                      {inputs.map((input, index) => (
+                        <div key={index} className="row mt-1 mb-2">
+                          <div className="col-md-2">
+                            <label>
+                              <select
+                                className="form-control "
+                                style={{ width: '10rem', appearance: 'auto', height: '38px' }}
+                                name="problem"
+                                value={input.problem}
+                                onChange={(event) => handleInputChange(index, event)}
+                              >
+                                <option value="">Select Problem</option>
+                                {problems.map((problem, problemIndex) => (
+                                  <option key={problemIndex} value={problem}>
+                                    {problem}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                          </div>
+                          <div className="col-md-2">
+                            <label>
+                              <select
+                                className="form-control "
+                                style={{ width: '10rem', appearance: 'auto', height: '38px' }}
+                                name="test"
+                                value={input.test}
+                                onChange={(event) => handleInputChange(index, event)}
+                              >
+                                <option value="">Select Test</option>
+                                {tests.map((test, testIndex) => (
+                                  <option key={testIndex} value={test}>
+                                    {test}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                          </div>
+                          <div className="col-md-2">
+                            <label>
+                              <input
+                                className="form-control "
+                                style={{ width: '10rem' }}
+                                placeholder="Enter test Value"
+                                type="text"
+                                name="testInput"
+                                value={input.testInput}
+                                onChange={(event) => handleInputChange(index, event)}
+                              />
+                            </label>
+                          </div>
+                          <div className="col-md-2">
+                            <label>
+                              <select
+                                className="form-control "
+                                style={{ width: '10rem', appearance: 'auto', height: '38px' }}
+                                name="scale"
+                                value={input.scale}
+                                onChange={(event) => handleInputChange(index, event)}
+                              >
+                                <option value="">Select Scale</option>
+                                {scales.map((scale, scaleIndex) => (
+                                  <option key={scaleIndex} value={scale}>
+                                    {scale}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                          </div>
+                          <div className="col-md-2">
+                            <label>
+                              <input
+                                className="form-control "
+                                style={{ width: '10rem', appearance: 'auto' }}
+                                placeholder="Enter Scale Value"
+                                type="text"
+                                name="value"
+                                value={input.value}
+                                onChange={(event) => handleInputChange(index, event)}
+                              />
+                            </label>
+                          </div>
+                          <div className="col-md-2 d-flex justify-content-center">
+                            {removeAndAddInput && (
+                              <button
+                                className="btn btn-danger"
+                                type="button"
+                                onClick={() => handleRemoveInput(index)}
+                              >
+                                Remove
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                      <div className="d-flex justify-content-end">
+                        <button
+                          className="btn btn-primary me-4"
+                          type="button"
+                          onClick={handleAddInput}
+                        >
+                          Add More
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+
+                  {/* <form>
                     {problems.map((problem, index) => (
                       <div key={index} style={{ alignItems: 'center', marginBottom: '10px' }}>
                         <div className="row">
@@ -518,12 +718,12 @@ const PatientPage = () => {
                         </div>
                       </div>
                     ))}
-                  </form>
+                  </form> */}
                   <div>
                     <textarea
                       rows={4}
                       className="form-control col-12"
-                      placeholder="Prescription"
+                      placeholder="Notes"
                       name="desc"
                       value={desc}
                       onChange={(e) => setDesc(e.target.value)}

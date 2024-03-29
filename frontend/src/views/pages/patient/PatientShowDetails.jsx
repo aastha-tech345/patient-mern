@@ -3,11 +3,11 @@ import PropTypes from 'prop-types'
 import '../../dashboard/Dashboard.css'
 const PatientShowDetails = ({ diagnosis, desc }) => {
   // console.log('DateBuDat', Date())
+  console.log('Guarv', diagnosis)
   PatientShowDetails.propTypes = {
     diagnosis: PropTypes.func.isRequired,
     desc: PropTypes.func.isRequired,
   }
-  console.log('dia', diagnosis)
   const [reversedDiagnosis, setReversedDiagnosis] = useState([])
 
   // Reverse diagnosis array on component mount or whenever diagnosis changes
@@ -80,10 +80,11 @@ const PatientShowDetails = ({ diagnosis, desc }) => {
                   }}
                 >
                   <colgroup>
-                    <col style={{ width: '31%' }} />
-                    <col style={{ width: '23%' }} />
-                    <col style={{ width: '23%' }} />
-                    <col style={{ width: '23%' }} />
+                    <col style={{ width: '20%' }} />
+                    <col style={{ width: '20%' }} />
+                    <col style={{ width: '20%' }} />
+                    <col style={{ width: '20%' }} />
+                    <col style={{ width: '20%' }} />
                   </colgroup>
                   <thead>
                     <tr>
@@ -91,26 +92,32 @@ const PatientShowDetails = ({ diagnosis, desc }) => {
                         Problems
                       </th>
                       <th scope="col" style={{ background: '#FBF295' }}>
-                        VAS
+                        Test
                       </th>
                       <th scope="col" style={{ background: '#FBF295' }}>
-                        ODI
+                        Test value
                       </th>
                       <th scope="col" style={{ background: '#FBF295' }}>
-                        MPSI
+                        Scale
+                      </th>
+                      <th scope="col" style={{ background: '#FBF295' }}>
+                        Scale value
                       </th>
                     </tr>
                   </thead>
-                  {elem.problem.map((element) => {
-                    let { name, scale1, scale2, scale3 } = element
+                  {elem.diagnosData.map((element) => {
+                    let { problem, scale, test, testInput, value } = element
                     return (
                       <>
                         <tbody>
                           <tr>
-                            <td style={{ fontWeight: 'bolder' }}>{name}</td>
-                            <td style={{ fontWeight: 'bolder' }}>{scale1}</td>
-                            <td style={{ fontWeight: 'bolder' }}>{scale2}</td>
-                            <td style={{ fontWeight: 'bolder' }}>{scale3}</td>
+                            <td style={{ fontWeight: 'bolder' }}>{problem}</td>
+                            <td style={{ fontWeight: 'bolder' }}>{test === '' ? '-' : test}</td>
+                            <td style={{ fontWeight: 'bolder' }}>
+                              {testInput === '' ? '-' : testInput}
+                            </td>
+                            <td style={{ fontWeight: 'bolder' }}>{scale === '' ? '-' : scale}</td>
+                            <td style={{ fontWeight: 'bolder' }}>{value === '' ? '-' : value}</td>
                           </tr>
                         </tbody>
                       </>
@@ -121,11 +128,11 @@ const PatientShowDetails = ({ diagnosis, desc }) => {
                   <div style={{ margin: '1rem auto 1rem 1rem' }}>
                     <div className="row" style={{ marginTop: '1rem' }}>
                       <div className="col-md-2 d-flex align-items-center">
-                        <h5>Prescription:</h5>
+                        <h5>Notes:</h5>
                       </div>
                       <div className="col-md-10 d-flex align-items-center">
                         <div className="card" style={{ width: '87%', padding: '1rem 2rem' }}>
-                          <p style={{ margin: '0' }}>{elem.desc}</p>
+                          <p style={{ margin: '0' }}>{elem.desc === '' ? '-' : elem.desc}</p>
                         </div>
                       </div>
                     </div>
@@ -181,6 +188,11 @@ const PatientShowDetails = ({ diagnosis, desc }) => {
       </div> */}
     </div>
   )
+  // return (
+  //   <>
+  //     <h1>Gaurav</h1>
+  //   </>
+  // )
 }
 
 export default PatientShowDetails
