@@ -31,32 +31,6 @@ const createPatient = async (req, res) => {
   }
 };
 
-// const updatePatient = async (req, res) => {
-//   try {
-//     console.log(req.body)
-//     const getDiagnosis = await Patient.findById(req.params.id);
-//     const patientUpdate = await Patient.findByIdAndUpdate(
-//       req.params.id,
-//       {
-//         $push: {
-//           diagnosis: { ...req.body.diagnosis },
-//         },
-//       },
-//       {
-//         new: true,
-//       }
-//     );
-
-//     return res.status(200).json({
-//       success: true,
-//       message: "Patient Updated Successfully",
-//       data: patientUpdate,
-//     });
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
 const updatePatient = async (req, res) => {
   try {
     // console.log(req.body);
@@ -168,7 +142,9 @@ const searchPatient = async (req, res) => {
 
 // const getPatient = async (req, res) => {
 //   try {
-//     const patient = await Patient.find();
+//     const patient = await Patient.find({
+//       doctor_id:req.query.doctor_id
+//     });
 //     return res.status(200).json({
 //       success: true,
 //       message: "Patient Found Successfully",
@@ -204,101 +180,19 @@ const getPatientById = async (req, res) => {
 
 const getPatientByDoctorCount = async (req, res) => {
   try {
-    // console.log("req.params.doctor_id", req.params.doctor_id);
     const countDocument = await Patient.countDocuments({
       doctor_id: req.user.id,
     });
-    // const patient = await Patient.find({
-    //   doctor_id: req.user.id,
-    // });
-    //  console.log("patient", patient);
-    // const patient = await Patient.find({});
-    // if (!patient) {
-    //   return res.status(404).json({
-    //     success: false,
-    //     message: "Patient Not Found with this doctor",
-    //   });
-    // } else {
+
     return res.status(200).json({
       success: true,
       message: "Patient Found Successfully",
-      // data: patient,
       count: countDocument,
     });
-    // }
   } catch (error) {
     console.log(error);
   }
 };
-
-// const getPatientAppointment = async (req, res) => {
-//   try {
-//     // const startDate = new Date(req.query.startDate);
-//     // const endDate = new Date(req.query.endDate);
-//     let startDate = req.query.startDate
-//       ? new Date(req.query.startDate)
-//       : new Date();
-//     let endDate = req.query.endDate ? new Date(req.query.endDate) : new Date();
-
-//     startDate.setUTCHours(0, 0, 0, 0);
-
-//     endDate.setUTCHours(23, 59, 59, 999);
-//     console.log("req.query", req.query.startDate, endDate);
-//     const appointments = await Patient.find({
-//       nextApointmentDate: {
-//         $gte: startDate,
-//         $lte: endDate,
-//       },
-//     });
-
-//     // res.json(appointments);
-//     return res.status(200).json({
-//       success: true,
-//       message: "Patient Found Successfully",
-//       data: appointments,
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// };
-
-// const getPatientAppointmentCount = async (req, res) => {
-//   try {
-//     let startDate = req.query.startDate
-//       ? new Date(req.query.startDate)
-//       : new Date();
-//     let endDate = req.query.endDate ? new Date(req.query.endDate) : new Date();
-
-//     startDate.setHours(0, 0, 0, 0);
-
-//     endDate.setHours(23, 59, 59, 999);
-
-//     const countDocument = await Patient.countDocuments({
-//       nextApointmentDate: {
-//         $gte: startDate,
-//         $lte: endDate,
-//       },
-//     });
-//     // console.log("countDocument", countDocument);
-//     // const appointments = await Patient.find({
-//     //   nextApointmentDate: {
-//     //     $gte: startDate,
-//     //     $lte: endDate,
-//     //   },
-//     // });
-
-//     return res.status(200).json({
-//       success: true,
-//       message: "Patient Found Successfully",
-//       // data: appointments,
-//       count: countDocument,
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// };
 
 const getPatientAppointment = async (req, res) => {
   try {
@@ -371,6 +265,113 @@ const getPatientAppointment = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+// const getPatientByProblem = async (req, res) => {
+//   try {
+//     const { problem } = req.query;
+//     const patients = await Patient.find({
+//       $or: [
+//         {
+//           "diagnosis.diagnosData.problem": { $regex: problem },
+//         },
+//       ],
+//     });
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Patients found successfully",
+//       data: patients,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
+
+const getPatientByProblem = async (req, res) => {
+  try {
+    const { problem, doctor_id } = req.query;
+
+    let startDate = req.query.startDate
+      ? new Date(req.query.startDate)
+      : new Date();
+    let endDate = req.query.endDate ? new Date(req.query.endDate) : new Date();
+
+    startDate.setHours(0, 0, 0, 0);
+
+    endDate.setHours(23, 59, 59, 999);
+
+    const resultPerPage = 10;
+
+    const countDocument = await Patient.countDocuments({
+      doctor_id: doctor_id,
+      "diagnosis.diagnosData.problem": { $regex: problem },
+    });
+    let pageCount = Math.ceil(countDocument / resultPerPage);
+
+    const apiFeatures = new ApiFeatures(
+      Patient.find({
+        doctor_id: doctor_id,
+        "diagnosis.diagnosData.problem": { $regex: problem },
+        nextApointmentDate: {
+          $gte: startDate,
+          $lte: endDate,
+        },
+      }),
+      req.query
+    )
+      .reverse()
+      .pagination(resultPerPage);
+    const result = await apiFeatures.query;
+
+    if (result?.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Patient not found",
+      });
+    }
+
+    if (apiFeatures.getCurrentPage() > pageCount) {
+      apiFeatures.setCurrentPage(pageCount);
+      const updatedResult = await apiFeatures.pagination(resultPerPage).query;
+      return res.status(200).json({
+        success: true,
+        message: "Patient Found Successfully",
+        data: updatedResult,
+        pageCount: pageCount,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Patient Found Successfully",
+      pageCount: pageCount,
+      data: result,
+      count: countDocument,
+    });
+
+    // return res.status(200).json({
+    //   success: true,
+    //   message: "Patient Found Successfully",
+    //   data: appointments,
+    //   count: countDocument,
+
+    // const patients = await Patient.find({
+    //   doctor_id: doctor_id,
+    //   "diagnosis.diagnosData.problem": { $regex: problem },
+    // });
+
+    // res.status(200).json({
+    //   success: true,
+    //   message: "Patients found successfully",
+    //   data: patients,
+    // });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 module.exports = {
   createPatient,
   searchPatient,
@@ -378,5 +379,6 @@ module.exports = {
   getPatientById,
   getPatientByDoctorCount,
   getPatientAppointment,
+  getPatientByProblem,
   // getPatient,
 };

@@ -1,0 +1,1 @@
+{"version":3,"file":"static/css/9198.cd851192.chunk.css","mappings":"AAIA,8BAHE,eAMF,CAHA,aACE,uBAEF,CACA,eACE,eACF","sources":["views/dashboard/Dashboard.css"],"sourcesContent":[".ant-table-tbody {\n  background: white;\n}\n\n.patientCard {\n  overflow: auto !important;\n  background: white;\n}\n.MuiStack-root {\n  overflow: hidden;\n}\n"],"names":[],"sourceRoot":""}

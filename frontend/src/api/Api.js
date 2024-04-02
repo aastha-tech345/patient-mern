@@ -60,6 +60,7 @@ export const getOneFetch = async (url, id) => {
     return error
   }
 }
+
 export const postFetch = async (url, data) => {
   try {
     const token = localStorage.getItem('token')
@@ -106,6 +107,24 @@ export const postFetchContent = async (url, data) => {
     const response = await axios.post(url, data, {
       headers: {
         'Content-Type': 'application/json',
+      },
+    })
+    // if (response.status >= 200 && response.status < 300) {
+    return response.data
+    // } else {
+    //   throw new Error(`Request failed with status ${response.status}`)
+    // }
+  } catch (error) {
+    console.error('Error in postFetchContent:', error)
+    throw error
+  }
+}
+
+export const postFetchFile = async (url, data) => {
+  try {
+    const response = await axios.post(url, data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
       },
     })
     // if (response.status >= 200 && response.status < 300) {

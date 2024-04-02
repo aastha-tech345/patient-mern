@@ -9,6 +9,9 @@ const problemSchema = new mongoose.Schema({
       type: {
         type: String,
       },
+      inputType: {
+        type: String,
+      },
     },
   ],
   department_id: {
