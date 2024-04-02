@@ -2,12 +2,12 @@ const Problem = require("../models/problem.model");
 
 const createProblem = async (req, res) => {
   try {
-    const { name, type, department_id } = req.body;
+    const { name, type, inputType, department_id } = req.body;
 
     const existingProblem = await Problem.findOne({ department_id });
 
     if (existingProblem) {
-      existingProblem.problemName.push({ name, type });
+      existingProblem.problemName.push({ name, type, inputType });
       await existingProblem.save();
       return res.status(200).json({
         success: true,
@@ -16,7 +16,7 @@ const createProblem = async (req, res) => {
       });
     } else {
       const newProblem = await Problem.create({
-        problemName: [{ name, type }],
+        problemName: [{ name, type, inputType }],
         department_id,
       });
       return res.status(201).json({

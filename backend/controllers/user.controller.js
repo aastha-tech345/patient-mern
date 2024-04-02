@@ -1,5 +1,7 @@
 const User = require("../models/user.model");
 const sendToken = require("../utils/sendToken");
+const path = require("path");
+const fs = require("fs");
 
 const createUser = async (req, res) => {
   try {
@@ -78,8 +80,99 @@ const userUpdate = async (req, res) => {
     });
   }
 };
+
+const uploadPatientReport = (req, res) => {
+  // Check if file exists in the request
+  if (!req.file) {
+    return res.status(400).json({ error: "No file uploaded" });
+  }
+  const fileName = req.file.filename;
+  const filePath = req.file.path;
+  return res
+    .status(200)
+    .json({ message: "File uploaded successfully", fileName, filePath });
+};
+
+// const getPatientReport = (req, res) => {
+//   try {
+//     const { filename } = req.params;
+//     const filePath = path.join(process.cwd(), "public", "reports", filename);
+
+//     // Check if the file exists
+//     if (!fs.existsSync(filePath)) {
+//       return res.status(404).json({
+//         code: 404,
+//         message: "File not found",
+//       });
+//     }
+
+//     // Read the file content
+//     const fileStream = fs.createReadStream(filePath);
+
+//     // Set the appropriate content type for image files
+//     res.setHeader("Content-Type", "image/png"); // Adjust content type based on file type
+
+//     // Pipe the file content to the response
+//     fileStream.pipe(res);
+//   } catch (error) {
+//     console.error("Error in path finding:", error);
+//     return res.status(500).json({
+//       code: 500,
+//       message: "Internal Server Error",
+//       error: error.message,
+//     });
+//   }
+// };
+const getPatientReport = (req, res) => {
+  try {
+    const { filename } = req.params;
+    const filePath = path.join(process.cwd(), "public", "reports", filename);
+
+    // Check if the file exists
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({
+        code: 404,
+        message: "File not found",
+      });
+    }
+
+    // Determine the file extension
+    const extension = path.extname(filePath);
+    let contentType = "application/octet-stream"; // Default content type
+
+    // Set the appropriate content type based on file extension
+    if (extension === ".png") {
+      contentType = "image/png";
+    } else if (extension === ".jpg" || extension === ".jpeg") {
+      contentType = "image/jpeg";
+    } else if (extension === ".gif") {
+      contentType = "image/gif";
+    } else if (extension === ".pdf") {
+      contentType = "application/pdf";
+    }
+
+    // Read the file content
+    const fileStream = fs.createReadStream(filePath);
+
+    // Set the appropriate content type for the file
+    res.setHeader("Content-Type", contentType);
+
+    // Pipe the file content to the response
+    fileStream.pipe(res);
+  } catch (error) {
+    console.error("Error in path finding:", error);
+    return res.status(500).json({
+      code: 500,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createUser,
   loginUser,
   userUpdate,
+  uploadPatientReport,
+  getPatientReport,
 };

@@ -26,6 +26,11 @@ const _nav = [
     name: 'Patients',
     to: '/patientPage',
   },
+  {
+    component: CNavItem,
+    name: 'Report',
+    to: '/report',
+  },
   // {
   //   component: CNavItem,
   //   name: 'Login',

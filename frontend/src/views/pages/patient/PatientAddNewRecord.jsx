@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { getFetch, putFetchData } from 'src/api/Api'
+import { getFetch, postFetchFile, putFetchData } from 'src/api/Api'
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import SpinnerOverlay from 'src/views/publicItems/ SpinnerOverlay'
 // import { API_URL } from 'src/constant'
 
 const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, setIsDetailed }) => {
@@ -27,6 +28,7 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
     desc: '',
   })
   const [diagnosis, setDiagnosis] = useState([])
+  let [fileUploadingSpinner, setfileUploadingSpinner] = useState(false)
   const [problems, setProblems] = useState([])
   const [tests, setTests] = useState([])
   const [scales, setScales] = useState([])
@@ -35,31 +37,22 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
     fetchProblems()
   }, [])
 
-  // const fetchProblems = async () => {
-  //   try {
-  //     const problems = await getFetch(`${API_URL}/api/problem/${patientRecord?.department_id?._id}`)
-  //     setProblems(problems?.data?.data[0]?.problemName)
-  //   } catch (error) {
-  //     console.error('Error fetching problems:', error)
-  //   }
-  // }
   const fetchProblems = async () => {
     try {
       const problemsResponse = await getFetch(
         `${API_URL}/api/problem/${patientRecord?.department_id?._id}`,
       )
       const problemsData = problemsResponse?.data?.data[0]
-
       if (problemsData) {
         const problemFilter = problemsData.problemName
           .filter((item) => item.type === 'problem')
           .map((problem) => problem.name)
-        const testFilter = problemsData.problemName
-          .filter((item) => item.type === 'test')
-          .map((test) => test.name)
         const scaleFilter = problemsData.problemName
           .filter((item) => item.type === 'scale')
           .map((scale) => scale.name)
+        const testFilter = problemsData.problemName
+          .filter((item) => item.type === 'test')
+          .map(({ name, inputType }) => ({ name: name, inputType }))
         setTests(testFilter)
         setScales(scaleFilter)
         setProblems(problemFilter)
@@ -68,45 +61,6 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
       console.error('Error fetching problems:', error)
     }
   }
-
-  // const handleCheckboxChange = (problemName, checked) => {
-  //   console.log('dateHere', Date.now())
-  //   if (checked) {
-  //     setDiagnosis((prevDiagnosis) => [
-  //       ...prevDiagnosis,
-  //       {
-  //         problem: {
-  //           name: problemName,
-  //           scale1: '',
-  //           scale2: '',
-  //           scale3: '',
-  //         },
-  //         date: Date.now(),
-  //       },
-  //     ])
-  //   } else {
-  //     setDiagnosis((prevDiagnosis) =>
-  //       prevDiagnosis.filter((item) => item.problem.name !== problemName),
-  //     )
-  //   }
-  // }
-
-  // const handleInputChange = (problemName, key, value) => {
-  //   setDiagnosis((prevDiagnosis) =>
-  //     prevDiagnosis.map((item) => {
-  //       if (item.problem.name === problemName) {
-  //         return {
-  //           ...item,
-  //           problem: {
-  //             ...item.problem,
-  //             [key]: value,
-  //           },
-  //         }
-  //       }
-  //       return item
-  //     }),
-  //   )
-  // }
 
   const handleStartingDateChange = (date) => {
     setStartingDate(date)
@@ -129,27 +83,43 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
     }
 
     for (const data of inputs) {
-      if (data.test !== '' && data.testInput === '') {
+      if (data?.test !== '' && data?.testInput === '') {
         toast.warning('Please give input for selected test')
         return // Stop further execution
       }
-      if (data.scale !== '' && data.value === '') {
+      if (data?.scale !== '' && data?.value === '') {
         toast.warning('Please give input for selected scale')
         return // Stop further execution
       }
       console.log('data', data)
     }
+    // toast.warning('Uploading Files and Reports')z
+    setfileUploadingSpinner(true)
     try {
-      // let dataP = []
-      // diagnosis?.map((elem) => {
-      //   dataP.push(elem.problem)
-      // })
-      // const updatedFormData = {
-      //   ...formData,
-      //   desc: formData.desc,
-      //   diagnosis: [diagnosis],
-      //   nextApointmentDate: startingDate,
-      // }
+      await Promise.all(
+        // Use Promise.all to wait for all uploads to finish
+        inputs.map(async (data, index) => {
+          if (typeof data.testInput !== 'string') {
+            const file = data.testInput
+            const formData = new FormData()
+            formData.append('file', file)
+            const response = await postFetchFile(
+              `${API_URL}/api/user/uploadPatientReport`,
+              formData,
+            )
+            if (response) {
+              inputs[index].testInput = response?.fileName
+            }
+          }
+        }),
+      )
+      // toast.dismiss()
+      setfileUploadingSpinner(false) // Set loading to false when all uploads are done
+    } catch (error) {
+      setfileUploadingSpinner(false) // Set loading to false in case of an error
+      console.error('Error submitting data:', error)
+    }
+    try {
       const updatedFormData = {
         ...formData,
         diagnosis: [
@@ -217,6 +187,13 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
     updatedInputs[index][name] = value
     setInputs(updatedInputs)
   }
+  const handleFileInputChange = (index, event) => {
+    const { name, files } = event.target
+    const updatedInputs = [...inputs]
+    updatedInputs[index][name] = files[0]
+    setInputs(updatedInputs)
+    console.log('Guarv', inputs)
+  }
 
   const handleAddInput = () => {
     setInputs([...inputs, { problem: '', test: '', testInput: '', scale: '', value: '' }])
@@ -236,227 +213,181 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
     }
   }, [handleRemoveInput, handleAddInput, handleInputChange])
   return (
-    <div style={{ margin: '1rem auto 1rem 1rem' }}>
-      <div style={{ margin: '1rem auto 1rem 0' }}>
-        <h4>Diagnosis: ({patientRecord?.department_id?.departmentName})</h4>
-        {/* <div className="row">
-          <div className="row">
-            <div className="col-md-4 alignCenterAndMiddle" style={{ border: '1px solid black' }}>
-              <h5 style={{ marginTop: '0.5rem' }}>Problems</h5>
-            </div>
-            <div className="col-md-8">
-              <div className="row" style={{ border: '1px solid black' }}>
-                <div className="col-md-4 alignCenterAndMiddle">
-                  <h5 style={{ marginTop: '0.5rem' }}>VAS</h5>
+    <>
+      {fileUploadingSpinner && <SpinnerOverlay loading={fileUploadingSpinner} />}
+      <div style={{ margin: '1rem auto 1rem 1rem' }}>
+        <div style={{ margin: '1rem auto 1rem 0' }}>
+          <h4>Diagnosis: ({patientRecord?.department_id?.departmentName})</h4>
+        </div>
+        <form onSubmit={handleSubmit}>
+          <form className="mb-2">
+            {inputs?.map((input, index) => (
+              <div key={index} className="row mt-1 mb-2">
+                <div className="col-md-2">
+                  <label>
+                    <select
+                      className="form-control "
+                      style={{ width: '10rem', appearance: 'auto', height: '38px' }}
+                      name="problem"
+                      value={input.problem}
+                      onChange={(event) => handleInputChange(index, event)}
+                    >
+                      <option value="">Chief complaint</option>
+                      {problems?.map((problem, problemIndex) => (
+                        <option key={problemIndex} value={problem}>
+                          {problem}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
                 </div>
-                <div className="col-md-4 alignCenterAndMiddle">
-                  <h5 style={{ marginTop: '0.5rem' }}>ODI</h5>
+                <div className="col-md-2">
+                  <label>
+                    <select
+                      className="form-control "
+                      style={{ width: '10rem', appearance: 'auto', height: '38px' }}
+                      name="test"
+                      value={input.test}
+                      onChange={(event) => handleInputChange(index, event)}
+                    >
+                      <option value="">Test</option>
+                      {tests?.map((test, testIndex) => (
+                        <option key={testIndex} value={test.name}>
+                          {test.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
                 </div>
-                <div className="col-md-4 alignCenterAndMiddle">
-                  <h5 style={{ marginTop: '0.5rem' }}>MPSI</h5>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div> */}
-      </div>
-      <form onSubmit={handleSubmit}>
-        {/* {problems.map((problem, index) => (
-          <div key={index} style={{ alignItems: 'center', marginBottom: '10px' }}>
-            <div className="row">
-              <div className="col-md-4">
-                <input
-                  type="checkbox"
-                  value={problem.name}
-                  onChange={(e) => handleCheckboxChange(problem.name, e.target.checked)}
-                />
-                <label>&nbsp;{problem.name}</label>
-              </div>
-              <div className="col-sm-8">
-                <div className="row">
-                  <div className="col-sm-4">
-                    <input
-                      className="form-control"
-                      type="text"
-                      placeholder="Scale 1"
-                      value={
-                        diagnosis.find((item) => item.problem.name === problem.name)?.problem
-                          .scale1 || ''
+                {input?.test === '' ? (
+                  ''
+                ) : (
+                  <div className="col-md-2">
+                    {tests?.map((test, testIndex) => {
+                      if (test.name === input.test) {
+                        if (test?.inputType === 'text') {
+                          return (
+                            <label key={testIndex}>
+                              <input
+                                className="form-control"
+                                style={{ width: '10rem' }}
+                                placeholder="Enter test Value"
+                                type="text"
+                                name="testInput"
+                                value={input.testInput}
+                                onChange={(event) => handleInputChange(index, event)}
+                              />
+                            </label>
+                          )
+                        } else if (test?.inputType === 'file') {
+                          return (
+                            <label key={testIndex}>
+                              <input
+                                className="form-control"
+                                style={{ width: '10rem' }}
+                                type="file"
+                                name="testInput"
+                                onChange={(event) => handleFileInputChange(index, event)}
+                              />
+                            </label>
+                          )
+                        }
                       }
-                      onChange={(e) => handleInputChange(problem.name, 'scale1', e.target.value)}
-                    />
+                      return null
+                    })}
                   </div>
-                  <div className="col-sm-4">
-                    <input
-                      className="form-control"
-                      type="text"
-                      placeholder="Scale 2"
-                      value={
-                        diagnosis.find((item) => item.problem.name === problem.name)?.problem
-                          .scale2 || ''
-                      }
-                      onChange={(e) => handleInputChange(problem.name, 'scale2', e.target.value)}
-                    />
-                  </div>
-                  <div className="col-sm-4">
-                    <input
-                      className="form-control"
-                      type="text"
-                      placeholder="Scale 3"
-                      value={
-                        diagnosis.find((item) => item.problem.name === problem.name)?.problem
-                          .scale3 || ''
-                      }
-                      onChange={(e) => handleInputChange(problem.name, 'scale3', e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))} */}
-        <form className="mb-2">
-          {inputs.map((input, index) => (
-            <div key={index} className="row mt-1 mb-2">
-              <div className="col-md-2">
-                <label>
-                  <select
-                    className="form-control "
-                    style={{ width: '10rem', appearance: 'auto', height: '38px' }}
-                    name="problem"
-                    value={input.problem}
-                    onChange={(event) => handleInputChange(index, event)}
-                  >
-                    <option value="">Chief complaint</option>
-                    {problems.map((problem, problemIndex) => (
-                      <option key={problemIndex} value={problem}>
-                        {problem}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-              <div className="col-md-2">
-                <label>
-                  <select
-                    className="form-control "
-                    style={{ width: '10rem', appearance: 'auto', height: '38px' }}
-                    name="test"
-                    value={input.test}
-                    onChange={(event) => handleInputChange(index, event)}
-                  >
-                    <option value="">Test</option>
-                    {tests.map((test, testIndex) => (
-                      <option key={testIndex} value={test}>
-                        {test}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-              <div className="col-md-2">
-                <label>
-                  <input
-                    className="form-control "
-                    style={{ width: '10rem' }}
-                    placeholder="Enter test Value"
-                    type="text"
-                    name="testInput"
-                    value={input.testInput}
-                    onChange={(event) => handleInputChange(index, event)}
-                  />
-                </label>
-              </div>
-              <div className="col-md-2">
-                <label>
-                  <select
-                    className="form-control "
-                    style={{ width: '10rem', appearance: 'auto', height: '38px' }}
-                    name="scale"
-                    value={input.scale}
-                    onChange={(event) => handleInputChange(index, event)}
-                  >
-                    <option value="">Select Scale</option>
-                    {scales.map((scale, scaleIndex) => (
-                      <option key={scaleIndex} value={scale}>
-                        {scale}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-              <div className="col-md-2">
-                <label>
-                  <input
-                    className="form-control "
-                    style={{ width: '10rem', appearance: 'auto' }}
-                    placeholder="Enter Scale Value"
-                    type="text"
-                    name="value"
-                    value={input.value}
-                    onChange={(event) => handleInputChange(index, event)}
-                  />
-                </label>
-              </div>
-              <div className="col-md-2 d-flex justify-content-center">
-                {removeAndAddInput && (
-                  <button
-                    className="btn btn-danger"
-                    type="button"
-                    onClick={() => handleRemoveInput(index)}
-                  >
-                    Remove
-                  </button>
                 )}
+                <div className="col-md-2">
+                  <label>
+                    <select
+                      className="form-control "
+                      style={{ width: '10rem', appearance: 'auto', height: '38px' }}
+                      name="scale"
+                      value={input.scale}
+                      onChange={(event) => handleInputChange(index, event)}
+                    >
+                      <option value="">Select Scale</option>
+                      {scales?.map((scale, scaleIndex) => (
+                        <option key={scaleIndex} value={scale}>
+                          {scale}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+                <div className="col-md-2">
+                  <label>
+                    <input
+                      className="form-control "
+                      style={{ width: '10rem', appearance: 'auto' }}
+                      placeholder="Enter Scale Value"
+                      type="text"
+                      name="value"
+                      value={input.value}
+                      onChange={(event) => handleInputChange(index, event)}
+                    />
+                  </label>
+                </div>
+                <div className="col-md-2 d-flex justify-content-center">
+                  {removeAndAddInput && (
+                    <button
+                      className="btn btn-danger"
+                      type="button"
+                      onClick={() => handleRemoveInput(index)}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
               </div>
+            ))}
+            <div className="d-flex justify-content-end">
+              <button className="btn btn-primary me-4" type="button" onClick={handleAddInput}>
+                Add More
+              </button>
             </div>
-          ))}
-          <div className="d-flex justify-content-end">
-            <button className="btn btn-primary me-4" type="button" onClick={handleAddInput}>
-              Add More
+          </form>
+          <div>
+            <textarea
+              rows={4}
+              className="form-control col-12"
+              placeholder="Notes (Optional)"
+              name="desc"
+              value={desc}
+              onChange={(e) => setDesc(e.target.value)}
+            ></textarea>
+          </div>
+
+          <div className="d-flex mt-2">
+            <div className="w-auto">
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DemoContainer components={['DateTimePicker']}>
+                  <DateTimePicker
+                    label="Next Appointment Date"
+                    value={startingDate}
+                    onChange={handleStartingDateChange}
+                  />
+                </DemoContainer>
+              </LocalizationProvider>
+            </div>
+          </div>
+          <div className="text-end">
+            <button type="submit" className="btn btn-primary mt-4" style={{ width: '10rem' }}>
+              Submit
+            </button>
+            <button
+              type="submit"
+              className="btn btn-danger mt-4 ms-2"
+              style={{ width: '10rem' }}
+              onClick={() => handleClose()}
+            >
+              Close
             </button>
           </div>
         </form>
-        <div>
-          <textarea
-            rows={4}
-            className="form-control col-12"
-            placeholder="Notes : (Optional)"
-            name="desc"
-            value={desc}
-            onChange={(e) => setDesc(e.target.value)}
-          ></textarea>
-        </div>
-
-        <div className="d-flex mt-2">
-          <div className="w-auto">
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DemoContainer components={['DateTimePicker']}>
-                <DateTimePicker
-                  label="Next Appointment Date"
-                  value={startingDate}
-                  onChange={handleStartingDateChange}
-                />
-              </DemoContainer>
-            </LocalizationProvider>
-          </div>
-        </div>
-        <div className="text-end">
-          <button type="submit" className="btn btn-primary mt-4" style={{ width: '10rem' }}>
-            Submit
-          </button>
-          <button
-            type="submit"
-            className="btn btn-danger mt-4 ms-2"
-            style={{ width: '10rem' }}
-            onClick={() => handleClose()}
-          >
-            Close
-          </button>
-        </div>
-      </form>
-      <ToastContainer />
-    </div>
+        <ToastContainer />
+      </div>
+    </>
   )
 }
 

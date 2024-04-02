@@ -31,7 +31,8 @@ const WidgetsDropdown = ({ numberOfPatient, appointmentDataList, filteredAppoint
           color="primary"
           value={
             <>
-              Patient <div className="fs-6 fw-normal">Number of Patients : {numberOfPatient}</div>
+              Patient{' '}
+              <div className="fs-6 fw-normal">Number of Patients : {numberOfPatient || 0}</div>
             </>
           }
           onClick={() => navigate('/patientPage')}

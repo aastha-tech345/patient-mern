@@ -6,8 +6,8 @@ const {
 const { verifyToken } = require("../utils/verifyToken");
 
 const problemRoutes = express.Router();
-
-problemRoutes.post("/create", verifyToken, createProblem);
+// , verifyToken
+problemRoutes.post("/create", createProblem);
 problemRoutes.get("/:id", verifyToken, getProblem);
 
 module.exports = problemRoutes;

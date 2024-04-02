@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import '../../dashboard/Dashboard.css'
+import { faL } from '@fortawesome/free-solid-svg-icons'
+import axios from 'axios'
+
 const PatientShowDetails = ({ diagnosis, desc }) => {
-  // console.log('DateBuDat', Date())
-  console.log('Guarv', diagnosis)
+  let url = process.env.REACT_APP_API_URL
   PatientShowDetails.propTypes = {
     diagnosis: PropTypes.func.isRequired,
     desc: PropTypes.func.isRequired,
@@ -16,6 +18,39 @@ const PatientShowDetails = ({ diagnosis, desc }) => {
       setReversedDiagnosis([...diagnosis].reverse())
     }
   }, [diagnosis])
+
+  const isFile = (value) => {
+    const regex = /^\d{13}_/
+
+    if (regex.test(value)) {
+      return true
+    } else {
+      return false
+    }
+  }
+  //no pdf
+  const showReportHandler = async (filename) => {
+    try {
+      // Fetch the image data from the server
+      const response = await axios.get(`${url}/api/user/getPatientReport/${filename}`, {
+        responseType: 'blob', // Treat response data as blob
+      })
+
+      // Create a Blob object from the response data
+      const blob = new Blob([response.data], { type: response.headers['content-type'] })
+
+      // Generate a URL for the Blob
+      const blobUrl = URL.createObjectURL(blob)
+
+      // Open the URL in a new tab
+      window.open(blobUrl)
+    } catch (error) {
+      console.error('Error fetching image:', error)
+    }
+  }
+
+  /// opening pdf
+
   return (
     <div
       style={{
@@ -28,27 +63,6 @@ const PatientShowDetails = ({ diagnosis, desc }) => {
       {reversedDiagnosis?.map((elem) => {
         const date = elem?.date
 
-        // let dateData = Number(date)
-        // const timestamp = dateData
-        // const datee = new Date(timestamp)
-
-        // // Adjusting for Indian time zone (UTC+5:30)
-        // datee.setHours(datee.getHours() + 5)
-        // datee.setMinutes(datee.getMinutes() + 30)
-
-        // const hours = datee.getHours()
-        // const am_pm = hours >= 12 ? 'PM' : 'AM'
-        // const formattedHours = hours % 12 || 12 // Convert 24-hour to 12-hour format
-
-        // const formattedDate = `${datee.getDate().toString().padStart(2, '0')}-${(
-        //   datee.getMonth() + 1
-        // )
-        //   .toString()
-        //   .padStart(2, '0')}-${datee.getFullYear()} ${formattedHours
-        //   .toString()
-        //   .padStart(2, '0')}:${datee.getMinutes().toString().padStart(2, '0')} ${am_pm}`
-
-        // console.log(formattedDate)
         const datee = new Date(date)
 
         const options = {
@@ -105,7 +119,7 @@ const PatientShowDetails = ({ diagnosis, desc }) => {
                       </th>
                     </tr>
                   </thead>
-                  {elem.diagnosData.map((element) => {
+                  {elem?.diagnosData?.map((element) => {
                     let { problem, scale, test, testInput, value } = element
                     return (
                       <>
@@ -114,7 +128,20 @@ const PatientShowDetails = ({ diagnosis, desc }) => {
                             <td style={{ fontWeight: 'bolder' }}>{problem}</td>
                             <td style={{ fontWeight: 'bolder' }}>{test === '' ? '-' : test}</td>
                             <td style={{ fontWeight: 'bolder' }}>
-                              {testInput === '' ? '-' : testInput}
+                              {testInput === '' ? (
+                                '-'
+                              ) : isFile(testInput) ? (
+                                <>
+                                  <button
+                                    className="btn btn-light"
+                                    onClick={() => showReportHandler(testInput)}
+                                  >
+                                    Show Report
+                                  </button>
+                                </>
+                              ) : (
+                                testInput
+                              )}
                             </td>
                             <td style={{ fontWeight: 'bolder' }}>{scale === '' ? '-' : scale}</td>
                             <td style={{ fontWeight: 'bolder' }}>{value === '' ? '-' : value}</td>
