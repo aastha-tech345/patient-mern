@@ -13,9 +13,6 @@ import 'react-toastify/dist/ReactToastify.css'
 import Loader from '../loader/Loader'
 import AddPatientLoader from '../loader/AddPatientLoader'
 import { useLocation } from 'react-router-dom'
-import ClipLoader from 'react-spinners/ClipLoader'
-import { BarLoader } from 'react-spinners'
-// import { API_URL } from 'src/constant'
 import SpinnerOverlay from 'src/views/publicItems/ SpinnerOverlay'
 
 const PatientPage = () => {
@@ -230,14 +227,17 @@ const PatientPage = () => {
       }
       if (data.message == 'phone Already Exists') {
         toast.warning('phone Already Exists')
+        setfileUploadingSpinner(false) // Set loading to false in case of an error
       }
       if (data.message == 'Crn Already Exists') {
         toast.warning('Crn Already Exists')
+        setfileUploadingSpinner(false) // Set loading to false in case of an error
       }
       console.log('data', data)
       setSearch(data?.data?.crn)
     } catch (error) {
       toast.warning('Something went wrong')
+      setfileUploadingSpinner(false) // Set loading to false in case of an error
 
       console.error('Error submitting data:', error)
     }
@@ -545,7 +545,7 @@ const PatientPage = () => {
                                     value={input.test}
                                     onChange={(event) => handleInputChange(index, event)}
                                   >
-                                    <option value="">Test</option>
+                                    <option value="">Select Test</option>
                                     {tests.map((test, testIndex) => (
                                       <option key={testIndex} value={test.name}>
                                         {test.name}

@@ -250,7 +250,7 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
                       value={input.test}
                       onChange={(event) => handleInputChange(index, event)}
                     >
-                      <option value="">Test</option>
+                      <option value="">Select Test</option>
                       {tests?.map((test, testIndex) => (
                         <option key={testIndex} value={test.name}>
                           {test.name}
