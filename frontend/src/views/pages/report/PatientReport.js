@@ -196,7 +196,11 @@ const PatientReport = () => {
     <>
       <div className="row">
         <div className="col-sm-3 mt-3">
-          <select onChange={(e) => handlSetPoblem(e.target.value)} className="form-control">
+          <select
+            onChange={(e) => handlSetPoblem(e.target.value)}
+            className="form-control"
+            style={{ appearance: 'auto' }}
+          >
             <option>select</option>
             {problems.map((elem) => {
               return (
@@ -211,7 +215,7 @@ const PatientReport = () => {
         {/* date filed start */}
         <div className="col-sm-9">
           <div className="row justify-content-center">
-            <div className="col-sm-4">
+            <div className="col-sm-5">
               {' '}
               <div>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -233,7 +237,7 @@ const PatientReport = () => {
                 </LocalizationProvider>
               </div>
             </div>
-            <div className="col-sm-4 ">
+            <div className="col-sm-5">
               {' '}
               <div>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -252,19 +256,15 @@ const PatientReport = () => {
                 </LocalizationProvider>
               </div>
             </div>
+          </div>
+          <div style={{ textAlign: '-webkit-right', paddingRight: '101px' }}>
             <div className="col-sm-2 d-flex  mb-3">
-              {/* <div className=""> */}
-              {/* <div> */}
               <button className="btn btn-primary mt-3 me-2" onClick={dateSubmit}>
                 Search
               </button>
-              {/* </div> */}
-              {/* <div> */}
               <button className="btn btn-primary mt-3 " onClick={dateReset}>
                 Reset
               </button>
-              {/* </div> */}
-              {/* </div> */}
             </div>
           </div>
         </div>
