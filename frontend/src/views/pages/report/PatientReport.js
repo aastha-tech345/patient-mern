@@ -177,6 +177,7 @@ const PatientReport = () => {
     setStartingDate(todayDate)
     setEndDate(todayDate)
     setUpdateState(!updateState)
+    setProblemSet('Select Problem')
   }
 
   // useEffect(() => {
@@ -200,12 +201,15 @@ const PatientReport = () => {
             onChange={(e) => handlSetPoblem(e.target.value)}
             className="form-control"
             style={{ appearance: 'auto' }}
+            value={problemSet}
           >
-            <option>select</option>
+            <option>Select Problem</option>
             {problems.map((elem) => {
               return (
                 <>
-                  <option value={elem}>{elem}</option>
+                  <option key={elem} value={elem}>
+                    {elem}
+                  </option>
                 </>
               )
             })}

@@ -313,7 +313,7 @@ const getPatientByProblem = async (req, res) => {
       Patient.find({
         doctor_id: doctor_id,
         "diagnosis.diagnosData.problem": { $regex: problem },
-        nextApointmentDate: {
+        "diagnosis.date": {
           $gte: startDate,
           $lte: endDate,
         },

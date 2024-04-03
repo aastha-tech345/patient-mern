@@ -227,14 +227,17 @@ const PatientPage = () => {
       }
       if (data.message == 'phone Already Exists') {
         toast.warning('phone Already Exists')
+        setfileUploadingSpinner(false) // Set loading to false in case of an error
       }
       if (data.message == 'Crn Already Exists') {
         toast.warning('Crn Already Exists')
+        setfileUploadingSpinner(false) // Set loading to false in case of an error
       }
       console.log('data', data)
       setSearch(data?.data?.crn)
     } catch (error) {
       toast.warning('Something went wrong')
+      setfileUploadingSpinner(false) // Set loading to false in case of an error
 
       console.error('Error submitting data:', error)
     }

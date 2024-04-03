@@ -65,7 +65,9 @@ const PatientInfoData = ({ patientSearch, getSearchByPatient }) => {
                     </span>
                     <span style={{ display: 'flex', marginLeft: '2rem' }}>
                       <h6>Next Appointment Date. &nbsp;</h6>{' '}
-                      <h6 style={{ fontWeight: 'normal' }}>{formattedDate}</h6>
+                      <h6 style={{ fontWeight: 'normal' }}>
+                        {nextApointmentDate ? formattedDate : '-'}
+                      </h6>
                     </span>
                     {/* <p className="card-text">Phone No. {phone}</p>
                     <p className="card-text" style={{ marginLeft: '3rem' }}>
