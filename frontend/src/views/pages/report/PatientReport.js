@@ -15,7 +15,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import dayjs from 'dayjs'
 import { DateTimePicker } from '@mui/x-date-pickers'
-
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 const PatientReport = () => {
   let API_URL = process.env.REACT_APP_API_URL
   // const API_URL = process.env.API_URL
@@ -149,14 +150,14 @@ const PatientReport = () => {
 
   const handleStartingDateChange = (date) => {
     if (date > new Date()) {
-      alert('Stating date not be in the future')
+      toast.warning('Stating date not be in the future')
       return setStartingDate(todayDate)
     }
     setStartingDate(date)
   }
   const handleEndDateChange = (date) => {
     if (date > new Date()) {
-      alert('End date not be in the future')
+      toast.warning('End date not be in the future')
       return setEndDate(todayDate)
     }
     setEndDate(date)
@@ -164,7 +165,7 @@ const PatientReport = () => {
 
   const dateSubmit = async () => {
     if (endDate.isBefore(startingDate, 'day')) {
-      alert('End date cannot be earlier than start date')
+      toast.warning('End date cannot be earlier than start date')
       return
     }
     const date = new Date(startingDate)
@@ -299,6 +300,7 @@ const PatientReport = () => {
           <Pagination count={pageCount} page={page} onChange={handlePageChange} />
         </Stack>
       </div>
+      <ToastContainer />
     </>
   )
 }

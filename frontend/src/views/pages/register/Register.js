@@ -17,6 +17,8 @@ import { cilLockLocked, cilUser } from '@coreui/icons'
 import { BiChevronDown } from 'react-icons/bi' // Assuming you have BiChevronDown from react-icons for dropdown icon
 import { getFetch, postFetchData } from 'src/api/Api'
 import { useNavigate } from 'react-router-dom'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 const Register = () => {
   const navigate = useNavigate()
   const API_URL = process.env.REACT_APP_API_URL
@@ -38,11 +40,19 @@ const Register = () => {
       e.preventDefault()
       console.log('data', data)
       const res = await postFetchData(`${API_URL}/api/user/create`, data)
-      console.log('user creation', res.success)
+      console.log('user creation', res?.response?.data?.success)
+
+      if (res?.response?.data?.success === false) {
+        return toast.warning(res?.response?.data?.message)
+      }
 
       if (res.success === true) {
-        alert('Doctor Created Successfully')
-        navigate('/')
+        toast.success('Doctor Created Successfully')
+        setTimeout(() => {
+          navigate('/')
+        }, 2000)
+      } else {
+        toast.warning('Something went wrong')
       }
     } catch (error) {
       console.log(error)
@@ -139,6 +149,7 @@ const Register = () => {
           </CCol>
         </CRow>
       </CContainer>
+      <ToastContainer />
     </div>
   )
 }
