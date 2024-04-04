@@ -312,7 +312,7 @@ const getPatientByProblem = async (req, res) => {
     const apiFeatures = new ApiFeatures(
       Patient.find({
         doctor_id: doctor_id,
-        "diagnosis.diagnosData.problem": { $regex: problem },
+        "diagnosis.diagnosData.problem": problem,
         "diagnosis.date": {
           $gte: startDate,
           $lte: endDate,

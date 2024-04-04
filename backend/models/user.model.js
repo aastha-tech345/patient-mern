@@ -14,13 +14,13 @@ const userSchema = new mongoose.Schema({
   },
   department_id: {
     type: mongoose.Schema.Types.ObjectId,
-    ref:"Department"
+    ref: "Department",
   },
   userType: {
     type: String,
+    default: "doctor",
   },
 });
-
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {

@@ -79,10 +79,10 @@ const PatientReport = () => {
   }
 
   const columns = [
-    // {
-    //   title: 'CR no',
-    //   dataIndex: 'crn',
-    // },
+    {
+      title: 'CR no',
+      dataIndex: 'crn',
+    },
     // {
     //   title: 'Phone no',
     //   dataIndex: 'phone',
@@ -99,11 +99,11 @@ const PatientReport = () => {
       dataIndex: 'age',
       sorter: (a, b) => a.age - b.age,
     },
-    // {
-    //   title: 'Sex',
-    //   dataIndex: 'sex',
-    //   sorter: (a, b) => a.sex.localeCompare(b.sex),
-    // },
+    {
+      title: 'Sex',
+      dataIndex: 'sex',
+      sorter: (a, b) => a.sex.localeCompare(b.sex),
+    },
     // {
     //   title: 'Appointment',
     //   dataIndex: 'nextApointmentDate',
@@ -148,14 +148,22 @@ const PatientReport = () => {
   }
 
   const handleStartingDateChange = (date) => {
+    if (date > new Date()) {
+      alert('Stating date not be in the future')
+      return setStartingDate(todayDate)
+    }
     setStartingDate(date)
   }
   const handleEndDateChange = (date) => {
+    if (date > new Date()) {
+      alert('End date not be in the future')
+      return setEndDate(todayDate)
+    }
     setEndDate(date)
   }
 
   const dateSubmit = async () => {
-    if (endDate.isBefore(startingDate)) {
+    if (endDate.isBefore(startingDate, 'day')) {
       alert('End date cannot be earlier than start date')
       return
     }
@@ -196,14 +204,14 @@ const PatientReport = () => {
   return (
     <>
       <div className="row">
-        <div className="col-sm-3 mt-3">
+        <div className="col-sm-3 mt-2">
           <select
             onChange={(e) => handlSetPoblem(e.target.value)}
             className="form-control"
-            style={{ appearance: 'auto' }}
+            style={{ appearance: 'auto', height: '50px', width: '100%' }}
             value={problemSet}
           >
-            <option>Select Problem</option>
+            <option>Chief Complaint</option>
             {problems.map((elem) => {
               return (
                 <>

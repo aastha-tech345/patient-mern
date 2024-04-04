@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   CButton,
   CCard,
@@ -14,7 +14,54 @@ import {
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
 
+import { BiChevronDown } from 'react-icons/bi' // Assuming you have BiChevronDown from react-icons for dropdown icon
+import { getFetch, postFetchData } from 'src/api/Api'
+import { useNavigate } from 'react-router-dom'
 const Register = () => {
+  const navigate = useNavigate()
+  const API_URL = process.env.REACT_APP_API_URL
+  const [department, setDepartment] = useState([])
+  const [data, setData] = React.useState({
+    name: '',
+    email: '',
+    password: '',
+    department_id: '',
+  })
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setData({ ...data, [name]: value })
+  }
+
+  const handleSubmit = async (e) => {
+    try {
+      e.preventDefault()
+      console.log('data', data)
+      const res = await postFetchData(`${API_URL}/api/user/create`, data)
+      console.log('user creation', res.success)
+
+      if (res.success === true) {
+        alert('Doctor Created Successfully')
+        navigate('/')
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const getAllDepartments = async () => {
+    try {
+      const res = await getFetch(`${API_URL}/api/department/`)
+      console.log('res', res.data.data)
+      setDepartment(res.data.data)
+    } catch (error) {
+      console.log('error')
+    }
+  }
+
+  useEffect(() => {
+    getAllDepartments()
+  }, [])
   return (
     <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
       <CContainer>
@@ -29,11 +76,23 @@ const Register = () => {
                     <CInputGroupText>
                       <CIcon icon={cilUser} />
                     </CInputGroupText>
-                    <CFormInput placeholder="Username" autoComplete="username" />
+                    <CFormInput
+                      placeholder="Username"
+                      autoComplete="username"
+                      name="name"
+                      value={data.name}
+                      onChange={handleChange}
+                    />
                   </CInputGroup>
                   <CInputGroup className="mb-3">
                     <CInputGroupText>@</CInputGroupText>
-                    <CFormInput placeholder="Email" autoComplete="email" />
+                    <CFormInput
+                      placeholder="Email"
+                      autoComplete="email"
+                      name="email"
+                      value={data.email}
+                      onChange={handleChange}
+                    />
                   </CInputGroup>
                   <CInputGroup className="mb-3">
                     <CInputGroupText>
@@ -43,20 +102,36 @@ const Register = () => {
                       type="password"
                       placeholder="Password"
                       autoComplete="new-password"
+                      name="password"
+                      value={data.password}
+                      onChange={handleChange}
                     />
                   </CInputGroup>
-                  <CInputGroup className="mb-4">
+
+                  <CInputGroup className="mb-3">
                     <CInputGroupText>
-                      <CIcon icon={cilLockLocked} />
+                      <BiChevronDown />
                     </CInputGroupText>
-                    <CFormInput
-                      type="password"
-                      placeholder="Repeat password"
-                      autoComplete="new-password"
-                    />
+                    <select
+                      className="form-select"
+                      name="department_id"
+                      value={data.department_id}
+                      onChange={handleChange}
+                    >
+                      <option value="">Select Department</option>
+                      {department?.map((elem) => {
+                        return (
+                          <>
+                            <option value={elem?._id}>{elem?.departmentName}</option>
+                          </>
+                        )
+                      })}
+                    </select>
                   </CInputGroup>
                   <div className="d-grid">
-                    <CButton color="success">Create Account</CButton>
+                    <CButton color="success" onClick={handleSubmit}>
+                      Create Account
+                    </CButton>
                   </div>
                 </CForm>
               </CCardBody>
