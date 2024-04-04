@@ -19,6 +19,9 @@ import { getFetch, postFetchData } from 'src/api/Api'
 import { useNavigate } from 'react-router-dom'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import SpinnerOverlay from 'src/views/publicItems/ SpinnerOverlay'
+import { faL, faLaptopHouse } from '@fortawesome/free-solid-svg-icons'
+
 const Register = () => {
   const navigate = useNavigate()
   const API_URL = process.env.REACT_APP_API_URL
@@ -29,6 +32,7 @@ const Register = () => {
     password: '',
     department_id: '',
   })
+  const [loading, setLoading] = useState(false)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -37,24 +41,29 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     try {
+      setLoading(true)
       e.preventDefault()
       console.log('data', data)
       const res = await postFetchData(`${API_URL}/api/user/create`, data)
       console.log('user creation', res?.response?.data?.success)
 
       if (res?.response?.data?.success === false) {
+        setLoading(false)
         return toast.warning(res?.response?.data?.message)
       }
 
       if (res.success === true) {
         toast.success('Doctor Created Successfully')
         setTimeout(() => {
+          setLoading(false)
           navigate('/')
         }, 2000)
       } else {
+        setLoading(false)
         toast.warning('Something went wrong')
       }
     } catch (error) {
+      setLoading(false)
       console.log(error)
     }
   }
@@ -69,11 +78,16 @@ const Register = () => {
     }
   }
 
+  const nevigateToLogin = () => {
+    navigate('/')
+  }
+
   useEffect(() => {
     getAllDepartments()
   }, [])
   return (
     <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
+      {loading ? <SpinnerOverlay message="Loading..." /> : ''}
       <CContainer>
         <CRow className="justify-content-center">
           <CCol md={9} lg={7} xl={6}>
@@ -142,6 +156,14 @@ const Register = () => {
                     <CButton color="success" onClick={handleSubmit}>
                       Create Account
                     </CButton>
+                  </div>
+                  <div>
+                    <p style={{ display: 'flex', marginTop: '1rem' }}>
+                      To Loggin Click! &nbsp;
+                      <p style={{ cursor: 'pointer', color: 'blue' }} onClick={nevigateToLogin}>
+                        Signin
+                      </p>
+                    </p>
                   </div>
                 </CForm>
               </CCardBody>
