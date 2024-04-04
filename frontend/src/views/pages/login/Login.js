@@ -19,14 +19,17 @@ import { postFetchData } from 'src/api/Api'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { faL } from '@fortawesome/free-solid-svg-icons'
+import SpinnerOverlay from 'src/views/publicItems/ SpinnerOverlay'
 // import { API_URL } from 'src/constant'
 const Login = () => {
   let API_URL = process.env.REACT_APP_API_URL
+  const REGISTER_URL = `${API_URL}/register`
   const navigate = useNavigate()
   const [data, setData] = useState({
     email: '',
     password: '',
   })
+  const [loading, setLoading] = useState(false)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -35,31 +38,39 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     try {
+      setLoading(true)
       e.preventDefault()
       const dataa = await postFetchData(`${API_URL}/api/user/login`, data)
       console.log('data', dataa)
       if (dataa.success == true) {
         toast.success('Login successfully')
-
         localStorage.setItem('token', dataa.token)
         localStorage.setItem('patientRecord', JSON.stringify(dataa?.user))
         setTimeout(() => {
           window.location.reload()
+          setLoading(false)
         }, 1000)
         // window.location.reload()
       }
 
       if (dataa?.response?.data?.success === false) {
+        setLoading(false)
         toast.warning('Invalid Credentials')
       }
       // console.log(data)
     } catch (error) {
+      setLoading(false)
       toast.warning('Something went wrong')
       console.log(error)
     }
   }
+
+  const nevigateToRegister = () => {
+    navigate('/register')
+  }
   return (
     <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
+      {loading ? <SpinnerOverlay message="Logging.." /> : ''}
       <CContainer>
         <CRow className="justify-content-center">
           <CCol md={5}>
@@ -106,6 +117,17 @@ const Login = () => {
                         </CButton>
                       </CCol> */}
                     </CRow>
+                    {/* <CRow>
+                      <p style={{ display: 'flex', marginTop: '1rem' }}>
+                        For register Click! &nbsp;
+                        <p
+                          style={{ cursor: 'pointer', color: 'blue' }}
+                          onClick={nevigateToRegister}
+                        >
+                          Signup
+                        </p>
+                      </p>
+                    </CRow> */}
                   </CForm>
                 </CCardBody>
               </CCard>

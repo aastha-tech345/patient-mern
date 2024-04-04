@@ -3,9 +3,13 @@ import React from 'react'
 import { BarLoader } from 'react-spinners'
 
 const SpinnerOverlay = (loading) => {
+  const message = loading.message
   return (
     <div style={overlayStyle(loading)}>
-      <BarLoader loading={loading} color="#36D7B7" />
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <BarLoader loading={loading} color="#36D7B7" />
+        {message ? <p style={{ margin: 'auto' }}>{message}</p> : ''}
+      </div>
     </div>
   )
 }

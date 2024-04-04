@@ -17,11 +17,15 @@ import dayjs from 'dayjs'
 import { DateTimePicker } from '@mui/x-date-pickers'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import SpinnerOverlay from 'src/views/publicItems/ SpinnerOverlay'
+import Loader from '../loader/Loader'
+
 const PatientReport = () => {
   let API_URL = process.env.REACT_APP_API_URL
   // const API_URL = process.env.API_URL
   let patientData = localStorage.getItem('patientRecord')
   let patientRecord = JSON.parse(patientData)
+  const [loading, setLoading] = useState(false)
 
   const navigate = useNavigate()
   const [updateState, setUpdateState] = useState(false)
@@ -164,10 +168,14 @@ const PatientReport = () => {
   }
 
   const dateSubmit = async () => {
+    if (problemSet === '') {
+      return toast.warning('Please select any one Chief Complaint')
+    }
     if (endDate.isBefore(startingDate, 'day')) {
       toast.warning('End date cannot be earlier than start date')
       return
     }
+    setLoading(true)
     const date = new Date(startingDate)
     const date1 = new Date(endDate)
     // const formattedStartDate = date.toISOString().split('T')[0] + 'T00:00:00.000Z'
@@ -180,6 +188,7 @@ const PatientReport = () => {
     console.log('ashdata', res)
     setPageCount(res?.data?.pageCount)
     setPatientProblems(res?.data?.data)
+    setLoading(false)
   }
 
   const dateReset = () => {
@@ -284,16 +293,20 @@ const PatientReport = () => {
         {/* date filed end */}
       </div>
       <div className="mt-2 table-responsive">
-        <Table
-          // rowSelection={{
-          //   type: selectionType,
-          //   ...rowSelection,
-          // }}
-          columns={columns}
-          dataSource={patientProblems}
-          pagination={false}
-          className="table-responsive"
-        />
+        {loading ? (
+          <Loader />
+        ) : (
+          <Table
+            // rowSelection={{
+            //   type: selectionType,
+            //   ...rowSelection,
+            // }}
+            columns={columns}
+            dataSource={patientProblems}
+            pagination={false}
+            className="table-responsive"
+          />
+        )}
       </div>
       <div className="d-flex justify-content-end mt-2">
         <Stack spacing={2}>
