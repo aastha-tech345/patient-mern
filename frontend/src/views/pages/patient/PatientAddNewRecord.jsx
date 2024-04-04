@@ -32,6 +32,7 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
   const [problems, setProblems] = useState([])
   const [tests, setTests] = useState([])
   const [scales, setScales] = useState([])
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     fetchProblems()
@@ -120,6 +121,7 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
       console.error('Error submitting data:', error)
     }
     try {
+      setLoading(true)
       const updatedFormData = {
         ...formData,
         diagnosis: [
@@ -146,6 +148,7 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
           setIsAddNewDiagnosis(false)
           setIsDetailed(true)
           setInputs([{ problem: '', test: '', testInput: '', scale: '', value: '' }])
+          setLoading(false)
         }, 2000)
         getSearchByPatient()
         // window.location.reload()
@@ -214,7 +217,10 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
   }, [handleRemoveInput, handleAddInput, handleInputChange])
   return (
     <>
-      {fileUploadingSpinner && <SpinnerOverlay loading={fileUploadingSpinner} />}
+      {fileUploadingSpinner && (
+        <SpinnerOverlay loading={fileUploadingSpinner} message="Uploading Files" />
+      )}
+      {loading && <SpinnerOverlay message="Adding Diagnosis" />}
       <div style={{ margin: '1rem auto 1rem 1rem' }}>
         <div style={{ margin: '1rem auto 1rem 0' }}>
           <h4>Diagnosis: ({patientRecord?.department_id?.departmentName})</h4>

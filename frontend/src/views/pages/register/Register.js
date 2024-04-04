@@ -101,7 +101,7 @@ const Register = () => {
                       <CIcon icon={cilUser} />
                     </CInputGroupText>
                     <CFormInput
-                      placeholder="Username"
+                      placeholder="Full Name"
                       autoComplete="username"
                       name="name"
                       value={data.name}

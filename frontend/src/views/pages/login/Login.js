@@ -117,7 +117,7 @@ const Login = () => {
                         </CButton>
                       </CCol> */}
                     </CRow>
-                    <CRow>
+                    {/* <CRow>
                       <p style={{ display: 'flex', marginTop: '1rem' }}>
                         For register Click! &nbsp;
                         <p
@@ -127,7 +127,7 @@ const Login = () => {
                           Signup
                         </p>
                       </p>
-                    </CRow>
+                    </CRow> */}
                   </CForm>
                 </CCardBody>
               </CCard>
