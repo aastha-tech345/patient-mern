@@ -58,26 +58,6 @@ const PatientPage = () => {
     fetchProblems()
   }, [])
 
-  // const fetchProblems = async () => {
-  //   try {
-  //     const problems = await getFetch(`${API_URL}/api/problem/${patientRecord?.department_id?._id}`)
-  //     const problemFilter = await problems?.data?.data[0]?.problemName.filter(
-  //       (item) => item.type === 'problem',
-  //     )
-  //     const testFilter = await problems?.data?.data[0]?.problemName.filter(
-  //       (item) => item.type === 'test',
-  //     )
-  //     const scaleFilter = await problems?.data?.data[0]?.problemName.filter(
-  //       (item) => item.type === 'scale',
-  //     )
-  //     console.log('Gaurav', problemFilter)
-  //     setTests(testFilter)
-  //     setScales(scaleFilter)
-  //     setProblems(problemFilter)
-  //   } catch (error) {
-  //     console.error('Error fetching problems:', error)
-  //   }
-  // }
   const fetchProblems = async () => {
     try {
       const problemsResponse = await getFetch(
@@ -282,12 +262,35 @@ const PatientPage = () => {
     updatedInputs[index][name] = value
     setInputs(updatedInputs)
   }
+  // const handleFileInputChange = (index, event) => {
+  //   const { name, files } = event.target
+  //   const updatedInputs = [...inputs]
+  //   updatedInputs[index][name] = files[0]
+  //   setInputs(updatedInputs)
+  //   console.log('Guarv', inputs)
+  // }
+
   const handleFileInputChange = (index, event) => {
     const { name, files } = event.target
-    const updatedInputs = [...inputs]
-    updatedInputs[index][name] = files[0]
-    setInputs(updatedInputs)
-    console.log('Guarv', inputs)
+    const allowedFileTypes = ['image/jpeg', 'image/png', 'application/pdf']
+    console.log('files', files[0]?.size)
+    if (files[0]?.size > 31457280) {
+      event.target.value = ''
+      return toast.warning('file size should be less than 30 mb', {
+        autoClose: 1500,
+      })
+    }
+    // Check if the file type is allowed
+    if (files && files[0] && allowedFileTypes.includes(files[0].type)) {
+      const updatedInputs = [...inputs]
+      updatedInputs[index][name] = files[0]
+      setInputs(updatedInputs)
+    } else {
+      event.target.value = ''
+      toast.warning('Only images and PDFs are allowed', {
+        autoClose: 1500,
+      })
+    }
   }
 
   const handleAddInput = () => {
@@ -311,25 +314,6 @@ const PatientPage = () => {
     console.log('Updated inputs:', inputs)
   }, [inputs])
 
-  //// testing codes
-
-  ////////////////////////////////////////////////////////////////////
-  // let [file, setFile] = useState('')
-  // const submitHandler = async () => {
-  //   try {
-  //     const formData = new FormData()
-  //     formData.append('file', file)
-  //     const response = await postFetchFile(`${API_URL}/api/user/uploadPatientReport`, formData)
-  //     console.log('File uploaded successfullsdsy:', response)
-  //   } catch (error) {
-  //     console.error('Error uploading file:', error)
-  //   }
-  // }
-  // const handleFileChange = (event) => {
-  //   setFile(event.target.files[0])
-  // }
-
-  ///////////////////////////
   return (
     <>
       <div>
@@ -582,6 +566,7 @@ const PatientPage = () => {
                                               style={{ width: '10rem' }}
                                               type="file"
                                               name="testInput"
+                                              accept="image/jpeg, image/png, application/pdf"
                                               onChange={(event) =>
                                                 handleFileInputChange(index, event)
                                               }

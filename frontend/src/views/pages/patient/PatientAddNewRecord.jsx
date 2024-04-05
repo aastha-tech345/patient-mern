@@ -190,14 +190,35 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
     updatedInputs[index][name] = value
     setInputs(updatedInputs)
   }
+  // const handleFileInputChange = (index, event) => {
+  //   const { name, files } = event.target
+  //   const updatedInputs = [...inputs]
+  //   updatedInputs[index][name] = files[0]
+  //   setInputs(updatedInputs)
+  //   console.log('Guarv', inputs)
+  // }
   const handleFileInputChange = (index, event) => {
     const { name, files } = event.target
-    const updatedInputs = [...inputs]
-    updatedInputs[index][name] = files[0]
-    setInputs(updatedInputs)
-    console.log('Guarv', inputs)
+    const allowedFileTypes = ['image/jpeg', 'image/png', 'application/pdf']
+    console.log('files', files[0]?.size)
+    if (files[0]?.size > 31457280) {
+      event.target.value = ''
+      return toast.warning('file size should be less than 30 mb', {
+        autoClose: 1500,
+      })
+    }
+    // Check if the file type is allowed
+    if (files && files[0] && allowedFileTypes.includes(files[0].type)) {
+      const updatedInputs = [...inputs]
+      updatedInputs[index][name] = files[0]
+      setInputs(updatedInputs)
+    } else {
+      event.target.value = ''
+      toast.warning('Only images and PDFs are allowed', {
+        autoClose: 1500,
+      })
+    }
   }
-
   const handleAddInput = () => {
     setInputs([...inputs, { problem: '', test: '', testInput: '', scale: '', value: '' }])
   }
@@ -293,6 +314,7 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
                                 style={{ width: '10rem' }}
                                 type="file"
                                 name="testInput"
+                                accept="image/jpeg, image/png, application/pdf"
                                 onChange={(event) => handleFileInputChange(index, event)}
                               />
                             </label>
