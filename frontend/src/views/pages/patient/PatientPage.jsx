@@ -113,8 +113,12 @@ const PatientPage = () => {
     }
   }
 
+  useEffect(() => {
+    console.log('before', inputs)
+  })
+
   const handleSubmit = async () => {
-    // console.log('updatedFormData', inputs)
+    console.log('updatedFormData', inputs)
 
     setSearch('')
 
@@ -142,25 +146,44 @@ const PatientPage = () => {
     setfileUploadingSpinner(true)
     try {
       await Promise.all(
-        // Use Promise.all to wait for all uploads to finish
         inputs.map(async (data, index) => {
-          if (typeof data.testInput !== 'string') {
-            const file = data.testInput
-            const formData = new FormData()
-            formData.append('file', file)
-            const response = await postFetchFile(
-              `${API_URL}/api/user/uploadPatientReport`,
-              formData,
-            )
-            if (response) {
-              inputs[index].testInput = response?.fileName
+          if (data.testInput.files) {
+            const files = data.testInput.files
+            if (files.length > 0) {
+              const formData = new FormData()
+              files.forEach((file) => {
+                // Check if the file type is allowed
+                const allowedFileTypes = ['image/jpeg', 'image/png', 'application/pdf']
+                if (allowedFileTypes.includes(file.type)) {
+                  formData.append('files', file) // Append each allowed file to the FormData
+                } else {
+                  console.warn('File type not allowed:', file.type)
+                }
+              })
+              if (formData.has('files')) {
+                const response = await postFetchFile(
+                  `${API_URL}/api/user/uploadPatientReport`,
+                  formData,
+                )
+                if (response) {
+                  setfileUploadingSpinner(false)
+                  inputs[index].testInput.files = response.filesInfo
+                }
+              } else {
+                setfileUploadingSpinner(false)
+                console.warn('No valid files to upload')
+              }
             }
+          } else {
+            inputs[index].testInput.files = null
+            setfileUploadingSpinner(false)
           }
         }),
       )
     } catch (error) {
-      setfileUploadingSpinner(false) // Set loading to false in case of an error
-      console.error('Error submitting data:', error)
+      setfileUploadingSpinner(false)
+      console.error('Error uploading files:', error)
+      return
     }
 
     const updatedFormData = {
@@ -177,7 +200,10 @@ const PatientPage = () => {
 
     try {
       // console.log('pre', updatedFormData)\
-      const data = await postFetchData(`${API_URL}/api/patient/create`, updatedFormData)
+      const doctorRecord = await localStorage.getItem('patientRecord')
+      const doctorId = JSON.parse(doctorRecord)?._id
+      // console.log('Guarav', JSON.parse(doctorRecord)?._id)
+      const data = await postFetchData(`${API_URL}/api/patient/create/${doctorId}`, updatedFormData)
       if (data.success === true) {
         toast.success('Patient Created Successfully', {
           autoClose: 2000,
@@ -192,7 +218,9 @@ const PatientPage = () => {
           // setDiagnosis([])
           setDesc('')
           setStartingDate(null)
-          setInputs([{ problem: '', test: '', testInput: '', scale: '', value: '' }])
+          setInputs([
+            { problem: '', test: '', testInput: { files: '', text: '' }, scale: '', value: '' },
+          ])
         }, 2000)
         setFormData({
           name: '',
@@ -205,11 +233,11 @@ const PatientPage = () => {
           doctor_id: patientRecord?._id,
         })
       }
-      if (data.message == 'phone Already Exists') {
+      if (data.message === 'phone Already Exists') {
         toast.warning('phone Already Exists')
         setfileUploadingSpinner(false) // Set loading to false in case of an error
       }
-      if (data.message == 'Crn Already Exists') {
+      if (data.message === 'Crn Already Exists') {
         toast.warning('Crn Already Exists')
         setfileUploadingSpinner(false) // Set loading to false in case of an error
       }
@@ -218,7 +246,6 @@ const PatientPage = () => {
     } catch (error) {
       toast.warning('Something went wrong')
       setfileUploadingSpinner(false) // Set loading to false in case of an error
-
       console.error('Error submitting data:', error)
     }
   }
@@ -227,6 +254,146 @@ const PatientPage = () => {
   //   console.log(inputs)
   // }
 
+  // const handleSubmit = async () => {
+  //   // console.log('updatedFormData', inputs)
+
+  //   setSearch('')
+
+  //   // Check if required fields are filled
+  //   // if (!formData.name || !formData.age || !formData.sex || !formData.phone || !formData.crn) {
+  //   //   return toast.warning('Please fill all Patient details')
+  //   // }
+
+  //   // if (inputs.length === 1 && inputs[0].problem === '') {
+  //   //   return toast.warning('Please select at least one Chief complaint')
+  //   // }
+
+  //   // for (const data of inputs) {
+  //   //   if (data.test !== '' && data.testInput === '') {
+  //   //     toast.warning('Please give input for selected test')
+  //   //     return // Stop further execution
+  //   //   }
+  //   //   if (data.scale !== '' && data.value === '') {
+  //   //     toast.warning('Please give input for selected scale')
+  //   //     return // Stop further execution
+  //   //   }
+  //   //   console.log('data', data)
+  //   // }
+  //   // // toast.warning('Uploading Files and Reports')
+  //   // setfileUploadingSpinner(true)
+  //   // try {
+  //   //   await Promise.all(
+  //   //     inputs.map(async (data, index) => {
+  //   //       if (data.testInput.files) {
+  //   //         const files = data.testInput.files
+  //   //         if (files.length > 0) {
+  //   //           const formData = new FormData()
+  //   //           files.forEach((file) => {
+  //   //             formData.append('files', file) // Append each file to the FormData
+  //   //           })
+  //   //           const response = await postFetchFile(
+  //   //             `${API_URL}/api/user/uploadPatientReport`,
+  //   //             formData,
+  //   //           )
+  //   //           if (response) {
+  //   //             setfileUploadingSpinner(false)
+  //   //             inputs[index].testInput.files = response.filesInfo
+  //   //           }
+  //   //         }
+  //   //       } else {
+  //   //         inputs[index].testInput.files = null
+  //   //       }
+  //   //     }),
+  //   //   )
+  //   // } catch (error) {
+  //   //   setfileUploadingSpinner(false)
+  //   //   console.error('Error uploading files:', error)
+  //   //   return
+  //   // }
+  //   // try {
+  //   //   await Promise.all(
+  //   //     // Use Promise.all to wait for all uploads to finish
+  //   //     inputs.map(async (data, index) => {
+  //   //       if (typeof data.testInput !== 'string') {
+  //   //         const file = data.testInput
+  //   //         const formData = new FormData()
+  //   //         formData.append('file', file)
+  //   //         const response = await postFetchFile(
+  //   //           `${API_URL}/api/user/uploadPatientReport`,
+  //   //           formData,
+  //   //         )
+  //   //         if (response) {
+  //   //           inputs[index].testInput = response?.fileName
+  //   //         }
+  //   //       }
+  //   //     }),
+  //   //   )
+  //   // } catch (error) {
+  //   //   setfileUploadingSpinner(false) // Set loading to false in case of an error
+  //   //   console.error('Error submitting data:', error)
+  //   // }
+
+  //   const updatedFormData = {
+  //     ...formData,
+  //     diagnosis: [
+  //       {
+  //         diagnosData: inputs,
+  //         date: Date(),
+  //         desc,
+  //       },
+  //     ],
+  //     nextApointmentDate: startingDate,
+  //   }
+  //   console.log(updatedFormData)
+  //   // try {
+  //   //   // console.log('pre', updatedFormData)\
+  //   //   const data = await postFetchData(`${API_URL}/api/patient/create`, updatedFormData)
+  //   //   if (data.success === true) {
+  //   //     toast.success('Patient Created Successfully', {
+  //   //       autoClose: 2000,
+  //   //     })
+
+  //   //     setaddPatientLoader(true)
+  //   //     setData(false)
+  //   //     setTimeout(() => {
+  //   //       // toast.success('Patient Created Successfully')
+  //   //       setUpdateState(true)
+  //   //       setaddPatientLoader(false)
+  //   //       // setDiagnosis([])
+  //   //       setDesc('')
+  //   //       setStartingDate(null)
+  //   //       setInputs([
+  //   //         { problem: '', test: '', testInput: { files: '', text: '' }, scale: '', value: '' },
+  //   //       ])
+  //   //     }, 2000)
+  //   //     setFormData({
+  //   //       name: '',
+  //   //       age: '',
+  //   //       sex: 'male',
+  //   //       phone: '',
+  //   //       crn: '',
+  //   //       diagnosis: [],
+  //   //       desc: '',
+  //   //       doctor_id: patientRecord?._id,
+  //   //     })
+  //   //   }
+  //   //   if (data.message == 'phone Already Exists') {
+  //   //     toast.warning('phone Already Exists')
+  //   //     setfileUploadingSpinner(false) // Set loading to false in case of an error
+  //   //   }
+  //   //   if (data.message == 'Crn Already Exists') {
+  //   //     toast.warning('Crn Already Exists')
+  //   //     setfileUploadingSpinner(false) // Set loading to false in case of an error
+  //   //   }
+  //   //   console.log('data', data)
+  //   //   setSearch(data?.data?.crn)
+  //   // } catch (error) {
+  //   //   toast.warning('Something went wrong')
+  //   //   setfileUploadingSpinner(false) // Set loading to false in case of an error
+
+  //   //   console.error('Error submitting data:', error)
+  //   // }
+  // }
   const handleKeyPress = (event) => {
     if (event.key === 'Enter') {
       event.preventDefault()
@@ -253,7 +420,7 @@ const PatientPage = () => {
   let [removeAndAddInput, setremoveAndAddInput] = useState(false)
 
   const [inputs, setInputs] = useState([
-    { problem: '', test: '', testInput: '', scale: '', value: '' },
+    { problem: '', test: '', testInput: { files: '', text: '' }, scale: '', value: '' },
   ])
 
   const handleInputChange = (index, event) => {
@@ -262,6 +429,14 @@ const PatientPage = () => {
     updatedInputs[index][name] = value
     setInputs(updatedInputs)
   }
+
+  const handleInputTestText = (index, event) => {
+    const { name, value } = event.target
+    const updatedInputs = [...inputs]
+    updatedInputs[index][name] = { text: value }
+    setInputs(updatedInputs)
+  }
+
   // const handleFileInputChange = (index, event) => {
   //   const { name, files } = event.target
   //   const updatedInputs = [...inputs]
@@ -270,31 +445,65 @@ const PatientPage = () => {
   //   console.log('Guarv', inputs)
   // }
 
+  // const handleFileInputChange = (index, event) => {
+  //   const { name, files } = event.target
+  //   const allowedFileTypes = ['image/jpeg', 'image/png', 'application/pdf']
+  //   console.log('files', files[0]?.size)
+  //   if (files[0]?.size > 31457280) {
+  //     event.target.value = ''
+  //     return toast.warning('file size should be less than 30 mb', {
+  //       autoClose: 1500,
+  //     })
+  //   }
+  //   // Check if the file type is allowed
+  //   if (files && files[0] && allowedFileTypes.includes(files[0].type)) {
+  //     const updatedInputs = [...inputs]
+  //     updatedInputs[index][name] = files[0]
+  //     setInputs(updatedInputs)
+  //   } else {
+  //     event.target.value = ''
+  //     toast.warning('Only images and PDFs are allowed', {
+  //       autoClose: 1500,
+  //     })
+  //   }
+  // }
+
   const handleFileInputChange = (index, event) => {
     const { name, files } = event.target
     const allowedFileTypes = ['image/jpeg', 'image/png', 'application/pdf']
-    console.log('files', files[0]?.size)
-    if (files[0]?.size > 31457280) {
-      event.target.value = ''
-      return toast.warning('file size should be less than 30 mb', {
-        autoClose: 1500,
-      })
+    const maxFiles = 3 // Maximum number of files allowed
+
+    // Check if the number of selected files exceeds the limit
+    if (files.length > maxFiles) {
+      event.target.value = '' // Clear the file input
+      toast.warning('You can only upload up to 3 files', { autoClose: 1500 })
+      return
     }
-    // Check if the file type is allowed
-    if (files && files[0] && allowedFileTypes.includes(files[0].type)) {
-      const updatedInputs = [...inputs]
-      updatedInputs[index][name] = files[0]
-      setInputs(updatedInputs)
-    } else {
-      event.target.value = ''
-      toast.warning('Only images and PDFs are allowed', {
-        autoClose: 1500,
-      })
-    }
+
+    const updatedInputs = [...inputs]
+
+    // Convert FileList to array and filter out files that exceed the size limit or are not of allowed types
+    const filesArray = Array.from(files).filter((file) => {
+      if (file.size > 31457280) {
+        toast.warning('File size should be less than 30 MB', { autoClose: 1500 })
+        return false
+      }
+      if (!allowedFileTypes.includes(file.type)) {
+        toast.warning('Only images and PDFs are allowed', { autoClose: 1500 })
+        return false
+      }
+      return true
+    })
+
+    updatedInputs[index][name] = { files: filesArray } // Store the array of files
+    setInputs(updatedInputs)
   }
 
   const handleAddInput = () => {
-    setInputs([...inputs, { problem: '', test: '', testInput: '', scale: '', value: '' }])
+    setInputs([
+      ...inputs,
+      { problem: '', test: '', testInput: { files: '', text: '' }, scale: '', value: '' },
+    ])
   }
 
   const handleRemoveInput = (index) => {
@@ -539,7 +748,17 @@ const PatientPage = () => {
                                 </label>
                               </div>
                               {input.test === '' ? (
-                                ''
+                                <div className="col-md-2">
+                                  <label>
+                                    <input
+                                      className="form-control "
+                                      style={{ width: '10rem', appearance: 'auto' }}
+                                      placeholder="Select a Test"
+                                      type="text"
+                                      disabled="true"
+                                    />
+                                  </label>
+                                </div>
                               ) : (
                                 <div className="col-md-2">
                                   {tests.map((test, testIndex) => {
@@ -553,8 +772,10 @@ const PatientPage = () => {
                                               placeholder="Enter test Value"
                                               type="text"
                                               name="testInput"
-                                              value={input.testInput}
-                                              onChange={(event) => handleInputChange(index, event)}
+                                              value={input.testInput.text} // Here is the issue
+                                              onChange={(event) =>
+                                                handleInputTestText(index, event)
+                                              }
                                             />
                                           </label>
                                         )
@@ -565,6 +786,7 @@ const PatientPage = () => {
                                               className="form-control"
                                               style={{ width: '10rem' }}
                                               type="file"
+                                              multiple
                                               name="testInput"
                                               accept="image/jpeg, image/png, application/pdf"
                                               onChange={(event) =>
@@ -698,11 +920,6 @@ const PatientPage = () => {
       {addPatientLoader ? <AddPatientLoader /> : ''}
       <ToastContainer />
     </>
-    // <>
-    //   <h1>Gaurav</h1>
-    //   <input type="file" onChange={handleFileChange}></input>
-    //   <button onClick={submitHandler}>submit</button>
-    // </>
   )
 }
 

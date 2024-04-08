@@ -28,6 +28,7 @@ const AppHeaderDropdown = () => {
   const logoutHandler = () => {
     // console.log('logot')
     localStorage.removeItem('token')
+    localStorage.removeItem('patientRecord')
   }
   return (
     <CDropdown variant="nav-item">

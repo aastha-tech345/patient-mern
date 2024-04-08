@@ -15,7 +15,7 @@ userRoutes.post("/login", loginUser);
 userRoutes.post("/update", verifyToken, userUpdate);
 userRoutes.post(
   "/uploadPatientReport",
-  upload.single("file"),
+  upload.array("files", 3),
   uploadPatientReport
 );
 userRoutes.get("/getPatientReport/:filename", getPatientReport);

@@ -82,22 +82,24 @@ const userUpdate = async (req, res) => {
 };
 
 const uploadPatientReport = (req, res) => {
-  // Check if file exists in the request
   try {
-    console.log("ashish")
-    if (req.fileValidationError) {
-      return res.status(400).send({ error: req.fileValidationError.message });
+    // Check if files exist in the request
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: "No files uploaded" });
     }
-    if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded" });
-    }
-    const fileName = req.file.filename;
-    const filePath = req.file.path;
+
+    // Process each uploaded file
+    const filesInfo = req.files.map((file) => ({
+      fileName: file.filename,
+      filePath: file.path,
+    }));
+
     return res
       .status(200)
-      .json({ message: "File uploaded successfully", fileName, filePath });
+      .json({ message: "Files uploaded successfully", filesInfo });
   } catch (error) {
-    console.log("error", error);
+    console.error("Error uploading files:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 

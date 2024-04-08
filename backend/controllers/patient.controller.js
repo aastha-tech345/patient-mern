@@ -3,8 +3,15 @@ const ApiFeatures = require("../utils/apiFeatures");
 
 const createPatient = async (req, res) => {
   try {
-    const isCrnExists = await Patient.findOne({ crn: req.body.crn });
-    const isPhoneExists = await Patient.findOne({ phone: req.body.phone });
+    const id = req.params.id;
+    const isCrnExists = await Patient.findOne({
+      crn: req.body.crn,
+      doctor_id: id,
+    });
+    const isPhoneExists = await Patient.findOne({
+      phone: req.body.phone,
+      doctor_id: id,
+    });
     if (isCrnExists) {
       return res.status(201).json({
         success: false,

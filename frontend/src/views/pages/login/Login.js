@@ -123,6 +123,7 @@ const Login = () => {
       {/* <footer className="bg-dark text-light py-2 text-center">
         &copy; 2024 DevLogix Technology Pvt. Ltd. All rights reserved.
       </footer> */}
+      <ToastContainer />
       <footer className="bg-light py-2 text-left" style={{ paddingLeft: '1rem' }}>
         Copyright &copy; {date} DevLogix Technology Pvt. Ltd. All rights reserved.
       </footer>

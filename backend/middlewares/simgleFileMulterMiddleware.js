@@ -21,7 +21,6 @@ const upload = multer({
     ) {
       cb(null, true);
     } else {
-      // console.log("Only images and PDFs are allowed");
       cb(new Error("Only images and PDFs are allowed"));
     }
   },
