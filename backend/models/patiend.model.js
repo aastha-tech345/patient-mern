@@ -37,6 +37,7 @@ const patientSchema = new mongoose.Schema(
               },
               text: String,
             },
+            // files:[],
             scale: String,
             value: String,
           },

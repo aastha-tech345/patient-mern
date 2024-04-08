@@ -1,20 +1,16 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import axios from 'axios'
 import CIcon from '@coreui/icons-react'
-import {
-  cilCloudDownload,
-  cilArrowCircleRight,
-  cilChevronCircleDownAlt,
-  cilChevronDoubleDown,
-  cilDataTransferDown,
-} from '@coreui/icons'
+import { cilDataTransferDown } from '@coreui/icons'
 import { ToastContainer, toast } from 'react-toastify'
+import SpinnerOverlay from 'src/views/publicItems/ SpinnerOverlay'
 
 const PatientShowDetails = ({ diagnosis }) => {
   const [reversedDiagnosis, setReversedDiagnosis] = useState([])
+  const [loading, setLoading] = useState(false)
   const [requestedFileLoading, setRequestedFileLoading] = useState({})
-  const [selectedFile, setSelectedFile] = useState(Array(diagnosis?.length).fill(''))
+  // const [selectedFile, setSelectedFile] = useState(Array(diagnosis?.length).fill(''))
 
   useEffect(() => {
     if (diagnosis && Array.isArray(diagnosis)) {
@@ -24,12 +20,9 @@ const PatientShowDetails = ({ diagnosis }) => {
   }, [diagnosis])
 
   const showReportHandler = async (filename, index) => {
-    setRequestedFileLoading((prevState) => ({
-      ...prevState,
-      [index]: true,
-    }))
-
     try {
+      setLoading(true)
+
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/user/getPatientReport/${filename}`,
         {
@@ -41,21 +34,19 @@ const PatientShowDetails = ({ diagnosis }) => {
       const blobUrl = URL.createObjectURL(blob)
       window.open(blobUrl)
     } catch (error) {
+      setLoading(false)
       console.error('Error fetching report:', error)
     } finally {
-      setRequestedFileLoading((prevState) => ({
-        ...prevState,
-        [index]: false,
-      }))
+      setLoading(false)
     }
   }
 
-  const handleFileSelect = (e, index) => {
-    const { value } = e.target
-    const updatedSelectedFile = [...selectedFile]
-    updatedSelectedFile[index] = value
-    setSelectedFile(updatedSelectedFile)
-  }
+  // const handleFileSelect = (e, index) => {
+  //   const { value } = e.target
+  //   const updatedSelectedFile = [...selectedFile]
+  //   updatedSelectedFile[index] = value
+  //   setSelectedFile(updatedSelectedFile)
+  // }
   const editNameFun = (name) => {
     if (name) {
       const fileName = name
@@ -80,7 +71,8 @@ const PatientShowDetails = ({ diagnosis }) => {
   const [hoveredFile, setHoveredFile] = useState(null)
 
   const handleMouseEnter = (fileName) => {
-    setHoveredFile(fileName)
+    const fileNamee = editNameFun(fileName)
+    setHoveredFile(fileNamee)
   }
 
   const handleMouseLeave = () => {
@@ -88,9 +80,7 @@ const PatientShowDetails = ({ diagnosis }) => {
   }
 
   return (
-    <div
-      style={{ maxHeight: '300px', overflowY: 'scroll', overflowX: 'hidden', marginTop: '20px' }}
-    >
+    <div style={{ maxHeight: '300px', marginTop: '20px' }}>
       {reversedDiagnosis?.map((elem, index) => {
         const date = new Date(elem.date)
         const formattedDate = date
@@ -150,6 +140,7 @@ const PatientShowDetails = ({ diagnosis }) => {
 
                     return (
                       <tbody key={innerIndex}>
+                        {loading && <SpinnerOverlay message="loading" />}
                         <tr>
                           <td style={{ fontWeight: 'bolder' }}>{problem}</td>
                           <td style={{ fontWeight: 'bolder' }}>{test === '' ? '-' : test}</td>
@@ -171,28 +162,17 @@ const PatientShowDetails = ({ diagnosis }) => {
                                     }}
                                     onMouseEnter={() => handleMouseEnter(file.fileName)}
                                     onMouseLeave={() => handleMouseLeave()}
+                                    onClick={() => showReportHandler(file?.fileName, fileIndex)}
                                   >
-                                    <CIcon
-                                      icon={cilDataTransferDown}
-                                      style={{ marginRight: '5px' }}
-                                    />
-                                    {hoveredFile === file.fileName && (
-                                      <div
-                                        style={{
-                                          position: 'absolute',
-                                          top: '-30px',
-                                          left: '50%',
-                                          transform: 'translateX(-50%)',
-                                          backgroundColor: 'lightblue',
-                                          padding: '5px',
-                                          borderRadius: '5px',
-                                          boxShadow: '0px 0px 5px rgba(0, 0, 0, 0.5)',
-                                          zIndex: '999',
-                                        }}
-                                      >
-                                        {editNameFun(file.fileName)}
-                                      </div>
-                                    )}
+                                    <button
+                                      type="button"
+                                      className="btn btn-sm btn-primary" // Decreased size and changed color to blue
+                                      data-toggle="popover"
+                                      title={hoveredFile}
+                                      style={{ margin: '0' }}
+                                    >
+                                      <CIcon icon={cilDataTransferDown} />
+                                    </button>
                                   </div>
                                 ))}
                               </div>

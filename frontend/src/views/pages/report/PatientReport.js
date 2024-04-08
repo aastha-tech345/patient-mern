@@ -147,6 +147,21 @@ const PatientReport = () => {
         )
       },
     },
+    {
+      title: 'Action',
+      // dataIndex: 'sex',
+      render: (text) => {
+        console.log('text', text)
+        return (
+          <button
+            className="btn btn-primary"
+            onClick={(e) => navigate('/patientPage', { state: text })}
+          >
+            Show Details
+          </button>
+        )
+      },
+    },
   ]
   const todayDate = dayjs()
   const [startingDate, setStartingDate] = useState(todayDate)

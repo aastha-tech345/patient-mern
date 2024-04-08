@@ -40,10 +40,10 @@ const PatientAddNewRecord = ({
     setInputs([
       {
         problem: lastDiagnosis.problem || '',
-        test: lastDiagnosis.test || '',
+        test: '',
         testInput: { files: '', text: '' },
-        scale: lastDiagnosis.scale || '',
-        value: lastDiagnosis.value || '',
+        scale: '',
+        value: '',
       },
     ])
   }, [])
