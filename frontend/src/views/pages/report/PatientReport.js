@@ -19,6 +19,7 @@ import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import SpinnerOverlay from 'src/views/publicItems/ SpinnerOverlay'
 import Loader from '../loader/Loader'
+import ReportModal from './ReportModal'
 
 const PatientReport = () => {
   let API_URL = process.env.REACT_APP_API_URL
@@ -28,6 +29,8 @@ const PatientReport = () => {
   const [loading, setLoading] = useState(false)
 
   const navigate = useNavigate()
+  const [hide, setHide] = useState(false)
+  const [popupData, setPopuoData] = useState({})
   const [updateState, setUpdateState] = useState(false)
   const [problemSet, setProblemSet] = useState('')
   const [pageCount, setPageCount] = useState(1)
@@ -66,22 +69,22 @@ const PatientReport = () => {
     setProblemSet(elem)
   }
 
-  const getPatientByProblem = async () => {
-    try {
-      console.log('ashish', problemSet)
-      if (problemSet?.length === 0) {
-        return
-      }
-      const res = await getFetch(
-        `${API_URL}/api/patient/problems?problem=${problemSet}&doctor_id=${patientRecord._id}&page=${page}`,
-      )
-      console.log('response', res)
-      setPageCount(res?.data?.pageCount)
-      setPatientProblems(res.data.data)
-    } catch (error) {
-      console.log(error)
-    }
-  }
+  // const getPatientByProblem = async () => {
+  //   try {
+  //     console.log('ashish', problemSet)
+  //     if (problemSet?.length === 0) {
+  //       return
+  //     }
+  //     const res = await getFetch(
+  //       `${API_URL}/api/patient/problems?problem=${problemSet}&doctor_id=${patientRecord._id}&page=${page}`,
+  //     )
+  //     console.log('response', res)
+  //     setPageCount(res?.data?.pageCount)
+  //     setPatientProblems(res.data.data)
+  //   } catch (error) {
+  //     console.log(error)
+  //   }
+  // }
 
   const columns = [
     {
@@ -136,9 +139,25 @@ const PatientReport = () => {
         return (
           <button
             className="btn btn-primary"
-            onClick={(e) => navigate('/patientPage', { state: text })}
+            // onClick={(e) => navigate('/patientPage', { state: text })}
+            onClick={() => handleOpenMOdal(text)}
           >
             View Diagnosis
+          </button>
+        )
+      },
+    },
+    {
+      title: 'Action',
+      // dataIndex: 'sex',
+      render: (text) => {
+        console.log('text', text)
+        return (
+          <button
+            className="btn btn-primary"
+            onClick={(e) => navigate('/patientPage', { state: text })}
+          >
+            Show Details
           </button>
         )
       },
@@ -188,6 +207,7 @@ const PatientReport = () => {
     console.log('ashdata', res)
     setPageCount(res?.data?.pageCount)
     setPatientProblems(res?.data?.data)
+
     setLoading(false)
   }
 
@@ -201,7 +221,11 @@ const PatientReport = () => {
   // useEffect(() => {
   //   getPatientByProblem()
   // }, [page, problemSet])
-
+  const handleOpenMOdal = (text) => {
+    setHide(true)
+    console.log('datafromdiagbutton', text)
+    setPopuoData(text)
+  }
   useEffect(() => {
     if (problemSet.length) {
       dateSubmit()
@@ -213,6 +237,7 @@ const PatientReport = () => {
   }, [])
   return (
     <>
+      {hide ? <ReportModal setHide={setHide} popupData={popupData} /> : ''}
       <div className="row">
         <div className="col-sm-3 mt-2">
           <select

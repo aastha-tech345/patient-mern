@@ -10,7 +10,13 @@ import 'react-toastify/dist/ReactToastify.css'
 import SpinnerOverlay from 'src/views/publicItems/ SpinnerOverlay'
 // import { API_URL } from 'src/constant'
 
-const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, setIsDetailed }) => {
+const PatientAddNewRecord = ({
+  _id,
+  getSearchByPatient,
+  setIsAddNewDiagnosis,
+  setIsDetailed,
+  diagnosisProp,
+}) => {
   let API_URL = process.env.REACT_APP_API_URL
   let patientData = localStorage.getItem('patientRecord')
   let patientRecord = JSON.parse(patientData)
@@ -19,7 +25,32 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
     getSearchByPatient: PropTypes.string.isRequired,
     setIsAddNewDiagnosis: PropTypes.string.isRequired,
     setIsDetailed: PropTypes.string.isRequired,
+    diagnosisProp: PropTypes.string.isRequired,
   }
+  const [inputs, setInputs] = useState([
+    { problem: '', test: '', testInput: { files: '', text: '' }, scale: '', value: '' },
+  ])
+
+  const [lastDiagnosis, setLastDiagnosis] = useState('')
+
+  useEffect(() => {
+    const lastRecords = diagnosisProp[diagnosisProp.length - 1]
+    const lastDiagnosis = lastRecords?.diagnosData[lastRecords?.diagnosData.length - 1]
+    // setLastDiagnosis(lastDiagnosis)
+    setInputs([
+      {
+        problem: lastDiagnosis.problem || '',
+        test: '',
+        testInput: { files: '', text: '' },
+        scale: '',
+        value: '',
+      },
+    ])
+  }, [])
+  // console.log('data', diagnosisProp)
+  // console.log('lastdata', diagnosisProp[diagnosisProp.length - 1])
+  // console.log('record', lastDiagnosis)
+
   const [startingDate, setStartingDate] = React.useState(null)
   const [patientById, setPatientById] = useState({})
   const [desc, setDesc] = useState('')
@@ -98,28 +129,45 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
     setfileUploadingSpinner(true)
     try {
       await Promise.all(
-        // Use Promise.all to wait for all uploads to finish
         inputs.map(async (data, index) => {
-          if (typeof data.testInput !== 'string') {
-            const file = data.testInput
-            const formData = new FormData()
-            formData.append('file', file)
-            const response = await postFetchFile(
-              `${API_URL}/api/user/uploadPatientReport`,
-              formData,
-            )
-            if (response) {
-              inputs[index].testInput = response?.fileName
+          if (data.testInput.files) {
+            const files = data.testInput.files
+            if (files.length > 0) {
+              const formData = new FormData()
+              files.forEach((file) => {
+                // Check if the file type is allowed
+                const allowedFileTypes = ['image/jpeg', 'image/png', 'application/pdf']
+                if (allowedFileTypes.includes(file.type)) {
+                  formData.append('files', file) // Append each allowed file to the FormData
+                } else {
+                  console.warn('File type not allowed:', file.type)
+                }
+              })
+              if (formData.has('files')) {
+                const response = await postFetchFile(
+                  `${API_URL}/api/user/uploadPatientReport`,
+                  formData,
+                )
+                if (response) {
+                  setfileUploadingSpinner(false)
+                  inputs[index].testInput.files = response.filesInfo
+                }
+              } else {
+                console.warn('No valid files to upload')
+              }
             }
+          } else {
+            inputs[index].testInput.files = null
           }
         }),
       )
-      // toast.dismiss()
-      setfileUploadingSpinner(false) // Set loading to false when all uploads are done
     } catch (error) {
-      setfileUploadingSpinner(false) // Set loading to false in case of an error
-      console.error('Error submitting data:', error)
+      setfileUploadingSpinner(false)
+      console.error('Error uploading files:', error)
+      return
     }
+
+    // console.log('guarav', inputs)
     try {
       setLoading(true)
       const updatedFormData = {
@@ -147,7 +195,9 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
         setTimeout(() => {
           setIsAddNewDiagnosis(false)
           setIsDetailed(true)
-          setInputs([{ problem: '', test: '', testInput: '', scale: '', value: '' }])
+          setInputs([
+            { problem: '', test: '', testInput: { files: '', text: '' }, scale: '', value: '' },
+          ])
           setLoading(false)
         }, 2000)
         getSearchByPatient()
@@ -180,26 +230,49 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
 
   let [removeAndAddInput, setremoveAndAddInput] = useState(false)
 
-  const [inputs, setInputs] = useState([
-    { problem: '', test: '', testInput: '', scale: '', value: '' },
-  ])
-
   const handleInputChange = (index, event) => {
     const { name, value } = event.target
     const updatedInputs = [...inputs]
     updatedInputs[index][name] = value
     setInputs(updatedInputs)
   }
+
   const handleFileInputChange = (index, event) => {
     const { name, files } = event.target
+    const allowedFileTypes = ['image/jpeg', 'image/png', 'application/pdf']
+    const maxFiles = 3 // Maximum number of files allowed
+
+    // Check if the number of selected files exceeds the limit
+    if (files.length > maxFiles) {
+      event.target.value = '' // Clear the file input
+      toast.warning('You can only upload up to 3 files', { autoClose: 1500 })
+      return
+    }
+
     const updatedInputs = [...inputs]
-    updatedInputs[index][name] = files[0]
+
+    // Convert FileList to array and filter out files that exceed the size limit or are not of allowed types
+    const filesArray = Array.from(files).filter((file) => {
+      if (file.size > 31457280) {
+        toast.warning('File size should be less than 30 MB', { autoClose: 1500 })
+        return false
+      }
+      if (!allowedFileTypes.includes(file.type)) {
+        toast.warning('Only images and PDFs are allowed', { autoClose: 1500 })
+        return false
+      }
+      return true
+    })
+
+    updatedInputs[index][name] = { files: filesArray } // Store the array of files
     setInputs(updatedInputs)
-    console.log('Guarv', inputs)
   }
 
   const handleAddInput = () => {
-    setInputs([...inputs, { problem: '', test: '', testInput: '', scale: '', value: '' }])
+    setInputs([
+      ...inputs,
+      { problem: '', test: '', testInput: { files: '', text: '' }, scale: '', value: '' },
+    ])
   }
 
   const handleRemoveInput = (index) => {
@@ -208,6 +281,12 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
     setInputs(updatedInputs)
   }
 
+  const handleInputTestText = (index, event) => {
+    const { name, value } = event.target
+    const updatedInputs = [...inputs]
+    updatedInputs[index][name] = { text: value }
+    setInputs(updatedInputs)
+  }
   useEffect(() => {
     if (inputs.length > 1) {
       setremoveAndAddInput(true)
@@ -215,6 +294,7 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
       setremoveAndAddInput(false)
     }
   }, [handleRemoveInput, handleAddInput, handleInputChange])
+
   return (
     <>
       {fileUploadingSpinner && (
@@ -226,8 +306,8 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
           <h4>Diagnosis: ({patientRecord?.department_id?.departmentName})</h4>
         </div>
         <form onSubmit={handleSubmit}>
-          <form className="mb-2">
-            {inputs?.map((input, index) => (
+          <form className="mb-3">
+            {inputs.map((input, index) => (
               <div key={index} className="row mt-1 mb-2">
                 <div className="col-md-2">
                   <label>
@@ -239,7 +319,7 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
                       onChange={(event) => handleInputChange(index, event)}
                     >
                       <option value="">Chief complaint</option>
-                      {problems?.map((problem, problemIndex) => (
+                      {problems.map((problem, problemIndex) => (
                         <option key={problemIndex} value={problem}>
                           {problem}
                         </option>
@@ -257,7 +337,7 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
                       onChange={(event) => handleInputChange(index, event)}
                     >
                       <option value="">Select Test</option>
-                      {tests?.map((test, testIndex) => (
+                      {tests.map((test, testIndex) => (
                         <option key={testIndex} value={test.name}>
                           {test.name}
                         </option>
@@ -265,13 +345,23 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
                     </select>
                   </label>
                 </div>
-                {input?.test === '' ? (
-                  ''
+                {input.test === '' ? (
+                  <div className="col-md-2">
+                    <label>
+                      <input
+                        className="form-control "
+                        style={{ width: '10rem', appearance: 'auto' }}
+                        placeholder="Select a Test"
+                        type="text"
+                        disabled="true"
+                      />
+                    </label>
+                  </div>
                 ) : (
                   <div className="col-md-2">
-                    {tests?.map((test, testIndex) => {
+                    {tests.map((test, testIndex) => {
                       if (test.name === input.test) {
-                        if (test?.inputType === 'text') {
+                        if (test.inputType === 'text') {
                           return (
                             <label key={testIndex}>
                               <input
@@ -280,19 +370,21 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
                                 placeholder="Enter test Value"
                                 type="text"
                                 name="testInput"
-                                value={input.testInput}
-                                onChange={(event) => handleInputChange(index, event)}
+                                value={input.testInput.text} // Here is the issue
+                                onChange={(event) => handleInputTestText(index, event)}
                               />
                             </label>
                           )
-                        } else if (test?.inputType === 'file') {
+                        } else if (test.inputType === 'file') {
                           return (
                             <label key={testIndex}>
                               <input
                                 className="form-control"
                                 style={{ width: '10rem' }}
                                 type="file"
+                                multiple
                                 name="testInput"
+                                accept="image/jpeg, image/png, application/pdf"
                                 onChange={(event) => handleFileInputChange(index, event)}
                               />
                             </label>
@@ -313,7 +405,7 @@ const PatientAddNewRecord = ({ _id, getSearchByPatient, setIsAddNewDiagnosis, se
                       onChange={(event) => handleInputChange(index, event)}
                     >
                       <option value="">Select Scale</option>
-                      {scales?.map((scale, scaleIndex) => (
+                      {scales.map((scale, scaleIndex) => (
                         <option key={scaleIndex} value={scale}>
                           {scale}
                         </option>

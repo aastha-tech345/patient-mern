@@ -31,7 +31,13 @@ const patientSchema = new mongoose.Schema(
           {
             problem: String,
             test: String,
-            testInput: String,
+            testInput: {
+              files: {
+                type: Array,
+              },
+              text: String,
+            },
+            // files:[],
             scale: String,
             value: String,
           },

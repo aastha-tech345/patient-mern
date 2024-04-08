@@ -22,17 +22,18 @@ import {
 } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 
-import avatar8 from './../../assets/images/avatars/8.jpg'
+import avatar12 from './../../assets/images/avatars/12.jpg'
 
 const AppHeaderDropdown = () => {
   const logoutHandler = () => {
     // console.log('logot')
     localStorage.removeItem('token')
+    localStorage.removeItem('patientRecord')
   }
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0" caret={false}>
-        <CAvatar src={avatar8} size="md" />
+        <CAvatar src={avatar12} size="md" />
       </CDropdownToggle>
       <CDropdownMenu className="pt-0" placement="bottom-end">
         <CDropdownHeader className="bg-light fw-semibold py-2">Account</CDropdownHeader>

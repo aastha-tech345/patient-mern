@@ -14,7 +14,7 @@ const { verifyToken } = require("../utils/verifyToken");
 
 const patientRoutes = express.Router();
 
-patientRoutes.post("/create", verifyToken, createPatient);
+patientRoutes.post("/create/:id", verifyToken, createPatient);
 patientRoutes.get("/problems", verifyToken, getPatientByProblem);
 // patientRoutes.get("/doc/:doc_id", verifyToken,getPatientByDoctor);
 patientRoutes.get("/nextAppointmentDate", getPatientAppointment);

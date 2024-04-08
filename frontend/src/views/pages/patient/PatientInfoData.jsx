@@ -30,7 +30,7 @@ const PatientInfoData = ({ patientSearch, getSearchByPatient }) => {
         const isDetailsOpen = selectedPatientId === _id
         const isAddDiagnosisOpen = addDiagnosisPatientId === _id
         const inputDate = nextApointmentDate
-
+        const diagnosisProp = diagnosis
         const date = new Date(inputDate)
         const formattedDate = date
           .toLocaleString('en-IN', {
@@ -95,7 +95,7 @@ const PatientInfoData = ({ patientSearch, getSearchByPatient }) => {
                       style={{ marginLeft: '2rem' }}
                       onClick={() => handleAddDiagnosis(_id)}
                     >
-                      Add New Diagnosis
+                      {diagnosis ? 'Add New Follow-Up' : 'Add New Diagnosis'}
                     </button>
                   </div>
                   {isDetailsOpen && isDetails && (
@@ -110,6 +110,7 @@ const PatientInfoData = ({ patientSearch, getSearchByPatient }) => {
                         getSearchByPatient={getSearchByPatient}
                         setIsAddNewDiagnosis={setIsAddNewDiagnosis}
                         setIsDetailed={setIsDetailed}
+                        diagnosisProp={diagnosisProp}
                       />
                     </div>
                   )}
