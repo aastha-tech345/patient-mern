@@ -202,7 +202,8 @@ const Dashboard = () => {
   const [pageCount, setPageCount] = useState(1)
   const [numberOfPatient, setNumberOfPatient] = useState('')
   const [apointmentList, setAppointmentList] = useState([])
-  const [greeting, setGreeting] = useState('')
+  const [numberOfTodaysAppointment, setNumberOfTodaysAppointment] = useState('')
+
   const handleChange = (event, value) => {
     setPage(value)
   }
@@ -211,9 +212,16 @@ const Dashboard = () => {
       try {
         // const response = await getFetch(`${API_URL}/api/patient/doc/${patientRecord._id}`)
         const response = await getFetch(`${API_URL}/api/patient/patientByDoctor`)
-        console.log('dasRes', response)
+        console.log('dasRes', response?.data?.data)
         setNumberOfPatient(response?.data?.count)
         setAppointmentList(response?.data?.data)
+        const date = new Date()
+        // const date1 = new Date()
+        const res = await getFetch(
+          `${API_URL}/api/patient/nextAppointmentDate?startDate=${date}&endDate=${date}&page=${page}`,
+        )
+        // console.log('gaurav', res?.data?.data?.length)
+        setNumberOfTodaysAppointment(res?.data?.data?.length)
       } catch (error) {
         console.error('Error fetching data:', error)
       }
@@ -381,16 +389,27 @@ const Dashboard = () => {
       <div className="mb-5 mt-2" style={{ textAlign: 'center' }}>
         <h2>Welcome, {patientRecord?.name} </h2>
       </div>
+      {/* {console.log('numberOfPatient', numberOfPatient)}
+      {console.log('appointmentDataList', appointmentDataList)}
+      {console.log('filteredAppointmentNumber', filteredAppointmentNumber)} */}
+
       <WidgetsDropdown
         numberOfPatient={numberOfPatient}
         appointmentDataList={appointmentDataList}
-        filteredAppointmentNumber={filteredAppointmentNumber}
+        numberOfTodaysAppointment={numberOfTodaysAppointment}
       />
       {/* <hr /> */}
       <div className="row">
         <div className="col-sm-2">
           <div style={{ fontFamily: 'sans-serif', marginTop: '1rem' }}>
-            <h4>{'Appointments'}</h4>
+            <h4>
+              {'Appointments:'}
+              {filteredAppointmentNumber}
+            </h4>
+            {/* <h4>
+              {'Appointments:'}
+              {filteredAppointmentNumber}
+            </h4> */}
           </div>
         </div>
         {/* <div>

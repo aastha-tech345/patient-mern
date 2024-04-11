@@ -20,6 +20,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "doctor",
   },
+  patientNotification: {
+    type: Boolean,
+    default: false,
+  },
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 userSchema.pre("save", async function (next) {

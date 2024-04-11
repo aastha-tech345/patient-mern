@@ -5,6 +5,7 @@ const {
   userUpdate,
   uploadPatientReport,
   getPatientReport,
+  togglePatientNotifications,
 } = require("../controllers/user.controller");
 const { verifyToken } = require("../utils/verifyToken");
 const userRoutes = express.Router();
@@ -19,5 +20,10 @@ userRoutes.post(
   uploadPatientReport
 );
 userRoutes.get("/getPatientReport/:filename", getPatientReport);
+userRoutes.post(
+  "/togglePatientNotifications",
+  verifyToken,
+  togglePatientNotifications
+);
 
 module.exports = userRoutes;

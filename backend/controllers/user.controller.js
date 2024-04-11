@@ -57,7 +57,7 @@ const loginUser = async (req, res) => {
 
 const userUpdate = async (req, res) => {
   try {
-    const updateUser = await User.findByIdAndUpdate(req.user.is, req.body, {
+    const updateUser = await User.findByIdAndUpdate(req.user.id, req.body, {
       new: true,
     });
 
@@ -179,10 +179,51 @@ const getPatientReport = (req, res) => {
   }
 };
 
+const togglePatientNotifications = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Toggle the patientNotification field
+    const newNotificationValue = !user.patientNotification;
+
+    // Update the user's patientNotification field
+    const response = await User.updateOne(
+      { _id: req.user.id }, // Filter by _id
+      { $set: { patientNotification: newNotificationValue } } // Toggle the patientNotification field
+    );
+
+    if (response.nModified === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Patient notification not updated",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Patient notification toggled successfully",
+      data: newNotificationValue,
+    });
+  } catch (error) {
+    console.error("Error toggling patient notifications:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
 module.exports = {
   createUser,
   loginUser,
   userUpdate,
   uploadPatientReport,
   getPatientReport,
+  togglePatientNotifications,
 };

@@ -28,3 +28,58 @@
   height: 30rem;
   width: 40rem;
 }
+@media (max-width: 767px) {
+  .col-12 {
+    width: 100% !important;
+  }
+}
+
+/* Default styles */
+.search-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.search-input {
+  display: flex;
+}
+
+.add-patient-btn {
+  margin-left: 1rem;
+}
+
+.searchButton {
+  margin-left: 1rem;
+}
+.clearButton {
+  margin-left: 1rem;
+}
+
+/* Media query for small screens */
+@media (max-width: 768px) {
+  .search-container {
+    flex-direction: column;
+  }
+
+  .add-patient-btn {
+    // margin-top: 1rem;
+    margin-left: 0;
+  }
+
+  .searchButton {
+    margin-left: 3px;
+  }
+  .clearButton {
+    margin-left: 3px;
+  }
+  .btn-outline-dark {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+}
+
+.tableTitle {
+  // background: #fbf295;
+  white-space: nowrap;
+  padding: 5px 10px;
+}

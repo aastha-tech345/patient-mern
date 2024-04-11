@@ -219,6 +219,7 @@ const getPatientAppointment = async (req, res) => {
         $gte: startDate,
         $lte: endDate,
       },
+      doctor_id: req.user.id,
     });
     let pageCount = Math.ceil(countDocument / resultPerPage);
 
@@ -228,6 +229,7 @@ const getPatientAppointment = async (req, res) => {
           $gte: startDate,
           $lte: endDate,
         },
+        doctor_id: req.user.id,
       }),
       req.query
     )
