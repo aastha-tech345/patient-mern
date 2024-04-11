@@ -6,6 +6,7 @@ const departmentRoutes = require("./routes/deparment.routes");
 const problemRoutes = require("./routes/problem.routes");
 const cookieParser = require("cookie-parser");
 const path = require("path");
+// const notificationScheduler = require("./schedulers/smsNotification");
 const app = express();
 app.use(cookieParser());
 app.use(express.json());

@@ -28,7 +28,7 @@ const PatientAddNewRecord = ({
     diagnosisProp: PropTypes.string.isRequired,
   }
   const [inputs, setInputs] = useState([
-    { problem: '', test: '', testInput: { files: '', text: '' }, scale: '', value: '' },
+    { problem: '', test: '', testInput: '', files: [], scale: '', value: '' },
   ])
 
   const [lastDiagnosis, setLastDiagnosis] = useState('')
@@ -36,20 +36,12 @@ const PatientAddNewRecord = ({
   useEffect(() => {
     const lastRecords = diagnosisProp[diagnosisProp.length - 1]
     const lastDiagnosis = lastRecords?.diagnosData[lastRecords?.diagnosData.length - 1]
-    // setLastDiagnosis(lastDiagnosis)
+    setLastDiagnosis(lastDiagnosis)
+    console.log('Guarssadva', lastDiagnosis)
     setInputs([
-      {
-        problem: lastDiagnosis.problem || '',
-        test: '',
-        testInput: { files: '', text: '' },
-        scale: '',
-        value: '',
-      },
+      { problem: lastDiagnosis?.problem, test: '', testInput: '', files: [], scale: '', value: '' },
     ])
   }, [])
-  // console.log('data', diagnosisProp)
-  // console.log('lastdata', diagnosisProp[diagnosisProp.length - 1])
-  // console.log('record', lastDiagnosis)
 
   const [startingDate, setStartingDate] = React.useState(null)
   const [patientById, setPatientById] = useState({})
@@ -115,11 +107,12 @@ const PatientAddNewRecord = ({
     }
 
     for (const data of inputs) {
-      if (data?.test !== '' && data?.testInput === '') {
+      if (data.test !== '' && data.testInput === '' && data.files.length === 0) {
         toast.warning('Please give input for selected test')
         return // Stop further execution
       }
-      if (data?.scale !== '' && data?.value === '') {
+
+      if (data.scale !== '' && data.value === '') {
         toast.warning('Please give input for selected scale')
         return // Stop further execution
       }
@@ -130,8 +123,8 @@ const PatientAddNewRecord = ({
     try {
       await Promise.all(
         inputs.map(async (data, index) => {
-          if (data.testInput.files) {
-            const files = data.testInput.files
+          if (data.files) {
+            const files = data.files
             if (files.length > 0) {
               const formData = new FormData()
               files.forEach((file) => {
@@ -150,14 +143,14 @@ const PatientAddNewRecord = ({
                 )
                 if (response) {
                   setfileUploadingSpinner(false)
-                  inputs[index].testInput.files = response.filesInfo
+                  inputs[index].files = response.filesInfo
                 }
               } else {
                 console.warn('No valid files to upload')
               }
             }
           } else {
-            inputs[index].testInput.files = null
+            inputs[index].files = null
           }
         }),
       )
@@ -195,9 +188,7 @@ const PatientAddNewRecord = ({
         setTimeout(() => {
           setIsAddNewDiagnosis(false)
           setIsDetailed(true)
-          setInputs([
-            { problem: '', test: '', testInput: { files: '', text: '' }, scale: '', value: '' },
-          ])
+          setInputs([{ problem: '', test: '', testInput: '', files: [], scale: '', value: '' }])
           setLoading(false)
         }, 2000)
         getSearchByPatient()
@@ -264,14 +255,14 @@ const PatientAddNewRecord = ({
       return true
     })
 
-    updatedInputs[index][name] = { files: filesArray } // Store the array of files
+    updatedInputs[index][name] = filesArray // Store the array of files
     setInputs(updatedInputs)
   }
 
   const handleAddInput = () => {
     setInputs([
       ...inputs,
-      { problem: '', test: '', testInput: { files: '', text: '' }, scale: '', value: '' },
+      { problem: '', test: '', testInput: '', files: [], scale: '', value: '' },
     ])
   }
 
@@ -284,7 +275,7 @@ const PatientAddNewRecord = ({
   const handleInputTestText = (index, event) => {
     const { name, value } = event.target
     const updatedInputs = [...inputs]
-    updatedInputs[index][name] = { text: value }
+    updatedInputs[index][name] = value
     setInputs(updatedInputs)
   }
   useEffect(() => {
@@ -383,7 +374,7 @@ const PatientAddNewRecord = ({
                                 style={{ width: '10rem' }}
                                 type="file"
                                 multiple
-                                name="testInput"
+                                name="files"
                                 accept="image/jpeg, image/png, application/pdf"
                                 onChange={(event) => handleFileInputChange(index, event)}
                               />

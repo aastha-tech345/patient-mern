@@ -17,7 +17,7 @@ import SpinnerOverlay from 'src/views/publicItems/ SpinnerOverlay'
 
 const PatientPage = () => {
   const location = useLocation()
-  console.log('location', Number(location?.state?.crn))
+  // console.log('location', Number(location?.state?.crn))
   let API_URL = process.env.REACT_APP_API_URL
   // const API_URL = process.env.API_URL
   let patientData = localStorage.getItem('patientRecord')
@@ -51,7 +51,7 @@ const PatientPage = () => {
   const handleStartingDateChange = (date) => {
     setStartingDate(date)
   }
-  console.log('value date', startingDate)
+  // console.log('value date', startingDate)
   useEffect(() => {
     // Fetch problems from API
     setSearch('')
@@ -83,7 +83,7 @@ const PatientPage = () => {
     }
   }
 
-  console.log('problems', problems)
+  // console.log('problems', problems)
 
   const clearSearch = () => {
     try {
@@ -103,7 +103,7 @@ const PatientPage = () => {
       }
       setLoader(true)
       const data = await getFetch(`${API_URL}/api/patient/${searchData}`)
-      console.log('searchData', data)
+      // console.log('searchData', data)
       setPatientSearch(data?.data?.data)
       setTimeout(() => {
         setLoader(false)
@@ -114,11 +114,11 @@ const PatientPage = () => {
   }
 
   useEffect(() => {
-    console.log('before', inputs)
+    // console.log('before', inputs)
   })
 
   const handleSubmit = async () => {
-    console.log('updatedFormData', inputs)
+    // console.log('updatedFormData', inputs)
 
     setSearch('')
 
@@ -132,10 +132,11 @@ const PatientPage = () => {
     }
 
     for (const data of inputs) {
-      if (data.test !== '' && data.testInput === '') {
+      if (data.test !== '' && data.testInput === '' && data.files.length === 0) {
         toast.warning('Please give input for selected test')
         return // Stop further execution
       }
+
       if (data.scale !== '' && data.value === '') {
         toast.warning('Please give input for selected scale')
         return // Stop further execution
@@ -147,8 +148,8 @@ const PatientPage = () => {
     try {
       await Promise.all(
         inputs.map(async (data, index) => {
-          if (data.testInput.files) {
-            const files = data.testInput.files
+          if (data.files) {
+            const files = data.files
             if (files.length > 0) {
               const formData = new FormData()
               files.forEach((file) => {
@@ -167,7 +168,7 @@ const PatientPage = () => {
                 )
                 if (response) {
                   setfileUploadingSpinner(false)
-                  inputs[index].testInput.files = response.filesInfo
+                  inputs[index].files = response.filesInfo
                 }
               } else {
                 setfileUploadingSpinner(false)
@@ -175,7 +176,7 @@ const PatientPage = () => {
               }
             }
           } else {
-            inputs[index].testInput.files = null
+            inputs[index].files = null
             setfileUploadingSpinner(false)
           }
         }),
@@ -208,6 +209,7 @@ const PatientPage = () => {
         toast.success('Patient Created Successfully', {
           autoClose: 2000,
         })
+        setfileUploadingSpinner(false)
 
         setaddPatientLoader(true)
         setData(false)
@@ -218,9 +220,7 @@ const PatientPage = () => {
           // setDiagnosis([])
           setDesc('')
           setStartingDate(null)
-          setInputs([
-            { problem: '', test: '', testInput: { files: '', text: '' }, scale: '', value: '' },
-          ])
+          setInputs([{ problem: '', test: '', testInput: '', files: [], scale: '', value: '' }])
         }, 2000)
         setFormData({
           name: '',
@@ -241,7 +241,7 @@ const PatientPage = () => {
         toast.warning('Crn Already Exists')
         setfileUploadingSpinner(false) // Set loading to false in case of an error
       }
-      console.log('data', data)
+      // console.log('data', data)
       setSearch(data?.data?.crn)
     } catch (error) {
       toast.warning('Something went wrong')
@@ -420,7 +420,7 @@ const PatientPage = () => {
   let [removeAndAddInput, setremoveAndAddInput] = useState(false)
 
   const [inputs, setInputs] = useState([
-    { problem: '', test: '', testInput: { files: '', text: '' }, scale: '', value: '' },
+    { problem: '', test: '', testInput: '', files: [], scale: '', value: '' },
   ])
 
   const handleInputChange = (index, event) => {
@@ -433,7 +433,7 @@ const PatientPage = () => {
   const handleInputTestText = (index, event) => {
     const { name, value } = event.target
     const updatedInputs = [...inputs]
-    updatedInputs[index][name] = { text: value }
+    updatedInputs[index][name] = value
     setInputs(updatedInputs)
   }
 
@@ -495,14 +495,14 @@ const PatientPage = () => {
       return true
     })
 
-    updatedInputs[index][name] = { files: filesArray } // Store the array of files
+    updatedInputs[index][name] = filesArray // Store the array of files
     setInputs(updatedInputs)
   }
 
   const handleAddInput = () => {
     setInputs([
       ...inputs,
-      { problem: '', test: '', testInput: { files: '', text: '' }, scale: '', value: '' },
+      { problem: '', test: '', testInput: '', files: [], scale: '', value: '' },
     ])
   }
 
@@ -527,10 +527,60 @@ const PatientPage = () => {
     <>
       <div>
         {!data && !addPatientLoader ? (
+          // <div>
+          //   <p style={{ fontWeight: 'bolder' }}>Search Patient</p>
+          //   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          //     <div className="d-flex">
+          //       <input
+          //         style={{ paddingLeft: '5px' }}
+          //         className="form-control"
+          //         placeholder="CR no. or Phone no."
+          //         type="text"
+          //         name="search"
+          //         value={search}
+          //         // autoComplete={false}
+          //         onKeyPress={handleKeyPress}
+          //         onChange={(e) => setSearch(e.target.value)}
+          //       />
+
+          //       {/* </button> */}
+          //       <button
+          //         className="btn btn-primary"
+          //         style={{ marginLeft: '1rem', borderRadius: '5px' }}
+          //         type="button"
+          //         onClick={getSearchByPatient}
+          //       >
+          //         Search
+          //       </button>
+          //       {search?.length ? (
+          //         <button
+          //           className="btn btn-danger text-light"
+          //           style={{ marginLeft: '1rem', borderRadius: '5px' }}
+          //           type="button"
+          //           onClick={clearSearch}
+          //         >
+          //           Clear
+          //         </button>
+          //       ) : (
+          //         ''
+          //       )}
+          //     </div>
+          //     <div>
+          //       <button
+          //         style={{ marginLeft: '1rem', borderRadius: '5px' }}
+          //         type="button"
+          //         onClick={() => setData(true)}
+          //         className="btn btn-outline-dark"
+          //       >
+          //         Add a Patient
+          //       </button>
+          //     </div>
+          //   </div>
+          // </div>
           <div>
             <p style={{ fontWeight: 'bolder' }}>Search Patient</p>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <div className="d-flex">
+            <div className="search-container">
+              <div className="search-input">
                 <input
                   style={{ paddingLeft: '5px' }}
                   className="form-control"
@@ -538,15 +588,11 @@ const PatientPage = () => {
                   type="text"
                   name="search"
                   value={search}
-                  // autoComplete={false}
                   onKeyPress={handleKeyPress}
                   onChange={(e) => setSearch(e.target.value)}
                 />
-
-                {/* </button> */}
                 <button
-                  className="btn btn-primary"
-                  style={{ marginLeft: '1rem', borderRadius: '5px' }}
+                  className="btn btn-primary searchButton"
                   type="button"
                   onClick={getSearchByPatient}
                 >
@@ -554,20 +600,16 @@ const PatientPage = () => {
                 </button>
                 {search?.length ? (
                   <button
-                    className="btn btn-danger text-light"
-                    style={{ marginLeft: '1rem', borderRadius: '5px' }}
+                    className="btn btn-danger text-light clearButton"
                     type="button"
                     onClick={clearSearch}
                   >
                     Clear
                   </button>
-                ) : (
-                  ''
-                )}
+                ) : null}
               </div>
-              <div>
+              <div className="add-patient-btn">
                 <button
-                  style={{ marginLeft: '1rem', borderRadius: '5px' }}
                   type="button"
                   onClick={() => setData(true)}
                   className="btn btn-outline-dark"
@@ -660,7 +702,7 @@ const PatientPage = () => {
                           </div>
                         </div>
                         <div className="row ">
-                          <div className="col-md-4 mt-4">
+                          <div className="col-md-4 mt-2">
                             <div>
                               <label className="col-lg-4 patientNamediv">
                                 Phone No <span style={{ color: 'red' }}>*</span>
@@ -682,7 +724,7 @@ const PatientPage = () => {
                             </div>
                           </div>
 
-                          <div className="col-md-4 mt-4">
+                          <div className="col-md-4 mt-2">
                             <div>
                               <label className="col-sm-4  patientNamediv">
                                 CR No <span style={{ color: 'red' }}>*</span>
@@ -711,11 +753,11 @@ const PatientPage = () => {
                         <form className="mb-3">
                           {inputs.map((input, index) => (
                             <div key={index} className="row mt-1 mb-2">
-                              <div className="col-md-2">
+                              <div className="col-md-2 col-12">
                                 <label>
                                   <select
                                     className="form-control "
-                                    style={{ width: '10rem', appearance: 'auto', height: '38px' }}
+                                    style={{ width: '100%', appearance: 'auto', height: '38px' }}
                                     name="problem"
                                     value={input.problem}
                                     onChange={(event) => handleInputChange(index, event)}
@@ -729,11 +771,11 @@ const PatientPage = () => {
                                   </select>
                                 </label>
                               </div>
-                              <div className="col-md-2">
+                              <div className="col-md-2 col-6">
                                 <label>
                                   <select
                                     className="form-control "
-                                    style={{ width: '10rem', appearance: 'auto', height: '38px' }}
+                                    style={{ width: '100%', appearance: 'auto', height: '38px' }}
                                     name="test"
                                     value={input.test}
                                     onChange={(event) => handleInputChange(index, event)}
@@ -748,11 +790,11 @@ const PatientPage = () => {
                                 </label>
                               </div>
                               {input.test === '' ? (
-                                <div className="col-md-2">
+                                <div className="col-md-2 col-6">
                                   <label>
                                     <input
                                       className="form-control "
-                                      style={{ width: '10rem', appearance: 'auto' }}
+                                      style={{ width: '100%', appearance: 'auto' }}
                                       placeholder="Select a Test"
                                       type="text"
                                       disabled="true"
@@ -760,7 +802,7 @@ const PatientPage = () => {
                                   </label>
                                 </div>
                               ) : (
-                                <div className="col-md-2">
+                                <div className="col-md-2 col-6">
                                   {tests.map((test, testIndex) => {
                                     if (test.name === input.test) {
                                       if (test.inputType === 'text') {
@@ -768,7 +810,7 @@ const PatientPage = () => {
                                           <label key={testIndex}>
                                             <input
                                               className="form-control"
-                                              style={{ width: '10rem' }}
+                                              style={{ width: '100%' }}
                                               placeholder="Enter test Value"
                                               type="text"
                                               name="testInput"
@@ -784,10 +826,10 @@ const PatientPage = () => {
                                           <label key={testIndex}>
                                             <input
                                               className="form-control"
-                                              style={{ width: '10rem' }}
+                                              style={{ width: '100%' }}
                                               type="file"
                                               multiple
-                                              name="testInput"
+                                              name="files"
                                               accept="image/jpeg, image/png, application/pdf"
                                               onChange={(event) =>
                                                 handleFileInputChange(index, event)
@@ -801,11 +843,11 @@ const PatientPage = () => {
                                   })}
                                 </div>
                               )}
-                              <div className="col-md-2">
+                              <div className="col-md-2 col-6">
                                 <label>
                                   <select
                                     className="form-control "
-                                    style={{ width: '10rem', appearance: 'auto', height: '38px' }}
+                                    style={{ width: '100%', appearance: 'auto', height: '38px' }}
                                     name="scale"
                                     value={input.scale}
                                     onChange={(event) => handleInputChange(index, event)}
@@ -819,11 +861,11 @@ const PatientPage = () => {
                                   </select>
                                 </label>
                               </div>
-                              <div className="col-md-2">
+                              <div className="col-md-2 col-6">
                                 <label>
                                   <input
                                     className="form-control "
-                                    style={{ width: '10rem', appearance: 'auto' }}
+                                    style={{ width: '100%', appearance: 'auto' }}
                                     placeholder="Enter Scale Value"
                                     type="text"
                                     name="value"
@@ -832,12 +874,13 @@ const PatientPage = () => {
                                   />
                                 </label>
                               </div>
-                              <div className="col-md-2 d-flex justify-content-center">
+                              <div className="col-md-2 d-flex justify-content-end col-12">
                                 {removeAndAddInput && (
                                   <button
-                                    className="btn btn-danger"
+                                    className="btn btn-danger me-4 mt-1"
                                     type="button"
                                     onClick={() => handleRemoveInput(index)}
+                                    // style={{ marginRight: '10px', marginTop: '3px' }}
                                   >
                                     Remove
                                   </button>

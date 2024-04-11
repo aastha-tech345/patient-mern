@@ -46,10 +46,8 @@ const Login = () => {
         toast.success('Login successfully')
         localStorage.setItem('token', dataa.token)
         localStorage.setItem('patientRecord', JSON.stringify(dataa?.user))
-        setTimeout(() => {
-          window.location.reload()
-          setLoading(false)
-        }, 1000)
+        window.location.reload()
+        setLoading(false)
       }
 
       if (dataa?.response?.data?.success === false) {

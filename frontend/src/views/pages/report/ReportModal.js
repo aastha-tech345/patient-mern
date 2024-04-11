@@ -94,7 +94,7 @@ const ReportModal = ({ setHide, popupData }) => {
   return (
     <>
       <div
-        className="modal"
+        className="modal modal-lg"
         tabIndex={-1}
         style={{
           display: 'block',
@@ -105,7 +105,7 @@ const ReportModal = ({ setHide, popupData }) => {
       >
         <div
           className="modal-dialog"
-          style={{ height: '30rem', width: '60rem', minWidth: '70rem' }}
+          // style={{ height: '30rem', width: '60rem', minWidth: '70rem' }}
         >
           <div className="modal-content">
             <div className="modal-header">
@@ -157,20 +157,21 @@ const ReportModal = ({ setHide, popupData }) => {
                       <div key={index}>
                         <div
                           className="row"
+                          style={{ overflowX: 'auto' }}
                           // style={{ overflow: 'scroll !important', background: 'white' }}
                         >
                           <div
                             style={{ margin: '1rem auto 1rem 1rem', overflow: 'auto !important' }}
                           >
-                            <h5>Diagnose Date : {formattedDate}</h5>
+                            <h6>Diagnose Date : {formattedDate}</h6>
 
                             <table
                               className="table"
                               style={{
-                                width: '90%',
                                 border: '1px solid',
                                 fontFamily: 'ui-rounded',
                                 borderRadius: '10px',
+                                width: '80%',
                               }}
                             >
                               <colgroup>
@@ -182,42 +183,62 @@ const ReportModal = ({ setHide, popupData }) => {
                               </colgroup>
                               <thead>
                                 <tr>
-                                  <th scope="col" style={{ background: '#FBF295' }}>
+                                  <th
+                                    scope="col"
+                                    className="tableTitle"
+                                    style={{ background: '#FBF295' }}
+                                  >
                                     Problems
                                   </th>
-                                  <th scope="col" style={{ background: '#FBF295' }}>
+                                  <th
+                                    scope="col"
+                                    className="tableTitle"
+                                    style={{ background: '#FBF295' }}
+                                  >
                                     Test
                                   </th>
-                                  <th scope="col" style={{ background: '#FBF295' }}>
+                                  <th
+                                    scope="col"
+                                    className="tableTitle"
+                                    style={{ background: '#FBF295' }}
+                                  >
                                     Test value
                                   </th>
-                                  <th scope="col" style={{ background: '#FBF295' }}>
+                                  <th
+                                    scope="col"
+                                    className="tableTitle"
+                                    style={{ background: '#FBF295' }}
+                                  >
                                     Scale
                                   </th>
-                                  <th scope="col" style={{ background: '#FBF295' }}>
+                                  <th
+                                    scope="col"
+                                    className="tableTitle"
+                                    style={{ background: '#FBF295' }}
+                                  >
                                     Scale value
                                   </th>
                                 </tr>
                               </thead>
                               {elem?.diagnosData?.map((element, innerIndex) => {
-                                const { problem, scale, test, testInput, value } = element
-
+                                const { problem, scale, test, testInput, files, value } = element
+                                // console.log('Guarav', element)
                                 return (
                                   <tbody key={innerIndex}>
                                     {loading && <SpinnerOverlay message="Opening File" />}
                                     <tr>
-                                      <td style={{ fontWeight: 'bolder' }}>{problem}</td>
-                                      <td style={{ fontWeight: 'bolder' }}>
+                                      <td className="tableTitle" style={{ fontWeight: 'bolder' }}>
+                                        {problem}
+                                      </td>
+                                      <td className="tableTitle" style={{ fontWeight: 'bolder' }}>
                                         {test === '' ? '-' : test}
                                       </td>
-                                      <td style={{ fontWeight: 'bolder' }}>
-                                        {test === '' ? (
-                                          '-'
-                                        ) : testInput?.text ? (
-                                          testInput.text
+                                      <td className="tableTitle" style={{ fontWeight: 'bolder' }}>
+                                        {testInput ? (
+                                          testInput
                                         ) : (
                                           <div style={{ display: 'flex' }}>
-                                            {testInput?.files?.map((file, fileIndex) => (
+                                            {files?.map((file, fileIndex) => (
                                               <div
                                                 key={fileIndex}
                                                 value={file.fileName}
@@ -247,10 +268,10 @@ const ReportModal = ({ setHide, popupData }) => {
                                         )}
                                       </td>
                                       {console.log('Guarav', testInput)}
-                                      <td style={{ fontWeight: 'bolder' }}>
+                                      <td className="tableTitle" style={{ fontWeight: 'bolder' }}>
                                         {scale === '' ? '-' : scale}
                                       </td>
-                                      <td style={{ fontWeight: 'bolder' }}>
+                                      <td className="tableTitle" style={{ fontWeight: 'bolder' }}>
                                         {value === '' ? '-' : value}
                                       </td>
                                     </tr>
