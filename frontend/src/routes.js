@@ -3,6 +3,8 @@ import React from 'react'
 import Login from './views/pages/login/Login'
 import Report from './views/pages/report/PatientReport'
 import PatientReport from './views/pages/report/PatientReport'
+import DoctorsCalendar from './views/pages/patient/doctorsCalendar'
+// import { DoctorsCalendar } from './views/pages/patient/doctorsCalendar'
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
@@ -64,6 +66,7 @@ if (auth) {
     { path: '/dashboard', name: 'Dashboard', element: Dashboard },
     { path: '/patientPage', name: 'Patient', element: PatientPage },
     { path: '/report', name: 'Report', element: PatientReport },
+    { path: '/calendar', name: 'Calendar', element: DoctorsCalendar },
     { path: '/theme', name: 'Theme', element: Colors, exact: true },
     { path: '/theme/colors', name: 'Colors', element: Colors },
     { path: '/theme/typography', name: 'Typography', element: Typography },

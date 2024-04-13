@@ -212,7 +212,7 @@ const getPatientAppointment = async (req, res) => {
 
     endDate.setHours(23, 59, 59, 999);
 
-    const resultPerPage = 10;
+    const resultPerPage = 10 || req.query.resultPerPage;
 
     const countDocument = await Patient.countDocuments({
       nextApointmentDate: {

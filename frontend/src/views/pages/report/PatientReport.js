@@ -199,7 +199,7 @@ const PatientReport = () => {
     const date1 = new Date(endDate)
     // const formattedStartDate = date.toISOString().split('T')[0] + 'T00:00:00.000Z'
     // const formattedEndDate = date1.toISOString().split('T')[0] + 'T00:00:00.000Z'
-    console.log(date, date1)
+    console.log(`Report Start ${date} and Report End ${date1}`)
 
     const res = await getFetch(
       `${API_URL}/api/patient/problems?problem=${problemSet}&doctor_id=${patientRecord._id}&startDate=${date}&endDate=${date1}&page=${page}`,
