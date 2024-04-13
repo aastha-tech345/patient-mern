@@ -9,6 +9,7 @@ const {
   getPatientAppointment,
   getPatientByDoctorCount,
   getPatientByProblem,
+  getPatientAppointmentRange,
 } = require("../controllers/patient.controller");
 const { verifyToken } = require("../utils/verifyToken");
 

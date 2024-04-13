@@ -31,6 +31,11 @@ const _nav = [
     name: 'Report',
     to: '/report',
   },
+  {
+    component: CNavItem,
+    name: 'My Schedule',
+    to: '/calendar',
+  },
   // {
   //   component: CNavItem,
   //   name: 'Login',

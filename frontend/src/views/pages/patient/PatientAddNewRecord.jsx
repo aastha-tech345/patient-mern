@@ -105,8 +105,9 @@ const PatientAddNewRecord = ({
     if (inputs.length === 1 && inputs[0].problem === '') {
       return toast.warning('Please select at least one Chief complaint')
     }
+    const filteredInputs = inputs.filter((data) => data.problem !== '')
 
-    for (const data of inputs) {
+    for (const data of filteredInputs) {
       if (data.test !== '' && data.testInput === '' && data.files.length === 0) {
         toast.warning('Please give input for selected test')
         return // Stop further execution
@@ -118,11 +119,24 @@ const PatientAddNewRecord = ({
       }
       console.log('data', data)
     }
+
+    // for (const data of inputs) {
+    //   if (data.test !== '' && data.testInput === '' && data.files.length === 0) {
+    //     toast.warning('Please give input for selected test')
+    //     return // Stop further execution
+    //   }
+
+    //   if (data.scale !== '' && data.value === '') {
+    //     toast.warning('Please give input for selected scale')
+    //     return // Stop further execution
+    //   }
+    //   console.log('data', data)
+    // }
     // toast.warning('Uploading Files and Reports')z
     setfileUploadingSpinner(true)
     try {
       await Promise.all(
-        inputs.map(async (data, index) => {
+        filteredInputs.map(async (data, index) => {
           if (data.files) {
             const files = data.files
             if (files.length > 0) {
@@ -143,14 +157,14 @@ const PatientAddNewRecord = ({
                 )
                 if (response) {
                   setfileUploadingSpinner(false)
-                  inputs[index].files = response.filesInfo
+                  filteredInputs[index].files = response.filesInfo
                 }
               } else {
                 console.warn('No valid files to upload')
               }
             }
           } else {
-            inputs[index].files = null
+            filteredInputs[index].files = null
           }
         }),
       )
@@ -167,7 +181,7 @@ const PatientAddNewRecord = ({
         ...formData,
         diagnosis: [
           {
-            diagnosData: inputs,
+            diagnosData: filteredInputs,
             date: Date(),
             desc,
           },
@@ -185,12 +199,12 @@ const PatientAddNewRecord = ({
         toast.success('Patient Updated Successfully', {
           autoClose: 1000,
         })
-        setTimeout(() => {
-          setIsAddNewDiagnosis(false)
-          setIsDetailed(true)
-          setInputs([{ problem: '', test: '', testInput: '', files: [], scale: '', value: '' }])
-          setLoading(false)
-        }, 2000)
+
+        setIsAddNewDiagnosis(false)
+        setIsDetailed(true)
+        setInputs([{ problem: '', test: '', testInput: '', files: [], scale: '', value: '' }])
+        setLoading(false)
+
         getSearchByPatient()
         // window.location.reload()
       }
@@ -260,10 +274,17 @@ const PatientAddNewRecord = ({
   }
 
   const handleAddInput = () => {
-    setInputs([
-      ...inputs,
-      { problem: '', test: '', testInput: '', files: [], scale: '', value: '' },
-    ])
+    const allInputsHaveProblem = inputs.every((input) => input.problem !== '')
+    if (allInputsHaveProblem) {
+      setInputs([
+        ...inputs,
+        { problem: '', test: '', testInput: '', files: [], scale: '', value: '' },
+      ])
+    } else {
+      toast.warning('Please Fill Details of previous Record before adding new!!', {
+        autoClose: 1500,
+      })
+    }
   }
 
   const handleRemoveInput = (index) => {
@@ -300,11 +321,11 @@ const PatientAddNewRecord = ({
           <form className="mb-3">
             {inputs.map((input, index) => (
               <div key={index} className="row mt-1 mb-2">
-                <div className="col-md-2">
+                <div className="col-md-2 col-12">
                   <label>
                     <select
                       className="form-control "
-                      style={{ width: '10rem', appearance: 'auto', height: '38px' }}
+                      style={{ width: '100%', appearance: 'auto', height: '38px' }}
                       name="problem"
                       value={input.problem}
                       onChange={(event) => handleInputChange(index, event)}
@@ -318,11 +339,11 @@ const PatientAddNewRecord = ({
                     </select>
                   </label>
                 </div>
-                <div className="col-md-2">
+                <div className="col-md-2 col-6">
                   <label>
                     <select
                       className="form-control "
-                      style={{ width: '10rem', appearance: 'auto', height: '38px' }}
+                      style={{ width: '100%', appearance: 'auto', height: '38px' }}
                       name="test"
                       value={input.test}
                       onChange={(event) => handleInputChange(index, event)}
@@ -337,11 +358,11 @@ const PatientAddNewRecord = ({
                   </label>
                 </div>
                 {input.test === '' ? (
-                  <div className="col-md-2">
+                  <div className="col-md-2 col-6">
                     <label>
                       <input
                         className="form-control "
-                        style={{ width: '10rem', appearance: 'auto' }}
+                        style={{ width: '100%', appearance: 'auto' }}
                         placeholder="Select a Test"
                         type="text"
                         disabled="true"
@@ -349,7 +370,7 @@ const PatientAddNewRecord = ({
                     </label>
                   </div>
                 ) : (
-                  <div className="col-md-2">
+                  <div className="col-md-2 col-6">
                     {tests.map((test, testIndex) => {
                       if (test.name === input.test) {
                         if (test.inputType === 'text') {
@@ -357,7 +378,7 @@ const PatientAddNewRecord = ({
                             <label key={testIndex}>
                               <input
                                 className="form-control"
-                                style={{ width: '10rem' }}
+                                style={{ width: '100%' }}
                                 placeholder="Enter test Value"
                                 type="text"
                                 name="testInput"
@@ -371,7 +392,7 @@ const PatientAddNewRecord = ({
                             <label key={testIndex}>
                               <input
                                 className="form-control"
-                                style={{ width: '10rem' }}
+                                style={{ width: '100%' }}
                                 type="file"
                                 multiple
                                 name="files"
@@ -386,11 +407,11 @@ const PatientAddNewRecord = ({
                     })}
                   </div>
                 )}
-                <div className="col-md-2">
+                <div className="col-md-2 col-6">
                   <label>
                     <select
                       className="form-control "
-                      style={{ width: '10rem', appearance: 'auto', height: '38px' }}
+                      style={{ width: '100%', appearance: 'auto', height: '38px' }}
                       name="scale"
                       value={input.scale}
                       onChange={(event) => handleInputChange(index, event)}
@@ -404,11 +425,11 @@ const PatientAddNewRecord = ({
                     </select>
                   </label>
                 </div>
-                <div className="col-md-2">
+                <div className="col-md-2 col-6">
                   <label>
                     <input
                       className="form-control "
-                      style={{ width: '10rem', appearance: 'auto' }}
+                      style={{ width: '100%', appearance: 'auto' }}
                       placeholder="Enter Scale Value"
                       type="text"
                       name="value"

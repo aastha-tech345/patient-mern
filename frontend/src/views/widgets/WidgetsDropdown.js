@@ -23,6 +23,10 @@ const WidgetsDropdown = ({ numberOfPatient, appointmentDataList, numberOfTodaysA
   }
   const navigate = useNavigate()
   // console.log(numberOfPatient)
+
+  const nevigateToMySchedules = () => {
+    navigate('/calendar')
+  }
   return (
     <CRow>
       <CCol sm={6} lg={3}>
@@ -114,6 +118,8 @@ const WidgetsDropdown = ({ numberOfPatient, appointmentDataList, numberOfTodaysA
       </CCol>
       <CCol sm={6} lg={3}>
         <CWidgetStatsA
+          style={{ cursor: 'pointer' }}
+          onClick={() => nevigateToMySchedules()}
           className="mb-4"
           color="primary"
           value={

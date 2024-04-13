@@ -33,6 +33,7 @@ const PatientPage = () => {
   const [problems, setProblems] = useState([])
   const [tests, setTests] = useState([])
   const [scales, setScales] = useState([])
+  const [queryCRN, setQueryCRN] = useState('')
 
   let [fileUploadingSpinner, setfileUploadingSpinner] = useState(false)
   const [desc, setDesc] = useState('')
@@ -56,7 +57,17 @@ const PatientPage = () => {
     // Fetch problems from API
     setSearch('')
     fetchProblems()
+    const queryParams = new URLSearchParams(location.search)
+    const searchParamValue = queryParams.get('crn')
+    if (searchParamValue) {
+      setQueryCRN(searchParamValue)
+    }
   }, [])
+
+  useEffect(() => {
+    console.log('Gaurav Tripathii', queryCRN)
+    getSearchByPatient()
+  }, [queryCRN])
 
   const fetchProblems = async () => {
     try {
@@ -97,7 +108,7 @@ const PatientPage = () => {
 
   const getSearchByPatient = async () => {
     try {
-      let searchData = search || location?.state?.crn
+      let searchData = search || location?.state?.crn || queryCRN
       if (searchData?.length === 0) {
         return
       }
@@ -117,6 +128,8 @@ const PatientPage = () => {
     // console.log('before', inputs)
   })
 
+  /////////////////////////////////////START OF HANDLE SUBMIT/////////////////////
+
   const handleSubmit = async () => {
     // console.log('updatedFormData', inputs)
 
@@ -130,8 +143,9 @@ const PatientPage = () => {
     if (inputs.length === 1 && inputs[0].problem === '') {
       return toast.warning('Please select at least one Chief complaint')
     }
+    const filteredInputs = inputs.filter((data) => data.problem !== '')
 
-    for (const data of inputs) {
+    for (const data of filteredInputs) {
       if (data.test !== '' && data.testInput === '' && data.files.length === 0) {
         toast.warning('Please give input for selected test')
         return // Stop further execution
@@ -147,7 +161,7 @@ const PatientPage = () => {
     setfileUploadingSpinner(true)
     try {
       await Promise.all(
-        inputs.map(async (data, index) => {
+        filteredInputs.map(async (data, index) => {
           if (data.files) {
             const files = data.files
             if (files.length > 0) {
@@ -168,7 +182,7 @@ const PatientPage = () => {
                 )
                 if (response) {
                   setfileUploadingSpinner(false)
-                  inputs[index].files = response.filesInfo
+                  filteredInputs[index].files = response.filesInfo
                 }
               } else {
                 setfileUploadingSpinner(false)
@@ -176,7 +190,7 @@ const PatientPage = () => {
               }
             }
           } else {
-            inputs[index].files = null
+            filteredInputs[index].files = null
             setfileUploadingSpinner(false)
           }
         }),
@@ -191,7 +205,7 @@ const PatientPage = () => {
       ...formData,
       diagnosis: [
         {
-          diagnosData: inputs,
+          diagnosData: filteredInputs,
           date: Date(),
           desc,
         },
@@ -213,15 +227,15 @@ const PatientPage = () => {
 
         setaddPatientLoader(true)
         setData(false)
-        setTimeout(() => {
-          // toast.success('Patient Created Successfully')
-          setUpdateState(true)
-          setaddPatientLoader(false)
-          // setDiagnosis([])
-          setDesc('')
-          setStartingDate(null)
-          setInputs([{ problem: '', test: '', testInput: '', files: [], scale: '', value: '' }])
-        }, 2000)
+
+        // toast.success('Patient Created Successfully')
+        setUpdateState(true)
+        setaddPatientLoader(false)
+        // setDiagnosis([])
+        setDesc('')
+        setStartingDate(null)
+        setInputs([{ problem: '', test: '', testInput: '', files: [], scale: '', value: '' }])
+
         setFormData({
           name: '',
           age: '',
@@ -249,151 +263,8 @@ const PatientPage = () => {
       console.error('Error submitting data:', error)
     }
   }
+  /////////////////////////////////////// END OF HANDLE SUBMIT ////////////
 
-  // const handleSubmit = async () => {
-  //   console.log(inputs)
-  // }
-
-  // const handleSubmit = async () => {
-  //   // console.log('updatedFormData', inputs)
-
-  //   setSearch('')
-
-  //   // Check if required fields are filled
-  //   // if (!formData.name || !formData.age || !formData.sex || !formData.phone || !formData.crn) {
-  //   //   return toast.warning('Please fill all Patient details')
-  //   // }
-
-  //   // if (inputs.length === 1 && inputs[0].problem === '') {
-  //   //   return toast.warning('Please select at least one Chief complaint')
-  //   // }
-
-  //   // for (const data of inputs) {
-  //   //   if (data.test !== '' && data.testInput === '') {
-  //   //     toast.warning('Please give input for selected test')
-  //   //     return // Stop further execution
-  //   //   }
-  //   //   if (data.scale !== '' && data.value === '') {
-  //   //     toast.warning('Please give input for selected scale')
-  //   //     return // Stop further execution
-  //   //   }
-  //   //   console.log('data', data)
-  //   // }
-  //   // // toast.warning('Uploading Files and Reports')
-  //   // setfileUploadingSpinner(true)
-  //   // try {
-  //   //   await Promise.all(
-  //   //     inputs.map(async (data, index) => {
-  //   //       if (data.testInput.files) {
-  //   //         const files = data.testInput.files
-  //   //         if (files.length > 0) {
-  //   //           const formData = new FormData()
-  //   //           files.forEach((file) => {
-  //   //             formData.append('files', file) // Append each file to the FormData
-  //   //           })
-  //   //           const response = await postFetchFile(
-  //   //             `${API_URL}/api/user/uploadPatientReport`,
-  //   //             formData,
-  //   //           )
-  //   //           if (response) {
-  //   //             setfileUploadingSpinner(false)
-  //   //             inputs[index].testInput.files = response.filesInfo
-  //   //           }
-  //   //         }
-  //   //       } else {
-  //   //         inputs[index].testInput.files = null
-  //   //       }
-  //   //     }),
-  //   //   )
-  //   // } catch (error) {
-  //   //   setfileUploadingSpinner(false)
-  //   //   console.error('Error uploading files:', error)
-  //   //   return
-  //   // }
-  //   // try {
-  //   //   await Promise.all(
-  //   //     // Use Promise.all to wait for all uploads to finish
-  //   //     inputs.map(async (data, index) => {
-  //   //       if (typeof data.testInput !== 'string') {
-  //   //         const file = data.testInput
-  //   //         const formData = new FormData()
-  //   //         formData.append('file', file)
-  //   //         const response = await postFetchFile(
-  //   //           `${API_URL}/api/user/uploadPatientReport`,
-  //   //           formData,
-  //   //         )
-  //   //         if (response) {
-  //   //           inputs[index].testInput = response?.fileName
-  //   //         }
-  //   //       }
-  //   //     }),
-  //   //   )
-  //   // } catch (error) {
-  //   //   setfileUploadingSpinner(false) // Set loading to false in case of an error
-  //   //   console.error('Error submitting data:', error)
-  //   // }
-
-  //   const updatedFormData = {
-  //     ...formData,
-  //     diagnosis: [
-  //       {
-  //         diagnosData: inputs,
-  //         date: Date(),
-  //         desc,
-  //       },
-  //     ],
-  //     nextApointmentDate: startingDate,
-  //   }
-  //   console.log(updatedFormData)
-  //   // try {
-  //   //   // console.log('pre', updatedFormData)\
-  //   //   const data = await postFetchData(`${API_URL}/api/patient/create`, updatedFormData)
-  //   //   if (data.success === true) {
-  //   //     toast.success('Patient Created Successfully', {
-  //   //       autoClose: 2000,
-  //   //     })
-
-  //   //     setaddPatientLoader(true)
-  //   //     setData(false)
-  //   //     setTimeout(() => {
-  //   //       // toast.success('Patient Created Successfully')
-  //   //       setUpdateState(true)
-  //   //       setaddPatientLoader(false)
-  //   //       // setDiagnosis([])
-  //   //       setDesc('')
-  //   //       setStartingDate(null)
-  //   //       setInputs([
-  //   //         { problem: '', test: '', testInput: { files: '', text: '' }, scale: '', value: '' },
-  //   //       ])
-  //   //     }, 2000)
-  //   //     setFormData({
-  //   //       name: '',
-  //   //       age: '',
-  //   //       sex: 'male',
-  //   //       phone: '',
-  //   //       crn: '',
-  //   //       diagnosis: [],
-  //   //       desc: '',
-  //   //       doctor_id: patientRecord?._id,
-  //   //     })
-  //   //   }
-  //   //   if (data.message == 'phone Already Exists') {
-  //   //     toast.warning('phone Already Exists')
-  //   //     setfileUploadingSpinner(false) // Set loading to false in case of an error
-  //   //   }
-  //   //   if (data.message == 'Crn Already Exists') {
-  //   //     toast.warning('Crn Already Exists')
-  //   //     setfileUploadingSpinner(false) // Set loading to false in case of an error
-  //   //   }
-  //   //   console.log('data', data)
-  //   //   setSearch(data?.data?.crn)
-  //   // } catch (error) {
-  //   //   toast.warning('Something went wrong')
-  //   //   setfileUploadingSpinner(false) // Set loading to false in case of an error
-
-  //   //   console.error('Error submitting data:', error)
-  //   // }
-  // }
   const handleKeyPress = (event) => {
     if (event.key === 'Enter') {
       event.preventDefault()
@@ -437,37 +308,6 @@ const PatientPage = () => {
     setInputs(updatedInputs)
   }
 
-  // const handleFileInputChange = (index, event) => {
-  //   const { name, files } = event.target
-  //   const updatedInputs = [...inputs]
-  //   updatedInputs[index][name] = files[0]
-  //   setInputs(updatedInputs)
-  //   console.log('Guarv', inputs)
-  // }
-
-  // const handleFileInputChange = (index, event) => {
-  //   const { name, files } = event.target
-  //   const allowedFileTypes = ['image/jpeg', 'image/png', 'application/pdf']
-  //   console.log('files', files[0]?.size)
-  //   if (files[0]?.size > 31457280) {
-  //     event.target.value = ''
-  //     return toast.warning('file size should be less than 30 mb', {
-  //       autoClose: 1500,
-  //     })
-  //   }
-  //   // Check if the file type is allowed
-  //   if (files && files[0] && allowedFileTypes.includes(files[0].type)) {
-  //     const updatedInputs = [...inputs]
-  //     updatedInputs[index][name] = files[0]
-  //     setInputs(updatedInputs)
-  //   } else {
-  //     event.target.value = ''
-  //     toast.warning('Only images and PDFs are allowed', {
-  //       autoClose: 1500,
-  //     })
-  //   }
-  // }
-
   const handleFileInputChange = (index, event) => {
     const { name, files } = event.target
     const allowedFileTypes = ['image/jpeg', 'image/png', 'application/pdf']
@@ -500,10 +340,17 @@ const PatientPage = () => {
   }
 
   const handleAddInput = () => {
-    setInputs([
-      ...inputs,
-      { problem: '', test: '', testInput: '', files: [], scale: '', value: '' },
-    ])
+    const allInputsHaveProblem = inputs.every((input) => input.problem !== '')
+    if (allInputsHaveProblem) {
+      setInputs([
+        ...inputs,
+        { problem: '', test: '', testInput: '', files: [], scale: '', value: '' },
+      ])
+    } else {
+      toast.warning('Please Fill Details of previous Record before adding new!!', {
+        autoClose: 1500,
+      })
+    }
   }
 
   const handleRemoveInput = (index) => {
@@ -523,60 +370,24 @@ const PatientPage = () => {
     console.log('Updated inputs:', inputs)
   }, [inputs])
 
+  const clearAllDataInputs = () => {
+    setInputs([{ problem: '', test: '', testInput: '', files: [], scale: '', value: '' }])
+    setFormData({
+      name: '',
+      age: '',
+      sex: 'male',
+      phone: '',
+      crn: '',
+      diagnosis: [],
+      desc: '',
+      doctor_id: patientRecord?._id,
+    })
+  }
+
   return (
     <>
       <div>
         {!data && !addPatientLoader ? (
-          // <div>
-          //   <p style={{ fontWeight: 'bolder' }}>Search Patient</p>
-          //   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          //     <div className="d-flex">
-          //       <input
-          //         style={{ paddingLeft: '5px' }}
-          //         className="form-control"
-          //         placeholder="CR no. or Phone no."
-          //         type="text"
-          //         name="search"
-          //         value={search}
-          //         // autoComplete={false}
-          //         onKeyPress={handleKeyPress}
-          //         onChange={(e) => setSearch(e.target.value)}
-          //       />
-
-          //       {/* </button> */}
-          //       <button
-          //         className="btn btn-primary"
-          //         style={{ marginLeft: '1rem', borderRadius: '5px' }}
-          //         type="button"
-          //         onClick={getSearchByPatient}
-          //       >
-          //         Search
-          //       </button>
-          //       {search?.length ? (
-          //         <button
-          //           className="btn btn-danger text-light"
-          //           style={{ marginLeft: '1rem', borderRadius: '5px' }}
-          //           type="button"
-          //           onClick={clearSearch}
-          //         >
-          //           Clear
-          //         </button>
-          //       ) : (
-          //         ''
-          //       )}
-          //     </div>
-          //     <div>
-          //       <button
-          //         style={{ marginLeft: '1rem', borderRadius: '5px' }}
-          //         type="button"
-          //         onClick={() => setData(true)}
-          //         className="btn btn-outline-dark"
-          //       >
-          //         Add a Patient
-          //       </button>
-          //     </div>
-          //   </div>
-          // </div>
           <div>
             <p style={{ fontWeight: 'bolder' }}>Search Patient</p>
             <div className="search-container">
@@ -930,7 +741,13 @@ const PatientPage = () => {
                       <button className="btn btn-info mt-3 mx-2 w-auto" onClick={handleSubmit}>
                         Submit
                       </button>
-                      <button className="btn btn-info mt-3 w-auto" onClick={() => setData(false)}>
+                      <button
+                        className="btn btn-info mt-3 w-auto"
+                        onClick={() => {
+                          setData(false)
+                          clearAllDataInputs()
+                        }}
+                      >
                         Close
                       </button>
                     </div>
