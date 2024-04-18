@@ -57,6 +57,40 @@
   margin-left: 1rem;
 }
 
+.addPatientDataSelectDiv {
+  width: 100%;
+  appearance: auto;
+  height: 38px;
+}
+
+.addPatientDataInputDiv {
+  width: 100%;
+  appearance: auto;
+}
+
+.addPatientDataInnerDiv {
+  margin: 1rem auto 1rem 0;
+}
+
+.boldFont {
+  font-weight: bold;
+}
+
+.patientInfoButton {
+  font-size: 15px;
+  white-space: none;
+  padding: 5px 10px;
+}
+
+.loaderDivInPatientPage {
+  width: 100%;
+  height: 20vh;
+  line-height: 20vh;
+  text-align: center;
+  background-color: white;
+  margin-top: 10px;
+}
+
 /* Media query for small screens */
 @media (max-width: 768px) {
   .search-container {
@@ -84,4 +118,17 @@
   // background: #fbf295;
   white-space: nowrap;
   padding: 5px 10px;
+}
+
+// .css-13cymwt-control {
+//   max-height: 100px !important;
+//   overflow-y: auto;
+// }
+
+.css-3w2yfm-ValueContainer {
+  max-height: 100px !important;
+  overflow-y: auto;
+}
+.css-3w2yfm-ValueContainer::-webkit-scrollbar {
+  display: none;
 }

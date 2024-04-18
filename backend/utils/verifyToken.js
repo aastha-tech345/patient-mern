@@ -18,6 +18,7 @@ const verifyToken = (req, res, next) => {
         message: "Token is not valid",
       });
     }
+
     req.user = user;
 
     next();

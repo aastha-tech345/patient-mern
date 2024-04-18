@@ -314,7 +314,7 @@ const PatientAddNewRecord = ({
       )}
       {loading && <SpinnerOverlay message="Adding Diagnosis" />}
       <div style={{ margin: '1rem auto 1rem 1rem' }}>
-        <div style={{ margin: '1rem auto 1rem 0' }}>
+        <div className="addPatientDataInnerDiv">
           <h4>Diagnosis: ({patientRecord?.department_id?.departmentName})</h4>
         </div>
         <form onSubmit={handleSubmit}>
@@ -324,8 +324,8 @@ const PatientAddNewRecord = ({
                 <div className="col-md-2 col-12">
                   <label>
                     <select
-                      className="form-control "
-                      style={{ width: '100%', appearance: 'auto', height: '38px' }}
+                      className="form-control addPatientDataSelectDiv "
+                      // style={{ width: '100%', appearance: 'auto', height: '38px' }}
                       name="problem"
                       value={input.problem}
                       onChange={(event) => handleInputChange(index, event)}
@@ -342,8 +342,8 @@ const PatientAddNewRecord = ({
                 <div className="col-md-2 col-6">
                   <label>
                     <select
-                      className="form-control "
-                      style={{ width: '100%', appearance: 'auto', height: '38px' }}
+                      className="form-control addPatientDataSelectDiv"
+                      // style={{ width: '100%', appearance: 'auto', height: '38px' }}
                       name="test"
                       value={input.test}
                       onChange={(event) => handleInputChange(index, event)}
@@ -361,8 +361,8 @@ const PatientAddNewRecord = ({
                   <div className="col-md-2 col-6">
                     <label>
                       <input
-                        className="form-control "
-                        style={{ width: '100%', appearance: 'auto' }}
+                        className="form-control addPatientDataInputDiv"
+                        // style={{ width: '100%', appearance: 'auto' }}
                         placeholder="Select a Test"
                         type="text"
                         disabled="true"
@@ -410,8 +410,8 @@ const PatientAddNewRecord = ({
                 <div className="col-md-2 col-6">
                   <label>
                     <select
-                      className="form-control "
-                      style={{ width: '100%', appearance: 'auto', height: '38px' }}
+                      className="form-control addPatientDataSelectDiv"
+                      // style={{ width: '100%', appearance: 'auto', height: '38px' }}
                       name="scale"
                       value={input.scale}
                       onChange={(event) => handleInputChange(index, event)}
@@ -428,8 +428,8 @@ const PatientAddNewRecord = ({
                 <div className="col-md-2 col-6">
                   <label>
                     <input
-                      className="form-control "
-                      style={{ width: '100%', appearance: 'auto' }}
+                      className="form-control addPatientDataInputDiv"
+                      // style={{ width: '100%', appearance: 'auto' }}
                       placeholder="Enter Scale Value"
                       type="text"
                       name="value"

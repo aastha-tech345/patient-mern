@@ -1,4 +1,22 @@
 import axios from 'axios'
+
+axios.interceptors.response.use(
+  function (response) {
+    // Do something with response data
+    return response
+  },
+  function (error) {
+    // Do something with response error
+    // For example, redirect to login page on 401 unauthorized error
+    if (error.response.status === 401) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('patientRecord')
+      window.location.href = '/'
+    }
+    return Promise.reject(error)
+  },
+)
+
 export const getFetch = async (url) => {
   try {
     const token = localStorage.getItem('token')

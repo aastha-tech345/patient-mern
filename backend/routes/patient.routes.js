@@ -10,6 +10,7 @@ const {
   getPatientByDoctorCount,
   getPatientByProblem,
   getPatientAppointmentRange,
+  getPatientByMultipleProblem,
 } = require("../controllers/patient.controller");
 const { verifyToken } = require("../utils/verifyToken");
 
@@ -17,6 +18,11 @@ const patientRoutes = express.Router();
 
 patientRoutes.post("/create/:id", verifyToken, createPatient);
 patientRoutes.get("/problems", verifyToken, getPatientByProblem);
+patientRoutes.post(
+  "/multipleProblems",
+  verifyToken,
+  getPatientByMultipleProblem
+);
 // patientRoutes.get("/doc/:doc_id", verifyToken,getPatientByDoctor);
 patientRoutes.get("/nextAppointmentDate", verifyToken, getPatientAppointment);
 patientRoutes.get("/patientByDoctor", verifyToken, getPatientByDoctorCount);

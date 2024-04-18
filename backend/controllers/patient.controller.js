@@ -52,7 +52,7 @@ const updatePatient = async (req, res) => {
     patient.diagnosis.push(...newDiagnosisData);
 
     const patientUpdate = await patient.save();
-    // console.log("patientUpdate", patientUpdate);
+
     return res.status(200).json({
       success: true,
       message: "Patient Updated Successfully",
@@ -68,24 +68,6 @@ const updatePatient = async (req, res) => {
   }
 };
 
-// const searchPatient = async (req, res) => {
-//   try {
-//     const searchKey = req.params.searchKey;
-//     const result = await Patient.find({
-//       // doctor_id: req.params.doctor_id,
-//       doctor_id: req.user.id,
-//       $or: [{ crn: { $regex: searchKey } }, { phone: { $regex: searchKey } }],
-//     }).populate("doctor_id");
-//     return res.status(200).json({
-//       success: true,
-//       message: "Patient Found Successfully",
-//       data: result,
-//     });
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
 const searchPatient = async (req, res) => {
   try {
     const resultPerPage = 20;
@@ -95,16 +77,6 @@ const searchPatient = async (req, res) => {
       doctor_id: req.user.id,
     });
     let pageCount = Math.ceil(countPage / resultPerPage);
-    // const result = await Patient.find({
-    //   // doctor_id: req.params.doctor_id,
-    //   doctor_id: req.user.id,
-    //   $or: [{ crn: { $regex: searchKey } }, { phone: { $regex: searchKey } }],
-    // }).populate("doctor_id");
-    // return res.status(200).json({
-    //   success: true,
-    //   message: "Patient Found Successfully",
-    //   data: result,
-    // });
 
     const apiFeatures = new ApiFeatures(
       Patient.find({
@@ -146,21 +118,6 @@ const searchPatient = async (req, res) => {
     return res.status(500).send({ message: "Server Error" });
   }
 };
-
-// const getPatient = async (req, res) => {
-//   try {
-//     const patient = await Patient.find({
-//       doctor_id:req.query.doctor_id
-//     });
-//     return res.status(200).json({
-//       success: true,
-//       message: "Patient Found Successfully",
-//       data: patient,
-//     });
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
 
 const getPatientById = async (req, res) => {
   try {
@@ -263,39 +220,11 @@ const getPatientAppointment = async (req, res) => {
       data: result,
       count: countDocument,
     });
-
-    // return res.status(200).json({
-    //   success: true,
-    //   message: "Patient Found Successfully",
-    //   data: appointments,
-    //   count: countDocument,
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
-// const getPatientByProblem = async (req, res) => {
-//   try {
-//     const { problem } = req.query;
-//     const patients = await Patient.find({
-//       $or: [
-//         {
-//           "diagnosis.diagnosData.problem": { $regex: problem },
-//         },
-//       ],
-//     });
-
-//     res.status(200).json({
-//       success: true,
-//       message: "Patients found successfully",
-//       data: patients,
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ error: "Internal Server Error" });
-//   }
-// };
 
 const getPatientByProblem = async (req, res) => {
   try {
@@ -358,23 +287,71 @@ const getPatientByProblem = async (req, res) => {
       data: result,
       count: countDocument,
     });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
-    // return res.status(200).json({
-    //   success: true,
-    //   message: "Patient Found Successfully",
-    //   data: appointments,
-    //   count: countDocument,
+const getPatientByMultipleProblem = async (req, res) => {
+  try {
+    const problems = req.body.problems;
+    const { doctor_id } = req.query;
+    let startDate = req.query.startDate
+      ? new Date(req.query.startDate)
+      : new Date();
+    let endDate = req.query.endDate ? new Date(req.query.endDate) : new Date();
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(23, 59, 59, 999);
+    const resultPerPage = 10;
 
-    // const patients = await Patient.find({
-    //   doctor_id: doctor_id,
-    //   "diagnosis.diagnosData.problem": { $regex: problem },
-    // });
+    const countDocument = await Patient.countDocuments({
+      doctor_id: doctor_id,
+      "diagnosis.diagnosData.problem": { $in: problems }, // Use direct array of problem strings
+      "diagnosis.date": {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    });
 
-    // res.status(200).json({
-    //   success: true,
-    //   message: "Patients found successfully",
-    //   data: patients,
-    // });
+    let pageCount = Math.ceil(countDocument / resultPerPage);
+    const apiFeatures = new ApiFeatures(
+      Patient.find({
+        doctor_id: doctor_id,
+        "diagnosis.diagnosData.problem": { $in: problems }, // Use direct array of problem strings
+        "diagnosis.date": {
+          $gte: startDate,
+          $lte: endDate,
+        },
+      }),
+      req.query
+    )
+      .reverse()
+      .pagination(resultPerPage);
+    const result = await apiFeatures.query;
+    if (result?.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Patient not found",
+      });
+    }
+    if (apiFeatures.getCurrentPage() > pageCount) {
+      apiFeatures.setCurrentPage(pageCount);
+      const updatedResult = await apiFeatures.pagination(resultPerPage).query;
+      return res.status(200).json({
+        success: true,
+        message: "Patient Found Successfully",
+        data: updatedResult,
+        pageCount: pageCount,
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Patient Found Successfully",
+      pageCount: pageCount,
+      data: result,
+      count: countDocument,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -389,5 +366,6 @@ module.exports = {
   getPatientByDoctorCount,
   getPatientAppointment,
   getPatientByProblem,
+  getPatientByMultipleProblem,
   // getPatient,
 };
