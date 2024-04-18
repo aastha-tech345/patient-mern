@@ -73,7 +73,7 @@ const DoctorsCalendar = () => {
   }, [visibleRange])
 
   useEffect(() => {
-    console.log('Gaurav', appointments)
+    console.log(appointments)
   }, [appointments])
 
   const events =
@@ -100,13 +100,13 @@ const DoctorsCalendar = () => {
     window.open(url, '_blank')
   }
   return (
-    <div>
+    <div style={{ height: '85vh' }}>
       {loading && <SpinnerOverlay message="Loading Calendar" />}
       <Calendar
         localizer={localizer}
         startAccessor="start"
         endAccessor="end"
-        style={{ height: 500 }}
+        // style={{ height: 500 }}
         date={visibleRange.start}
         onNavigate={handleNavigate}
         onView={handleViewChange}

@@ -71,15 +71,6 @@ const PatientShowDetails = ({ diagnosis }) => {
 
   const [hoveredFile, setHoveredFile] = useState(null)
 
-  const handleMouseEnter = (fileName) => {
-    const fileNamee = editNameFun(fileName)
-    setHoveredFile(fileNamee)
-  }
-
-  const handleMouseLeave = () => {
-    setHoveredFile(null)
-  }
-
   return (
     <div style={{ maxHeight: '300px', marginTop: '20px' }}>
       {reversedDiagnosis?.map((elem, index) => {
@@ -163,8 +154,12 @@ const PatientShowDetails = ({ diagnosis }) => {
                                       alignItems: 'center',
                                       marginRight: '10px',
                                     }}
-                                    onMouseEnter={() => handleMouseEnter(file.fileName)}
-                                    onMouseLeave={() => handleMouseLeave()}
+                                    // onMouseEnter={() => handleMouseEnter(file.fileName)}
+                                    onMouseEnter={() => {
+                                      const editedName = editNameFun(file.fileName)
+                                      setHoveredFile(editedName)
+                                    }}
+                                    onMouseLeave={() => setHoveredFile('')}
                                     onClick={() => showReportHandler(file?.fileName, fileIndex)}
                                   >
                                     <button

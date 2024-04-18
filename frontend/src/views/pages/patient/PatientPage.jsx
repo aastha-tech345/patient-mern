@@ -65,7 +65,7 @@ const PatientPage = () => {
   }, [])
 
   useEffect(() => {
-    console.log('Gaurav Tripathii', queryCRN)
+    // console.log('Gaurav Tripathii', queryCRN)
     getSearchByPatient()
   }, [queryCRN])
 
@@ -557,7 +557,7 @@ const PatientPage = () => {
                         </div>
                       </div>
                       <hr />
-                      <div style={{ margin: '1rem auto 1rem 0' }}>
+                      <div className="addPatientDataInnerDiv">
                         <h4>Diagnosis: ({patientRecord?.department_id?.departmentName})</h4>
                       </div>
                       <div>
@@ -567,8 +567,8 @@ const PatientPage = () => {
                               <div className="col-md-2 col-12">
                                 <label>
                                   <select
-                                    className="form-control "
-                                    style={{ width: '100%', appearance: 'auto', height: '38px' }}
+                                    className="form-control addPatientDataSelectDiv"
+                                    // style={{ width: '100%', appearance: 'auto', height: '38px' }}
                                     name="problem"
                                     value={input.problem}
                                     onChange={(event) => handleInputChange(index, event)}
@@ -585,8 +585,8 @@ const PatientPage = () => {
                               <div className="col-md-2 col-6">
                                 <label>
                                   <select
-                                    className="form-control "
-                                    style={{ width: '100%', appearance: 'auto', height: '38px' }}
+                                    className="form-control addPatientDataSelectDiv"
+                                    // style={{ width: '100%', appearance: 'auto', height: '38px' }}
                                     name="test"
                                     value={input.test}
                                     onChange={(event) => handleInputChange(index, event)}
@@ -604,8 +604,8 @@ const PatientPage = () => {
                                 <div className="col-md-2 col-6">
                                   <label>
                                     <input
-                                      className="form-control "
-                                      style={{ width: '100%', appearance: 'auto' }}
+                                      className="form-control addPatientDataInputDiv"
+                                      // style={{ width: '100%', appearance: 'auto' }}
                                       placeholder="Select a Test"
                                       type="text"
                                       disabled="true"
@@ -657,8 +657,8 @@ const PatientPage = () => {
                               <div className="col-md-2 col-6">
                                 <label>
                                   <select
-                                    className="form-control "
-                                    style={{ width: '100%', appearance: 'auto', height: '38px' }}
+                                    className="form-control addPatientDataSelectDiv"
+                                    // style={{ width: '100%', appearance: 'auto', height: '38px' }}
                                     name="scale"
                                     value={input.scale}
                                     onChange={(event) => handleInputChange(index, event)}
@@ -675,8 +675,8 @@ const PatientPage = () => {
                               <div className="col-md-2 col-6">
                                 <label>
                                   <input
-                                    className="form-control "
-                                    style={{ width: '100%', appearance: 'auto' }}
+                                    className="form-control addPatientDataInputDiv"
+                                    // style={{ width: '100%', appearance: 'auto' }}
                                     placeholder="Enter Scale Value"
                                     type="text"
                                     name="value"
@@ -757,18 +757,7 @@ const PatientPage = () => {
             ) : (
               <div>
                 {!addPatientLoader ? (
-                  <div
-                    style={{
-                      width: '100%',
-                      height: '20vh',
-                      lineHeight: '20vh',
-                      textAlign: 'center',
-                      backgroundColor: 'white',
-                      marginTop: '10px',
-                    }}
-                  >
-                    {loader ? <Loader /> : 'No Data'}
-                  </div>
+                  <div className="loaderDivInPatientPage">{loader ? <Loader /> : 'No Data'}</div>
                 ) : (
                   ''
                 )}

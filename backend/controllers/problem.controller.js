@@ -7,6 +7,8 @@ const createProblem = async (req, res) => {
     const existingProblem = await Problem.findOne({ department_id });
 
     if (existingProblem) {
+      // Here problem type are of three types i.e. "problem","test","scale"
+      // where test has two type sof inputTypes "text" , "file"
       existingProblem.problemName.push({ name, type, inputType });
       await existingProblem.save();
       return res.status(200).json({
@@ -48,7 +50,6 @@ const getProblem = async (req, res) => {
     console.log(error);
   }
 };
-
 
 module.exports = {
   createProblem,

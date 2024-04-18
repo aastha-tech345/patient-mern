@@ -55,6 +55,28 @@ const loginUser = async (req, res) => {
   }
 };
 
+const isUserLogin = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if(!user){
+      return res.status(404).json({
+        success: false,
+        message: "Please Login First",
+        
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User Login Successfully",
+      data: user,
+    });
+  } catch (error) {
+    console.log(error)
+  }
+};
+
 const userUpdate = async (req, res) => {
   try {
     const updateUser = await User.findByIdAndUpdate(req.user.id, req.body, {
@@ -226,4 +248,5 @@ module.exports = {
   uploadPatientReport,
   getPatientReport,
   togglePatientNotifications,
+  isUserLogin
 };

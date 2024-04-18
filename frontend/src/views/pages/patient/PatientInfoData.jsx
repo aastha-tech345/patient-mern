@@ -66,28 +66,28 @@ const PatientInfoData = ({ patientSearch, getSearchByPatient }) => {
                       <div className="row" style={{ marginBottom: '1rem' }}>
                         <div style={{ width: '40%' }}>
                           <span>
-                            <span style={{ fontWeight: 'bold' }}>CR No :</span> {crn}
+                            <span className="boldFont">CR No :</span> {crn}
                           </span>
                           <br />
                           <span>
-                            <span style={{ fontWeight: 'bold' }}>Age : </span> {age}
+                            <span className="boldFont">Age : </span> {age}
                           </span>
                           <br />
                           <span>
-                            <span style={{ fontWeight: 'bold' }}>Sex. </span> {sex}
+                            <span className="boldFont">Sex. </span> {sex}
                           </span>
                         </div>
                         <div style={{ width: '60%' }}>
                           <span>
-                            <span style={{ fontWeight: 'bold' }}>Name : </span> {name}
+                            <span className="boldFont">Name : </span> {name}
                           </span>
                           <br />
                           <span>
-                            <span style={{ fontWeight: 'bold' }}>Mob. No.</span> {phone}
+                            <span className="boldFont">Mob. No.</span> {phone}
                           </span>
                           <br />
                           <span>
-                            <span style={{ fontWeight: 'bold' }}>Next Appointment Date.</span>{' '}
+                            <span className="boldFont">Next Appointment Date.</span>{' '}
                             {nextApointmentDate ? formattedDate : '-'}
                           </span>
                         </div>
@@ -96,9 +96,9 @@ const PatientInfoData = ({ patientSearch, getSearchByPatient }) => {
                       <div className="d-flex justify-content-end">
                         <button
                           type="button"
-                          className="btn btn-success"
+                          className="btn btn-success patientInfoButton"
                           onClick={() => handleToggleDetails(_id)}
-                          style={{ fontSize: '15px', whiteSpace: 'none', padding: '5px 10px' }}
+                          // style={{ fontSize: '15px', whiteSpace: 'none', padding: '5px 10px' }}
                         >
                           Show Diagnosis
                         </button>

@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { getFetch } from 'src/api/Api'
+import { getFetch, postFetch, postFetchData } from 'src/api/Api'
 import { Divider, Radio, Table } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import { Pagination, Stack } from '@mui/material'
-// import { LocalizationProvider } from '@mui/x-date-pickers'
-// import { DemoContainer } from '@mui/x-date-pickers/internals/demo'
-// import DateTimePicker from 'react-datetime-picker'
-// import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
-// import WidgetsDropdown from '../widgets/WidgetsDropdown'
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
@@ -20,10 +15,11 @@ import 'react-toastify/dist/ReactToastify.css'
 import SpinnerOverlay from 'src/views/publicItems/ SpinnerOverlay'
 import Loader from '../loader/Loader'
 import ReportModal from './ReportModal'
+import Select from 'react-select'
+import { CChart } from '@coreui/react-chartjs'
 
 const PatientReport = () => {
   let API_URL = process.env.REACT_APP_API_URL
-  // const API_URL = process.env.API_URL
   let patientData = localStorage.getItem('patientRecord')
   let patientRecord = JSON.parse(patientData)
   const [loading, setLoading] = useState(false)
@@ -39,6 +35,9 @@ const PatientReport = () => {
   const [tests, setTests] = useState([])
   const [scales, setScales] = useState([])
   const [patientProblems, setPatientProblems] = useState([])
+  const [selectDropdownValue, setSelectDropdownValue] = useState('')
+  const colorPalette = ['#41B883', '#E46651', '#00D8FF', '#DD1B16', '#8A2BE2', '#FFA500', '#32CD32']
+
   const fetchProblems = async () => {
     try {
       const problemsResponse = await getFetch(
@@ -55,18 +54,31 @@ const PatientReport = () => {
         const scaleFilter = problemsData.problemName
           .filter((item) => item.type === 'scale')
           .map((scale) => scale.name)
+
+        const options = problemFilter.map((problem) => ({
+          value: problem,
+          label: problem,
+        }))
         setTests(testFilter)
         setScales(scaleFilter)
-        setProblems(problemFilter)
+        setProblems(options)
       }
     } catch (error) {
       console.error('Error fetching problems:', error)
     }
   }
-  console.log('problem', problems)
 
   const handlSetPoblem = (elem) => {
-    setProblemSet(elem)
+    if (elem.length < 8) {
+      setSelectDropdownValue(elem)
+      setProblemSet(
+        elem.map((el) => {
+          return el.value
+        }),
+      )
+    } else {
+      toast.warning('You can only select chief complaints upto 7 ')
+    }
   }
 
   // const getPatientByProblem = async () => {
@@ -99,8 +111,8 @@ const PatientReport = () => {
     {
       title: 'Name',
       dataIndex: 'name',
-      render: (text) => <a>{text}</a>,
-      sorter: (a, b) => a.name.localeCompare(b.name),
+      // render: (text) => <p>{text}</p>,
+      // sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
       title: 'Age',
@@ -112,36 +124,12 @@ const PatientReport = () => {
       dataIndex: 'sex',
       sorter: (a, b) => a.sex.localeCompare(b.sex),
     },
-    // {
-    //   title: 'Appointment',
-    //   dataIndex: 'nextApointmentDate',
-    //   render: (text) => {
-    //     const date = new Date(text)
-    //     const formattedDate = date
-    //       .toLocaleString('en-IN', {
-    //         year: 'numeric',
-    //         month: '2-digit',
-    //         day: '2-digit',
-    //         hour: '2-digit',
-    //         minute: '2-digit',
-    //         hour12: true,
-    //       })
-    //       .replace(/\//g, '/')
-    //     return formattedDate
-    //   },
-    //   sorter: (a, b) => a.nextApointmentDate.localeCompare(b.nextApointmentDate),
-    // },
     {
       title: 'Action',
-      // dataIndex: 'sex',
       render: (text) => {
         console.log('text', text)
         return (
-          <button
-            className="btn btn-primary"
-            // onClick={(e) => navigate('/patientPage', { state: text })}
-            onClick={() => handleOpenMOdal(text)}
-          >
+          <button className="btn btn-primary" onClick={() => handleOpenMOdal(text)}>
             View Diagnosis
           </button>
         )
@@ -149,7 +137,7 @@ const PatientReport = () => {
     },
     {
       title: 'Action',
-      // dataIndex: 'sex',
+
       render: (text) => {
         console.log('text', text)
         return (
@@ -197,30 +185,64 @@ const PatientReport = () => {
     setLoading(true)
     const date = new Date(startingDate)
     const date1 = new Date(endDate)
-    // const formattedStartDate = date.toISOString().split('T')[0] + 'T00:00:00.000Z'
-    // const formattedEndDate = date1.toISOString().split('T')[0] + 'T00:00:00.000Z'
+
     console.log(`Report Start ${date} and Report End ${date1}`)
+    ////////////FOR SINGLE PROBLEM FIND PATIENTS////////////////////
+    // const res = await getFetch(
+    //   `${API_URL}/api/patient/problems?problem=${problemSet}&doctor_id=${patientRecord._id}&startDate=${date}&endDate=${date1}&page=${page}`,
+    // )
 
-    const res = await getFetch(
-      `${API_URL}/api/patient/problems?problem=${problemSet}&doctor_id=${patientRecord._id}&startDate=${date}&endDate=${date1}&page=${page}`,
+    // console.log('ashdata', res)
+
+    // working perfectly
+
+    //////////////////////////////////////////////
+    console.log('selected problems', problemSet)
+    const data = {
+      problems: problemSet,
+    }
+
+    const res = await postFetchData(
+      `${API_URL}/api/patient/multipleProblems?problem=${problemSet}&doctor_id=${patientRecord._id}&startDate=${date}&endDate=${date1}&page=${page}`,
+      data,
     )
-    console.log('ashdata', res)
-    setPageCount(res?.data?.pageCount)
-    setPatientProblems(res?.data?.data)
 
+    setPageCount(res?.data?.pageCount)
+    setPatientProblems(res?.data)
+
+    const problemCounts = {}
+
+    console.log('response', res)
+
+    res?.data?.forEach((patient) => {
+      const patientProblemSet = new Set()
+      patient?.diagnosis?.forEach((element) => {
+        element?.diagnosData?.forEach((diagnosis) => {
+          const problem = diagnosis.problem
+
+          if (problemSet.includes(problem) && !patientProblemSet.has(problem)) {
+            problemCounts[problem] = (problemCounts[problem] || 0) + 1
+            patientProblemSet.add(problem)
+          }
+        })
+      })
+    })
+
+    setTest(problemCounts)
     setLoading(false)
   }
+
+  const [test, setTest] = useState('')
+  console.log('Test', test)
 
   const dateReset = () => {
     setStartingDate(todayDate)
     setEndDate(todayDate)
     setUpdateState(!updateState)
     setProblemSet('Select Problem')
+    setSelectDropdownValue('')
   }
 
-  // useEffect(() => {
-  //   getPatientByProblem()
-  // }, [page, problemSet])
   const handleOpenMOdal = (text) => {
     setHide(true)
     console.log('datafromdiagbutton', text)
@@ -235,31 +257,49 @@ const PatientReport = () => {
   useEffect(() => {
     fetchProblems()
   }, [])
+
+  const handleDropdownChange = (selectedOptions) => {
+    // Check if the selection is cleared
+    if (!selectedOptions || selectedOptions.length === 0) {
+      dateReset()
+    } else {
+      handlSetPoblem(selectedOptions)
+    }
+  }
+
   return (
     <>
       {hide ? <ReportModal setHide={setHide} popupData={popupData} /> : ''}
       <div className="row">
         <div className="col-sm-3 mt-2">
-          <select
-            onChange={(e) => handlSetPoblem(e.target.value)}
-            className="form-control"
-            style={{ appearance: 'auto', height: '50px', width: '100%' }}
-            value={problemSet}
-          >
-            <option>Chief Complaint</option>
-            {problems.map((elem) => {
-              return (
-                <>
-                  <option key={elem} value={elem}>
-                    {elem}
-                  </option>
-                </>
-              )
-            })}
-          </select>
+          {/* <select
+              onChange={(e) => handlSetPoblem(e.target.value)}
+              className="form-control"
+              style={{ appearance: 'auto', height: '50px', width: '100%' }}
+              value={problemSet}
+              multiple
+            >
+              <option>Chief Complaint</option>
+              {problems.map((elem) => {
+                return (
+                  <>
+                    <option key={elem} value={elem}>
+                      {elem}
+                    </option>
+                  </>
+                )
+              })}
+            </select> */}
+          <Select
+            options={problems}
+            isMulti
+            value={selectDropdownValue}
+            // onChange={(e) => handlSetPoblem(e)}
+            onChange={handleDropdownChange}
+            placeholder="Select Chief Complaint"
+          />
         </div>
 
-        {/* date filed start */}
         <div className="col-sm-9">
           <div className="row justify-content-center">
             <div className="col-sm-5">
@@ -309,28 +349,26 @@ const PatientReport = () => {
               <button className="btn btn-primary mt-3 me-2" onClick={dateSubmit}>
                 Search
               </button>
-              <button className="btn btn-primary mt-3 " onClick={dateReset}>
+              <button className="btn btn-primary mt-3 " onClick={() => dateReset()}>
                 Reset
               </button>
             </div>
           </div>
         </div>
-        {/* date filed end */}
       </div>
+
       <div className="mt-2 table-responsive">
         {loading ? (
           <Loader />
         ) : (
-          <Table
-            // rowSelection={{
-            //   type: selectionType,
-            //   ...rowSelection,
-            // }}
-            columns={columns}
-            dataSource={patientProblems}
-            pagination={false}
-            className="table-responsive"
-          />
+          <>
+            <Table
+              columns={columns}
+              dataSource={patientProblems}
+              pagination={false}
+              className="table-responsive"
+            />
+          </>
         )}
       </div>
       <div className="d-flex justify-content-end mt-2">
@@ -338,6 +376,51 @@ const PatientReport = () => {
           <Pagination count={pageCount} page={page} onChange={handlePageChange} />
         </Stack>
       </div>
+      {Object.keys(test).length > 0 ? (
+        <div className="row">
+          <div className="col-md-6">
+            <CChart
+              type="pie"
+              data={{
+                labels: Object.keys(test),
+                datasets: [
+                  {
+                    backgroundColor: colorPalette.slice(0, Object.keys(test).length), // Assign colors from the palette
+                    data: Object.values(test),
+                  },
+                ],
+              }}
+              options={{
+                plugins: {
+                  legend: {
+                    labels: {
+                      // color: getStyle('--cui-body-color'),
+                    },
+                  },
+                },
+              }}
+            />
+          </div>
+          <div className="col-md-6">
+            <CChart
+              type="bar"
+              data={{
+                labels: Object.keys(test),
+                datasets: [
+                  {
+                    label: 'Patients',
+                    backgroundColor: colorPalette.slice(0, Object.keys(test).length), // Assign colors from the palette
+                    data: Object.values(test),
+                  },
+                ],
+              }}
+            />
+          </div>
+        </div>
+      ) : (
+        ''
+      )}
+
       <ToastContainer />
     </>
   )

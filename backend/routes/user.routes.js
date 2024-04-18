@@ -6,11 +6,13 @@ const {
   uploadPatientReport,
   getPatientReport,
   togglePatientNotifications,
+  isUserLogin,
 } = require("../controllers/user.controller");
-const { verifyToken } = require("../utils/verifyToken");
+const { verifyToken, verifyIsAdmin } = require("../utils/verifyToken");
 const userRoutes = express.Router();
 const upload = require("../middlewares/simgleFileMulterMiddleware");
 
+userRoutes.get("/validate", verifyToken, isUserLogin);
 userRoutes.post("/create", createUser);
 userRoutes.post("/login", loginUser);
 userRoutes.post("/update", verifyToken, userUpdate);

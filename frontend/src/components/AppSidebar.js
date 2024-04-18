@@ -16,11 +16,17 @@ import 'simplebar/dist/simplebar.min.css'
 import navigation from '../_nav'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { useNavigate } from 'react-router-dom'
 
 const AppSidebar = () => {
   const dispatch = useDispatch()
   const unfoldable = useSelector((state) => state.sidebarUnfoldable)
   const sidebarShow = useSelector((state) => state.sidebarShow)
+  let navigate = useNavigate()
+
+  const navigateToHome = () => {
+    navigate('/')
+  }
 
   return (
     <CSidebar
@@ -34,7 +40,7 @@ const AppSidebar = () => {
       <CSidebarBrand className="d-none d-md-flex" to="/">
         {/* <CIcon className="sidebar-brand-full" icon={logoNegative} height={35} />
         <CIcon className="sidebar-brand-narrow" icon={sygnet} height={35} /> */}
-        <div>
+        <div onClick={() => navigateToHome()} style={{ cursor: 'pointer' }}>
           <h4 style={{ margin: '0', textAlign: 'center' }}>Patient Care</h4>
           <p style={{ margin: '0', fontSize: '11px' }}>DevLogix Technology Pvt. Ltd.</p>
         </div>
