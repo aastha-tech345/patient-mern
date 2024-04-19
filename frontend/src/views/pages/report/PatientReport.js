@@ -339,6 +339,15 @@ const PatientReport = () => {
             // onChange={(e) => handlSetPoblem(e)}
             onChange={handleDropdownChange}
             placeholder="Select Chief Complaint"
+            maxMenuHeight={300}
+            styles={{
+              // Custom styles for the container of the selected value
+              singleValue: (provided, state) => ({
+                ...provided,
+                height: '30px', // Set the height as needed
+                lineHeight: '30px', // Align the text vertically
+              }),
+            }}
           />
         </div>
 
