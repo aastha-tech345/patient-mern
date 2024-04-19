@@ -40,6 +40,7 @@ const PatientReport = () => {
 
   const fetchProblems = async () => {
     try {
+      setLoading(true)
       const problemsResponse = await getFetch(
         `${API_URL}/api/problem/${patientRecord?.department_id?._id}`,
       )
@@ -62,23 +63,32 @@ const PatientReport = () => {
         setTests(testFilter)
         setScales(scaleFilter)
         setProblems(options)
+        setSelectDropdownValue(options)
+        setProblemSet(
+          options.map((el) => {
+            return el.value
+          }),
+        )
+        setLoading(false)
       }
     } catch (error) {
+      setLoading(false)
       console.error('Error fetching problems:', error)
     }
   }
 
   const handlSetPoblem = (elem) => {
-    if (elem.length < 8) {
-      setSelectDropdownValue(elem)
-      setProblemSet(
-        elem.map((el) => {
-          return el.value
-        }),
-      )
-    } else {
-      toast.warning('You can only select chief complaints upto 7 ')
-    }
+    // if (elem.length < 8) {
+    setSelectDropdownValue(elem)
+    setProblemSet(
+      elem.map((el) => {
+        return el.value
+      }),
+    )
+    // }
+    // else {
+    //   toast.warning('You can only select chief complaints upto 7 ')
+    // }
   }
 
   // const getPatientByProblem = async () => {
@@ -152,7 +162,7 @@ const PatientReport = () => {
     },
   ]
   const todayDate = dayjs()
-  const [startingDate, setStartingDate] = useState(todayDate)
+  const [startingDate, setStartingDate] = useState(dayjs().subtract(7, 'day'))
   const [endDate, setEndDate] = useState(todayDate)
 
   const handlePageChange = (event, value) => {
@@ -227,6 +237,24 @@ const PatientReport = () => {
         })
       })
     })
+    let maleCount = 0
+    let femaleCount = 0
+    let otherCount = 0
+    res?.data?.forEach((patient) => {
+      if (patient.sex === 'male') {
+        maleCount = maleCount + 1
+      } else if (patient.sex === 'female') {
+        femaleCount = femaleCount + 1
+      } else {
+        otherCount = otherCount + 1
+      }
+    })
+    setFilterDataBySex({
+      male: maleCount,
+      female: femaleCount,
+      other: otherCount,
+    })
+    console.log('Count male female', filterDataBySex)
 
     setTest(problemCounts)
     setLoading(false)
@@ -234,6 +262,12 @@ const PatientReport = () => {
 
   const [test, setTest] = useState('')
   console.log('Test', test)
+  const [filterDataBySex, setFilterDataBySex] = useState({
+    male: 0,
+    female: 0,
+    other: 0,
+  })
+  console.log('filterDataBySex', filterDataBySex)
 
   const dateReset = () => {
     setStartingDate(todayDate)
@@ -248,18 +282,25 @@ const PatientReport = () => {
     console.log('datafromdiagbutton', text)
     setPopuoData(text)
   }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchProblems()
+
+      if (problemSet.length) {
+        dateSubmit()
+      }
+    }
+    fetchData()
+  }, [])
+
   useEffect(() => {
     if (problemSet.length) {
       dateSubmit()
     }
-  }, [page, updateState])
-
-  useEffect(() => {
-    fetchProblems()
-  }, [])
+  }, [problemSet, page, updateState])
 
   const handleDropdownChange = (selectedOptions) => {
-    // Check if the selection is cleared
     if (!selectedOptions || selectedOptions.length === 0) {
       dateReset()
     } else {
@@ -268,8 +309,9 @@ const PatientReport = () => {
   }
 
   return (
-    <>
+    <div className="mb-3">
       {hide ? <ReportModal setHide={setHide} popupData={popupData} /> : ''}
+      {loading ? <SpinnerOverlay message="Loading" /> : ''}
       <div className="row">
         <div className="col-sm-3 mt-2">
           {/* <select
@@ -403,14 +445,14 @@ const PatientReport = () => {
           </div>
           <div className="col-md-6">
             <CChart
-              type="bar"
+              type="doughnut"
               data={{
-                labels: Object.keys(test),
+                labels: ['male', 'female', 'others'],
                 datasets: [
                   {
-                    label: 'Patients',
-                    backgroundColor: colorPalette.slice(0, Object.keys(test).length), // Assign colors from the palette
-                    data: Object.values(test),
+                    label: 'Patinets by sex',
+                    backgroundColor: colorPalette.slice(0, 3), // Assign colors from the palette
+                    data: [filterDataBySex.male, filterDataBySex.female, filterDataBySex.other],
                   },
                 ],
               }}
@@ -422,7 +464,7 @@ const PatientReport = () => {
       )}
 
       <ToastContainer />
-    </>
+    </div>
   )
 }
 

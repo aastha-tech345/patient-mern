@@ -15,7 +15,7 @@ const upload = require("../middlewares/simgleFileMulterMiddleware");
 userRoutes.get("/validate", verifyToken, isUserLogin);
 userRoutes.post("/create", createUser);
 userRoutes.post("/login", loginUser);
-userRoutes.post("/update", verifyToken, userUpdate);
+userRoutes.put("/update", verifyToken, userUpdate);
 userRoutes.post(
   "/uploadPatientReport",
   upload.array("files", 3),

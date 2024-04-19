@@ -23,13 +23,21 @@ import {
 import CIcon from '@coreui/icons-react'
 
 import avatar12 from './../../assets/images/avatars/12.jpg'
+import { useNavigate } from 'react-router-dom'
 
 const AppHeaderDropdown = () => {
+  const navigate = useNavigate()
   const logoutHandler = () => {
     // console.log('logot')
     localStorage.removeItem('token')
     localStorage.removeItem('patientRecord')
   }
+  const changePasswordHandler = (e) => {
+    e.preventDefault()
+    navigate('/changePassword')
+    console.log('Working change password')
+  }
+
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0" caret={false}>
@@ -58,6 +66,10 @@ const AppHeaderDropdown = () => {
             42
           </CBadge>
         </CDropdownItem> */}
+        <CDropdownItem onClick={(e) => changePasswordHandler(e)} href="/">
+          <CIcon className="me-2" />
+          Change Password
+        </CDropdownItem>
         <CDropdownItem onClick={() => logoutHandler()} href="/">
           <CIcon className="me-2" />
           Logout
