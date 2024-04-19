@@ -126,9 +126,17 @@
 // }
 
 .css-3w2yfm-ValueContainer {
-  max-height: 100px !important;
+  height: 100px !important;
   overflow-y: auto;
 }
+.css-1dyz3mf{
+  height: 100px !important;
+  overflow-y: auto;
+}
+.css-1dyz3mf::-webkit-scrollbar {
+  display: none;
+}
+
 .css-3w2yfm-ValueContainer::-webkit-scrollbar {
   display: none;
 }

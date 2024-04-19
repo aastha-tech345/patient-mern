@@ -14,6 +14,8 @@ import Loader from '../loader/Loader'
 import AddPatientLoader from '../loader/AddPatientLoader'
 import { useLocation } from 'react-router-dom'
 import SpinnerOverlay from 'src/views/publicItems/ SpinnerOverlay'
+import { DatePicker } from 'antd'
+import dayjs from 'dayjs'
 
 const PatientPage = () => {
   const location = useLocation()
@@ -554,6 +556,23 @@ const PatientPage = () => {
                               </div>
                             </div>
                           </div>
+                          {/* <div className="col-md-4 mt-2">
+                            <div>
+                              <label className="col-sm-4  patientNamediv">
+                                CR No <span style={{ color: 'red' }}>*</span>
+                              </label>
+                              <div className="col-sm-8">
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                  <DatePicker
+                                    className="form-control "
+                                    format="DD/MM/YYYY"
+                                    value={DOB}
+                                    onChange={handleDateChange}
+                                  />
+                                </LocalizationProvider>
+                              </div>
+                            </div>
+                          </div> */}
                         </div>
                       </div>
                       <hr />
