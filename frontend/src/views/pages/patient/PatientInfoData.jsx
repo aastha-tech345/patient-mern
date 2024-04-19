@@ -136,7 +136,7 @@ const PatientInfoData = ({ patientSearch, getSearchByPatient }) => {
           })}
         </>
       ) : (
-        <>
+        <div className="mb-4">
           {patientSearch?.map((patient) => {
             const { name, crn, phone, age, sex, diagnosis, _id, desc, nextApointmentDate } = patient
             const isDetailsOpen = selectedPatientId === _id
@@ -224,7 +224,7 @@ const PatientInfoData = ({ patientSearch, getSearchByPatient }) => {
               </div>
             )
           })}
-        </>
+        </div>
       )}
     </div>
   )

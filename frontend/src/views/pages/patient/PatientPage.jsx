@@ -34,7 +34,7 @@ const PatientPage = () => {
   const [tests, setTests] = useState([])
   const [scales, setScales] = useState([])
   const [queryCRN, setQueryCRN] = useState('')
-
+  const randomCRN = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000
   let [fileUploadingSpinner, setfileUploadingSpinner] = useState(false)
   const [desc, setDesc] = useState('')
   const [formData, setFormData] = useState({
@@ -42,7 +42,7 @@ const PatientPage = () => {
     age: '',
     sex: 'male',
     phone: '',
-    crn: '',
+    crn: `${randomCRN}`,
     diagnosis: [],
     desc: '',
     doctor_id: patientRecord?._id,
@@ -241,7 +241,7 @@ const PatientPage = () => {
           age: '',
           sex: 'male',
           phone: '',
-          crn: '',
+          crn: `${randomCRN}`,
           diagnosis: [],
           desc: '',
           doctor_id: patientRecord?._id,
@@ -377,7 +377,7 @@ const PatientPage = () => {
       age: '',
       sex: 'male',
       phone: '',
-      crn: '',
+      crn: `${randomCRN}`,
       diagnosis: [],
       desc: '',
       doctor_id: patientRecord?._id,

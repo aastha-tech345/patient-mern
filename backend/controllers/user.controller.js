@@ -59,11 +59,10 @@ const isUserLogin = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
 
-    if(!user){
+    if (!user) {
       return res.status(404).json({
         success: false,
         message: "Please Login First",
-        
       });
     }
 
@@ -73,26 +72,44 @@ const isUserLogin = async (req, res) => {
       data: user,
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 };
 
 const userUpdate = async (req, res) => {
   try {
-    const updateUser = await User.findByIdAndUpdate(req.user.id, req.body, {
-      new: true,
-    });
+    // const updateUser = await User.findByIdAndUpdate(req.user.id, req.body, {
+    //   new: true,
+    // });
+    // console.log(req.body);
+    if (req.body.password) {
+      if (req.body.password !== req.body.reEnterPassword) {
+        return res.status(400).json({
+          success: false,
+          message: "Password and Re-Enter Password not matched",
+        });
+      }
 
-    if (!updateUser) {
-      return res.status(500).json({
-        success: false,
-        message: "Something went wrong",
+      const user = await User.findById(req.user.id);
+      user.password = req.body.password;
+      await user.save();
+      return res.status(200).json({
+        success: true,
+        message: "User Updated Successfully",
+        data: user,
       });
     }
+
+    const user = await User.findById(req.user.id);
+    user.name = req.body.name;
+    // user.password = req.body.password;
+
+    await user.save();
+
     return res.status(200).json({
       success: true,
       message: "User Updated Successfully",
-      data: updateUser,
+      data: user,
     });
   } catch (error) {
     console.log(error);
@@ -248,5 +265,5 @@ module.exports = {
   uploadPatientReport,
   getPatientReport,
   togglePatientNotifications,
-  isUserLogin
+  isUserLogin,
 };

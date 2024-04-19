@@ -41,6 +41,23 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     try {
+      if (data.name.length < 4) {
+        toast.warning('Please enter a name!!')
+        // toast.warning('Password length should be atleast 4 digits!!')
+        return
+      }
+      if (data.email.length < 8) {
+        toast.warning('Please enter a valid email!!')
+        return
+      }
+      if (data.password.length < 4) {
+        toast.warning('Password length should be atleast 4 digits!!')
+        return
+      }
+      if (data.department_id.length === 0) {
+        toast.warning('Please select a Department!!')
+        return
+      }
       setLoading(true)
       e.preventDefault()
       console.log('data', data)
