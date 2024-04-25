@@ -4,6 +4,9 @@ import PatientShowDetails from './PatientShowDetails'
 import PatientAddNewRecord from './PatientAddNewRecord'
 
 const PatientInfoData = ({ patientSearch, getSearchByPatient }) => {
+  // console.log('patientSearch', patientSearch)
+  // console.log('getSearchByPatient', getSearchByPatient)
+
   const [isAddNewDiagnosis, setIsAddNewDiagnosis] = useState(false)
   const [isDetails, setIsDetailed] = useState(false)
   const [selectedPatientId, setSelectedPatientId] = useState('')
@@ -216,6 +219,7 @@ const PatientInfoData = ({ patientSearch, getSearchByPatient }) => {
                             setIsDetailed={setIsDetailed}
                             diagnosisProp={diagnosisProp}
                           />
+                          <PatientShowDetails diagnosis={diagnosis} desc={desc} />
                         </div>
                       )}
                     </div>

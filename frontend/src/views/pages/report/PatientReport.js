@@ -17,6 +17,8 @@ import Loader from '../loader/Loader'
 import ReportModal from './ReportModal'
 import Select from 'react-select'
 import { CChart } from '@coreui/react-chartjs'
+import * as XLSX from 'xlsx'
+import { saveAs } from 'file-saver'
 
 const PatientReport = () => {
   let API_URL = process.env.REACT_APP_API_URL
@@ -137,7 +139,7 @@ const PatientReport = () => {
     {
       title: 'Action',
       render: (text) => {
-        console.log('text', text)
+        // console.log('text', text)
         return (
           <button className="btn btn-primary" onClick={() => handleOpenMOdal(text)}>
             View Diagnosis
@@ -149,7 +151,7 @@ const PatientReport = () => {
       title: 'Action',
 
       render: (text) => {
-        console.log('text', text)
+        // console.log('text', text)
         return (
           <button
             className="btn btn-primary"
@@ -184,6 +186,17 @@ const PatientReport = () => {
     setEndDate(date)
   }
 
+  const filterDataAccordingToProblemSet = (response, problemSet) => {
+    for (const diagnosis of response) {
+      diagnosis.diagnosData = diagnosis.diagnosData.filter((data) =>
+        problemSet.includes(data.problem),
+      )
+    }
+    return response.filter((diagnosis) => diagnosis.diagnosData.length > 0)
+  }
+
+  const [filterDatatResponse, setFilterDataResponse] = useState('')
+
   const dateSubmit = async () => {
     if (problemSet === '') {
       return toast.warning('Please select any one Chief Complaint')
@@ -217,47 +230,65 @@ const PatientReport = () => {
       data,
     )
 
-    setPageCount(res?.data?.pageCount)
-    setPatientProblems(res?.data)
+    if (res?.success === true) {
+      console.log('searched data', res)
 
-    const problemCounts = {}
+      const filterDataArray = await Promise.all(
+        res?.data?.map(async (obj) => {
+          const filteredDiagnosis = await filterDataAccordingToProblemSet(obj.diagnosis, problemSet)
+          return { ...obj, diagnosis: filteredDiagnosis }
+        }),
+      )
 
-    console.log('response', res)
+      setFilterDataResponse(filterDataArray)
 
-    res?.data?.forEach((patient) => {
-      const patientProblemSet = new Set()
-      patient?.diagnosis?.forEach((element) => {
-        element?.diagnosData?.forEach((diagnosis) => {
-          const problem = diagnosis.problem
+      console.log('filtered Data', filterDataArray)
 
-          if (problemSet.includes(problem) && !patientProblemSet.has(problem)) {
-            problemCounts[problem] = (problemCounts[problem] || 0) + 1
-            patientProblemSet.add(problem)
-          }
+      setPageCount(res?.pageCount)
+      setPatientProblems(res?.data)
+
+      const problemCounts = {}
+
+      console.log('response', res)
+
+      res?.data?.forEach((patient) => {
+        const patientProblemSet = new Set()
+        patient?.diagnosis?.forEach((element) => {
+          element?.diagnosData?.forEach((diagnosis) => {
+            const problem = diagnosis.problem
+
+            if (problemSet.includes(problem) && !patientProblemSet.has(problem)) {
+              problemCounts[problem] = (problemCounts[problem] || 0) + 1
+              patientProblemSet.add(problem)
+            }
+          })
         })
       })
-    })
-    let maleCount = 0
-    let femaleCount = 0
-    let otherCount = 0
-    res?.data?.forEach((patient) => {
-      if (patient.sex === 'male') {
-        maleCount = maleCount + 1
-      } else if (patient.sex === 'female') {
-        femaleCount = femaleCount + 1
-      } else {
-        otherCount = otherCount + 1
-      }
-    })
-    setFilterDataBySex({
-      male: maleCount,
-      female: femaleCount,
-      other: otherCount,
-    })
-    console.log('Count male female', filterDataBySex)
+      let maleCount = 0
+      let femaleCount = 0
+      let otherCount = 0
+      res?.data?.forEach((patient) => {
+        if (patient.sex === 'male') {
+          maleCount = maleCount + 1
+        } else if (patient.sex === 'female') {
+          femaleCount = femaleCount + 1
+        } else {
+          otherCount = otherCount + 1
+        }
+      })
+      setFilterDataBySex({
+        male: maleCount,
+        female: femaleCount,
+        other: otherCount,
+      })
+      console.log('Count male female', filterDataBySex)
 
-    setTest(problemCounts)
-    setLoading(false)
+      setTest(problemCounts)
+      setLoading(false)
+    } else {
+      setLoading(false)
+      console.log('not find')
+    }
   }
 
   const [test, setTest] = useState('')
@@ -274,7 +305,11 @@ const PatientReport = () => {
     setEndDate(todayDate)
     setUpdateState(!updateState)
     setProblemSet('Select Problem')
+    setPatientProblems('')
+    setFilterDataBySex('')
+    setTest('')
     setSelectDropdownValue('')
+    setFilterDataResponse('')
   }
 
   const handleOpenMOdal = (text) => {
@@ -308,30 +343,157 @@ const PatientReport = () => {
     }
   }
 
+  const exportToExcel = () => {
+    setLoading(true)
+
+    const workbook = XLSX.utils.book_new()
+
+    const titleRow = [
+      'CRN',
+      'Name',
+      'Age',
+      'Sex',
+      'Phone',
+      'Next Appointment Date',
+      'Problem',
+      'Sub Problem',
+      'Notes',
+      // 'Test Name',
+      // 'Test Input',
+      'Scale Name',
+      'Scale Value',
+      'Procedure Name',
+      'Procedure Complications',
+      'Procedure Done By',
+      'Procedure Date',
+    ]
+
+    const worksheet = XLSX.utils.aoa_to_sheet([titleRow])
+
+    filterDatatResponse.forEach((item) => {
+      const { _id, name, age, sex, crn, phone, nextApointmentDate, diagnosis } = item
+      const bbb = new Date(nextApointmentDate)
+      const nextAppointmentDateFormateed = `${bbb.getDate()}/${
+        bbb.getMonth() + 1
+      }/${bbb.getFullYear()}`
+
+      diagnosis.forEach((diagnosisItem) => {
+        const { diagnosData, procedure, desc } = diagnosisItem
+
+        diagnosData.forEach((diagnosDataItem) => {
+          const { problem, subProblem, test, scale } = diagnosDataItem
+          let shownProcedure = false
+
+          // test.forEach((testItem) => {
+          //   const { name: testName, testInput } = testItem
+
+          // scale.forEach((scaleItem) => {
+          //   const { name: scaleName, value: scaleValue } = scaleItem
+
+          const scaleName = scale.map((scale) => scale.name).join(', ')
+          const scaleValue = scale.map((scale) => scale.value).join(', ')
+          if (procedure.length) {
+            procedure.forEach((procedureItem) => {
+              const { name: procedureName, complications, doneBy, date } = procedureItem
+              if (shownProcedure === false) {
+                console.log('Datessss', date)
+                const aaa = new Date(date)
+
+                const formattedDate = `${aaa.getDate()}/${aaa.getMonth() + 1}/${aaa.getFullYear()}`
+
+                const dataRow = [
+                  crn,
+                  name,
+                  age,
+                  sex,
+                  phone,
+                  nextAppointmentDateFormateed,
+                  problem,
+                  subProblem,
+                  desc,
+                  // testName,
+                  // testInput,
+                  scaleName,
+                  scaleValue,
+                  procedureName,
+                  complications,
+                  doneBy,
+                  formattedDate,
+                ]
+                shownProcedure = true
+                // Append the row to the worksheet
+                XLSX.utils.sheet_add_aoa(worksheet, [dataRow], { origin: -1 }) // -1 to append rows after the title row
+              } else {
+                const aaa = new Date(date)
+
+                const formattedDate = `${aaa.getDate()}/${aaa.getMonth() + 1}/${aaa.getFullYear()}`
+
+                const dataRow = [
+                  ,
+                  ,
+                  ,
+                  ,
+                  ,
+                  ,
+                  ,
+                  ,
+                  ,
+                  ,
+                  ,
+                  procedureName,
+                  complications,
+                  doneBy,
+                  formattedDate,
+                ]
+
+                XLSX.utils.sheet_add_aoa(worksheet, [dataRow], { origin: -1 })
+              }
+            })
+          } else {
+            const dataRow = [
+              crn,
+              name,
+              age,
+              sex,
+              phone,
+              nextAppointmentDateFormateed,
+              problem,
+              subProblem,
+              desc,
+              // testName,
+              // testInput,
+              scaleName,
+              scaleValue,
+            ]
+            XLSX.utils.sheet_add_aoa(worksheet, [dataRow], { origin: -1 })
+          }
+
+          // })
+          // })
+        })
+      })
+    })
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
+
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })
+
+    const blob = new Blob([excelBuffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    })
+    const date = new Date()
+
+    saveAs(blob, `data_${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`)
+
+    setLoading(false)
+  }
+
   return (
-    <div className="mb-3">
-      {hide ? <ReportModal setHide={setHide} popupData={popupData} /> : ''}
+    <div className="mb-3 ">
+      {hide ? <ReportModal setHide={setHide} popupData={popupData} problemSet={problemSet} /> : ''}
       {loading ? <SpinnerOverlay message="Loading" /> : ''}
       <div className="row">
         <div className="col-sm-3 mt-2">
-          {/* <select
-              onChange={(e) => handlSetPoblem(e.target.value)}
-              className="form-control"
-              style={{ appearance: 'auto', height: '50px', width: '100%' }}
-              value={problemSet}
-              multiple
-            >
-              <option>Chief Complaint</option>
-              {problems.map((elem) => {
-                return (
-                  <>
-                    <option key={elem} value={elem}>
-                      {elem}
-                    </option>
-                  </>
-                )
-              })}
-            </select> */}
           <Select
             options={problems}
             isMulti
@@ -341,11 +503,10 @@ const PatientReport = () => {
             placeholder="Select Chief Complaint"
             maxMenuHeight={300}
             styles={{
-              // Custom styles for the container of the selected value
               singleValue: (provided, state) => ({
                 ...provided,
-                height: '30px', // Set the height as needed
-                lineHeight: '30px', // Align the text vertically
+                height: '30px',
+                lineHeight: '30px',
               }),
             }}
           />
@@ -406,6 +567,19 @@ const PatientReport = () => {
             </div>
           </div>
         </div>
+        {filterDatatResponse !== '' ? (
+          <div>
+            <button
+              // style={{ float: 'right', marginRight: '4rem' }}
+              className="btn btn-outline-primary"
+              onClick={exportToExcel}
+            >
+              Export to Excel
+            </button>
+          </div>
+        ) : (
+          ''
+        )}
       </div>
 
       <div className="mt-2 table-responsive">
@@ -415,7 +589,7 @@ const PatientReport = () => {
           <>
             <Table
               columns={columns}
-              dataSource={patientProblems}
+              dataSource={filterDatatResponse}
               pagination={false}
               className="table-responsive"
             />
@@ -424,6 +598,7 @@ const PatientReport = () => {
       </div>
       <div className="d-flex justify-content-end mt-2">
         <Stack spacing={2}>
+          {console.log('pagination in react ', pageCount, page)}
           <Pagination count={pageCount} page={page} onChange={handlePageChange} />
         </Stack>
       </div>
@@ -436,7 +611,7 @@ const PatientReport = () => {
                 labels: Object.keys(test),
                 datasets: [
                   {
-                    backgroundColor: colorPalette.slice(0, Object.keys(test).length), // Assign colors from the palette
+                    backgroundColor: colorPalette.slice(0, Object.keys(test).length),
                     data: Object.values(test),
                   },
                 ],
@@ -449,7 +624,9 @@ const PatientReport = () => {
                     },
                   },
                 },
+                aspectRatio: false,
               }}
+              height={'300px'}
             />
           </div>
           <div className="col-md-6">
@@ -460,11 +637,15 @@ const PatientReport = () => {
                 datasets: [
                   {
                     label: 'Patinets by sex',
-                    backgroundColor: colorPalette.slice(0, 3), // Assign colors from the palette
+                    backgroundColor: colorPalette.slice(0, 3),
                     data: [filterDataBySex.male, filterDataBySex.female, filterDataBySex.other],
                   },
                 ],
               }}
+              options={{
+                aspectRatio: false,
+              }}
+              height={'300px'}
             />
           </div>
         </div>
@@ -478,3 +659,67 @@ const PatientReport = () => {
 }
 
 export default PatientReport
+
+// const exportToExcel = () => {
+//   setLoading(true)
+//   // Create a new workbook
+//   const workbook = XLSX.utils.book_new()
+
+//   const worksheet = XLSX.utils.json_to_sheet(
+//     filterDatatResponse
+//       .map((item) => {
+//         const { diagnosis, doctor_id, _id, updatedAt, __v, ...rest } = item
+//         const flattenedDiagnosis = diagnosis
+//           .map((diag) => {
+//             const { diagnosData, procedure, ...diagRest } = diag
+//             const flattenedDiagnosData = diagnosData.map((data) => {
+//               // Flatten the test and scale arrays
+//               const tests = data.test.map((test) => test.name).join(', ')
+//               const testInput = data.test.map((test) => test.testInput).join(', ')
+
+//               const scales = data.scale.map((scale) => scale.name).join(', ')
+//               const value = data.scale.map((scale) => scale.value).join(', ')
+
+//               const name = procedure.map((data) => data.name).join(', ')
+//               const complications = procedure.map((data) => data.complications).join(', ')
+//               const doneBy = procedure.map((data) => data.doneBy).join(', ')
+//               const date = procedure.map((data) => data.date).join(', ')
+
+//               return {
+//                 ...diagRest,
+//                 ...data,
+//                 test: tests,
+//                 testInput: testInput,
+//                 scale: scales,
+//                 value: value,
+//                 Proceducer_Name: name,
+//                 complications: complications,
+//                 doneBy: doneBy,
+//                 date: date,
+//                 // ...procedures,
+//               }
+//             })
+//             return flattenedDiagnosData
+//           })
+//           .flat()
+//           .map((diag) => ({ ...rest, ...diag }))
+//         return flattenedDiagnosis
+//       })
+//       .flat(),
+//   )
+
+//   // Add the worksheet to the workbook
+//   XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
+
+//   // Convert the workbook to an Excel binary
+//   const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })
+
+//   // Convert the array buffer to a blob
+//   const blob = new Blob([excelBuffer], {
+//     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+//   })
+
+//   // Save the blob as a file using FileSaver.js
+//   saveAs(blob, 'data.xlsx')
+//   setLoading(false)
+// }

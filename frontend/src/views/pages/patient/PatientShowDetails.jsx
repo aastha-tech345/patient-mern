@@ -7,7 +7,7 @@ import { ToastContainer, toast } from 'react-toastify'
 import SpinnerOverlay from 'src/views/publicItems/ SpinnerOverlay'
 
 const PatientShowDetails = ({ diagnosis }) => {
-  console.log('Guarva', diagnosis)
+  // console.log('Guarva', diagnosis)
   const [reversedDiagnosis, setReversedDiagnosis] = useState([])
   const [loading, setLoading] = useState(false)
   const [requestedFileLoading, setRequestedFileLoading] = useState({})
@@ -104,9 +104,8 @@ const PatientShowDetails = ({ diagnosis }) => {
                   <colgroup>
                     <col style={{ width: '20%' }} />
                     <col style={{ width: '20%' }} />
-                    <col style={{ width: '20%' }} />
-                    <col style={{ width: '20%' }} />
-                    <col style={{ width: '20%' }} />
+                    <col style={{ width: '30%' }} />
+                    <col style={{ width: '30%' }} />
                   </colgroup>
                   <thead>
                     <tr>
@@ -114,90 +113,208 @@ const PatientShowDetails = ({ diagnosis }) => {
                         Problems
                       </th>
                       <th scope="col" className="tableTitle" style={{ background: '#FBF295' }}>
-                        Test
+                        Sub Problem
                       </th>
                       <th scope="col" className="tableTitle" style={{ background: '#FBF295' }}>
-                        Test value
+                        Tests
                       </th>
                       <th scope="col" className="tableTitle" style={{ background: '#FBF295' }}>
-                        Scale
-                      </th>
-                      <th scope="col" className="tableTitle" style={{ background: '#FBF295' }}>
-                        Scale value
+                        Scales
                       </th>
                     </tr>
                   </thead>
                   {elem?.diagnosData?.map((element, innerIndex) => {
-                    const { problem, scale, test, testInput, files, value } = element
-                    // console.log('Guarav', element)
+                    const { problem, subProblem, scale, test } = element
+                    console.log('hgsad', element)
                     return (
-                      <tbody key={innerIndex}>
-                        {loading && <SpinnerOverlay message="Opening File" />}
-                        <tr>
-                          <td className="tableTitle" style={{ fontWeight: 'bolder' }}>
-                            {problem}
-                          </td>
-                          <td className="tableTitle" style={{ fontWeight: 'bolder' }}>
-                            {test === '' ? '-' : test}
-                          </td>
-                          <td className="tableTitle" style={{ fontWeight: 'bolder' }}>
-                            {testInput ? (
-                              testInput
-                            ) : (
-                              <div style={{ display: 'flex' }}>
-                                {files?.map((file, fileIndex) => (
-                                  <div
-                                    key={fileIndex}
-                                    value={file.fileName}
-                                    style={{
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      marginRight: '10px',
-                                    }}
-                                    // onMouseEnter={() => handleMouseEnter(file.fileName)}
-                                    onMouseEnter={() => {
-                                      const editedName = editNameFun(file.fileName)
-                                      setHoveredFile(editedName)
-                                    }}
-                                    onMouseLeave={() => setHoveredFile('')}
-                                    onClick={() => showReportHandler(file?.fileName, fileIndex)}
-                                  >
-                                    <button
-                                      type="button"
-                                      className="btn btn-sm btn-primary" // Decreased size and changed color to blue
-                                      data-toggle="popover"
-                                      title={hoveredFile}
-                                      style={{ margin: '0' }}
-                                    >
-                                      <CIcon icon={cilDataTransferDown} />
-                                    </button>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </td>
-                          {console.log('Guarav', testInput)}
-                          <td className="tableTitle" style={{ fontWeight: 'bolder' }}>
-                            {scale === '' ? '-' : scale}
-                          </td>
-                          <td className="tableTitle" style={{ fontWeight: 'bolder' }}>
-                            {value === '' ? '-' : value}
-                          </td>
-                        </tr>
-                      </tbody>
+                      <>
+                        <tbody key={innerIndex}>
+                          {loading && <SpinnerOverlay message="Opening File" />}
+                          <tr>
+                            <td style={{ fontWeight: 'bolder' }}>{problem}</td>
+                            <td style={{ fontWeight: 'bolder' }}>
+                              {subProblem ? subProblem : '-'}
+                            </td>
+                            <td>
+                              {test.map((testData, testIndex) => (
+                                <div key={testIndex}>
+                                  {testData.name === '' ? (
+                                    '-'
+                                  ) : (
+                                    <div className="row" style={{ margin: 0 }}>
+                                      <td
+                                        // className="tableTitle"
+                                        style={{
+                                          width: '50%',
+                                          paddingRight: '10px',
+                                          margin: 'auto',
+                                          fontWeight: 'bolder',
+                                        }}
+                                      >
+                                        {testData.name}
+                                      </td>
+                                      <div style={{ width: '50%' }}>
+                                        <td style={{ margin: '0', padding: 0 }}>
+                                          {testData.testInput !== '' ? (
+                                            <td
+                                              style={{
+                                                width: '40%',
+                                                paddingRight: '10px',
+                                                margin: 'auto',
+                                              }}
+                                            >
+                                              {testData.testInput}
+                                            </td>
+                                          ) : (
+                                            <div style={{ display: 'flex', margin: 0 }}>
+                                              {testData.files?.map((file, fileIndex) => (
+                                                <div
+                                                  key={fileIndex}
+                                                  value={file.fileName}
+                                                  style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    marginRight: '10px',
+                                                    margin: '0 5px 0 0', // Adjusted margin for files
+                                                  }}
+                                                  onMouseEnter={() => {
+                                                    const editedName = editNameFun(file.fileName)
+                                                    setHoveredFile(editedName)
+                                                  }}
+                                                  onMouseLeave={() => setHoveredFile('')}
+                                                  onClick={() =>
+                                                    showReportHandler(file?.fileName, fileIndex)
+                                                  }
+                                                >
+                                                  <button
+                                                    type="button"
+                                                    className="btn btn-sm btn-primary"
+                                                    data-toggle="popover"
+                                                    title={hoveredFile}
+                                                    style={{ margin: '0' }}
+                                                  >
+                                                    <CIcon icon={cilDataTransferDown} />
+                                                  </button>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          )}
+                                        </td>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </td>
+                            <td>
+                              {scale.map((scaleData, scaleIndex) => (
+                                <div key={scaleIndex}>
+                                  {scaleData.name === '' ? (
+                                    '-'
+                                  ) : (
+                                    <div className="row" style={{ margin: 0 }}>
+                                      <div
+                                        className="col-md-6"
+                                        style={{
+                                          fontWeight: 'bolder',
+                                          paddingRight: '10px',
+                                          margin: 'auto',
+                                          wordWrap: 'break-word',
+                                        }}
+                                      >
+                                        {scaleData.name}
+                                      </div>
+
+                                      <div
+                                        className="col-md-6 tableTitle"
+                                        style={{
+                                          margin: '0',
+                                          padding: 0,
+                                          wordWrap: 'break-word',
+                                        }}
+                                      >
+                                        {scaleData.value}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </>
                     )
                   })}
+                  {elem?.procedure.length !== 0 ? (
+                    <>
+                      <tr>
+                        <td colSpan="4">
+                          <h5 style={{ fontWeight: 'bolder' }}>Procedures:</h5>
+                        </td>
+                      </tr>
+                      <tr>
+                        {/* <th scope="col" className="tableTitle" style={{ background: '#FBF295' }}> */}
+                        <td
+                          className="tableTitle"
+                          style={{ background: '#FBF295', fontWeight: 'bold' }}
+                        >
+                          Name
+                        </td>
+                        <td
+                          className="tableTitle"
+                          style={{ background: '#FBF295', fontWeight: 'bold' }}
+                        >
+                          Complications
+                        </td>
+                        <td
+                          className="tableTitle"
+                          style={{ background: '#FBF295', fontWeight: 'bold' }}
+                        >
+                          Done By
+                        </td>
+                        <td
+                          className="tableTitle"
+                          style={{ background: '#FBF295', fontWeight: 'bold' }}
+                        >
+                          Date
+                        </td>
+                      </tr>
+                      {elem?.procedure.map((procedureData, procedureIndex) => {
+                        const date = new Date(procedureData.date)
+                        const formattedDate = date
+                          .toLocaleDateString('en-IN', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true,
+                          })
+                          .replace(/\//g, '/')
+                        return (
+                          <tr key={procedureIndex}>
+                            <td>&nbsp;&nbsp;{procedureData.name}</td>
+                            <td>{procedureData.complications}</td>
+                            <td>{procedureData.doneBy}</td>
+                            <td>{formattedDate}</td>
+                          </tr>
+                        )
+                      })}
+                    </>
+                  ) : (
+                    ''
+                  )}
                 </table>
 
-                <div className="row" style={{ margin: '1rem auto 1rem 0', width: '90%' }}>
+                <div className="row" style={{ margin: '1rem auto 1rem 0' }}>
                   <div>
                     <div className="row">
-                      <div className="col-md-2 d-flex align-items-center">
-                        <h5>Notes:</h5>
-                      </div>
-                      <div className="col-md-10 d-flex align-items-center">
-                        <div className="card" style={{ width: '87%', padding: '1rem 2rem' }}>
-                          <p style={{ margin: '0' }}>{elem.desc === '' ? '-' : elem.desc}</p>
+                      <div className="card" style={{ padding: '1rem 2rem' }}>
+                        <div className="d-flex">
+                          <p style={{ margin: '0' }}>
+                            {' '}
+                            Notes :&nbsp;&nbsp;&nbsp;{elem.desc === '' ? '-' : elem.desc}
+                          </p>
                         </div>
                       </div>
                     </div>
