@@ -489,7 +489,7 @@ const PatientReport = () => {
   }
 
   return (
-    <div className="mb-3 ">
+    <div className="mb-3 " style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       {hide ? <ReportModal setHide={setHide} popupData={popupData} problemSet={problemSet} /> : ''}
       {loading ? <SpinnerOverlay message="Loading" /> : ''}
       <div className="row">
@@ -582,7 +582,7 @@ const PatientReport = () => {
         )}
       </div>
 
-      <div className="mt-2 table-responsive">
+      <div className="mt-2 " style={{ flexGrow: '1' }}>
         {loading ? (
           <Loader />
         ) : (
@@ -591,7 +591,7 @@ const PatientReport = () => {
               columns={columns}
               dataSource={filterDatatResponse}
               pagination={false}
-              className="table-responsive"
+              // className="table-responsive"
             />
           </>
         )}
@@ -659,67 +659,3 @@ const PatientReport = () => {
 }
 
 export default PatientReport
-
-// const exportToExcel = () => {
-//   setLoading(true)
-//   // Create a new workbook
-//   const workbook = XLSX.utils.book_new()
-
-//   const worksheet = XLSX.utils.json_to_sheet(
-//     filterDatatResponse
-//       .map((item) => {
-//         const { diagnosis, doctor_id, _id, updatedAt, __v, ...rest } = item
-//         const flattenedDiagnosis = diagnosis
-//           .map((diag) => {
-//             const { diagnosData, procedure, ...diagRest } = diag
-//             const flattenedDiagnosData = diagnosData.map((data) => {
-//               // Flatten the test and scale arrays
-//               const tests = data.test.map((test) => test.name).join(', ')
-//               const testInput = data.test.map((test) => test.testInput).join(', ')
-
-//               const scales = data.scale.map((scale) => scale.name).join(', ')
-//               const value = data.scale.map((scale) => scale.value).join(', ')
-
-//               const name = procedure.map((data) => data.name).join(', ')
-//               const complications = procedure.map((data) => data.complications).join(', ')
-//               const doneBy = procedure.map((data) => data.doneBy).join(', ')
-//               const date = procedure.map((data) => data.date).join(', ')
-
-//               return {
-//                 ...diagRest,
-//                 ...data,
-//                 test: tests,
-//                 testInput: testInput,
-//                 scale: scales,
-//                 value: value,
-//                 Proceducer_Name: name,
-//                 complications: complications,
-//                 doneBy: doneBy,
-//                 date: date,
-//                 // ...procedures,
-//               }
-//             })
-//             return flattenedDiagnosData
-//           })
-//           .flat()
-//           .map((diag) => ({ ...rest, ...diag }))
-//         return flattenedDiagnosis
-//       })
-//       .flat(),
-//   )
-
-//   // Add the worksheet to the workbook
-//   XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1')
-
-//   // Convert the workbook to an Excel binary
-//   const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })
-
-//   // Convert the array buffer to a blob
-//   const blob = new Blob([excelBuffer], {
-//     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-//   })
-
-//   // Save the blob as a file using FileSaver.js
-//   saveAs(blob, 'data.xlsx')
-//   setLoading(false)
-// }

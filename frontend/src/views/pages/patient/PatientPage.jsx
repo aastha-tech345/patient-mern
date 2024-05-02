@@ -61,11 +61,8 @@ const PatientPage = () => {
       }
       setLoader(true)
       const data = await getFetch(`${API_URL}/api/patient/${searchData}`)
-
       setPatientSearch(data?.data?.data)
-      setTimeout(() => {
-        setLoader(false)
-      }, 3000)
+      setLoader(false)
     } catch (error) {
       console.log(error)
     }

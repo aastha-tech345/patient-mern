@@ -81,7 +81,10 @@ const searchPatient = async (req, res) => {
     const apiFeatures = new ApiFeatures(
       Patient.find({
         doctor_id: req.user.id,
-        $or: [{ crn: { $regex: searchKey } }, { phone: { $regex: searchKey } }],
+        $or: [
+          { crn: { $regex: "^" + searchKey } },
+          { phone: { $regex: "^" + searchKey } },
+        ],
       }).populate("doctor_id"),
       req.query
     )

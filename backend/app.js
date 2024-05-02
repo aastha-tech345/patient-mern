@@ -4,6 +4,7 @@ const userRoutes = require("./routes/user.routes");
 const patientRoutes = require("./routes/patient.routes");
 const departmentRoutes = require("./routes/deparment.routes");
 const problemRoutes = require("./routes/problem.routes");
+const ayenatiRoutes = require("./routes/ayenati.routes");
 const cookieParser = require("cookie-parser");
 const path = require("path");
 // const notificationScheduler = require("./schedulers/smsNotification");
@@ -21,6 +22,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/patient", patientRoutes);
 app.use("/api/department", departmentRoutes);
 app.use("/api/problem", problemRoutes);
+app.use("/ayenati-outbound", ayenatiRoutes);
 
 app.use("/", express.static(path.join(__dirname, "/build")));
 app.get("/", function (req, res) {

@@ -2,9 +2,10 @@ import React, { useEffect, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import axios from 'axios'
 import CIcon from '@coreui/icons-react'
-import { cilDataTransferDown } from '@coreui/icons'
+import { cilDataTransferDown, cilPlus } from '@coreui/icons'
 import { ToastContainer, toast } from 'react-toastify'
 import SpinnerOverlay from 'src/views/publicItems/ SpinnerOverlay'
+import { CButton } from '@coreui/react'
 
 const PatientShowDetails = ({ diagnosis }) => {
   // console.log('Guarva', diagnosis)
@@ -309,13 +310,18 @@ const PatientShowDetails = ({ diagnosis }) => {
                 <div className="row" style={{ margin: '1rem auto 1rem 0' }}>
                   <div>
                     <div className="row">
-                      <div className="card" style={{ padding: '1rem 2rem' }}>
-                        <div className="d-flex">
-                          <p style={{ margin: '0' }}>
-                            {' '}
-                            Notes :&nbsp;&nbsp;&nbsp;{elem.desc === '' ? '-' : elem.desc}
-                          </p>
+                      <div className="col-md-11">
+                        <div className="card" style={{ padding: '1rem 2rem' }}>
+                          <div className="d-flex">
+                            <p style={{ margin: '0' }}>
+                              {' '}
+                              Notes :&nbsp;&nbsp;&nbsp;{elem.desc === '' ? '-' : elem.desc}
+                            </p>
+                          </div>
                         </div>
+                      </div>
+                      <div className="col-md-1 justify-content-center align-items-center">
+                        <CIcon icon={cilPlus} size="xl"></CIcon>
                       </div>
                     </div>
                   </div>

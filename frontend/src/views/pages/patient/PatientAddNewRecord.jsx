@@ -20,6 +20,11 @@ const PatientAddNewRecord = ({
   setIsDetailed,
   diagnosisProp,
 }) => {
+  console.log('Gaurav', diagnosisProp)
+  console.log(
+    'PEErablem',
+    diagnosisProp[0]?.diagnosData[diagnosisProp[0]?.diagnosData?.length - 1]?.problem,
+  )
   let API_URL = process.env.REACT_APP_API_URL
   let patientData = localStorage.getItem('patientRecord')
   let patientRecord = JSON.parse(patientData)
@@ -33,7 +38,7 @@ const PatientAddNewRecord = ({
   const currentDate = new Date()
   const [inputs, setInputs] = useState([
     {
-      problem: '',
+      problem: diagnosisProp[0]?.diagnosData[diagnosisProp[0]?.diagnosData?.length - 1]?.problem,
       subProblem: '',
       test: [
         {
@@ -71,7 +76,7 @@ const PatientAddNewRecord = ({
     console.log('Guarssadva', lastDiagnosis)
     setInputs([
       {
-        problem: '',
+        problem: diagnosisProp[0]?.diagnosData[diagnosisProp[0]?.diagnosData?.length - 1]?.problem,
         subProblem: '',
         test: [
           {
