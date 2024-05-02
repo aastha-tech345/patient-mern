@@ -11,6 +11,7 @@ const path = require("path");
 const app = express();
 app.use(cookieParser());
 app.use(express.json());
+app.use(express.text());
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -22,7 +23,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/patient", patientRoutes);
 app.use("/api/department", departmentRoutes);
 app.use("/api/problem", problemRoutes);
-app.use("/ayenati-outbound", ayenatiRoutes);
+app.use("/ayenati-inbound", ayenatiRoutes);
 
 app.use("/", express.static(path.join(__dirname, "/build")));
 app.get("/", function (req, res) {
