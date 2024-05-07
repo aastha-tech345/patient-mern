@@ -7,8 +7,35 @@ const problemRoutes = require("./routes/problem.routes");
 const ayenatiRoutes = require("./routes/ayenati.routes");
 const cookieParser = require("cookie-parser");
 const path = require("path");
-// const notificationScheduler = require("./schedulers/smsNotification");
+const swaggerJsDocs = require("swagger-jsdoc");
+const swaggerUI = require("swagger-ui-express");
+
 const app = express();
+/////////Swagger Implementation///////
+
+const options = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Ayenati End Points",
+      version: "1.0.0",
+      description:
+        "[http://18.204.141.1:8090/api/ayenati-inbound/hl7.json](http://18.204.141.1:8090/api/ayenati-inbound/hl7.json)",
+    },
+    servers: [
+      {
+        url: "http://18.204.141.1:8090",
+        description: "Ayenati testing server",
+      },
+    ],
+  },
+  apis: ["./routes/ayenati.routes.js"],
+};
+
+const swaggerSpec = swaggerJsDocs(options);
+app.use("/api/ayenati-inboard", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
+// const notificationScheduler = require("./schedulers/smsNotification");
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.text());
@@ -23,7 +50,12 @@ app.use("/api/user", userRoutes);
 app.use("/api/patient", patientRoutes);
 app.use("/api/department", departmentRoutes);
 app.use("/api/problem", problemRoutes);
-app.use("/ayenati-inbound", ayenatiRoutes);
+app.use("/api/ayenati-inbound", ayenatiRoutes);
+
+app.get("/api/ayenati-inbound/hl7.json", (req, res) => {
+  const json = JSON.stringify(swaggerSpec, null, 2); // Convert JSON object to string with indentation
+  res.send(json);
+});
 
 app.use("/", express.static(path.join(__dirname, "/build")));
 app.get("/", function (req, res) {
