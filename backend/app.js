@@ -20,11 +20,11 @@ const options = {
       title: "Ayenati End Points",
       version: "1.0.0",
       description:
-        "[http://localhost:8090/api/ayenati-inbound/hl7.json](http://localhost:8090/api/ayenati-inbound/hl7.json)",
+        "[http://18.204.141.1/:8090/api/ayenati-inbound/hl7.json](http://18.204.141.1/:8090/api/ayenati-inbound/hl7.json)",
     },
     servers: [
       {
-        url: "http://localhost:8090",
+        url: "http://18.204.141.1/:8090",
         description: "Ayenati testing server",
       },
     ],
