@@ -35,6 +35,7 @@ const ayenatiRoute = express.Router();
  *                      value:
  *                        success: true
  *                        message: "HL7 message successfully......"
+ *                        data: "Created Data Json"
  *          400:
  *              description: Bad request. This can happen if the request body is missing or malformed.
  *          500:

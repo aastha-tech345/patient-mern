@@ -10,6 +10,7 @@ const createData = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "HL7 message is created and stored in database",
+      data: ayenatiData,
     });
   } catch (error) {
     console.error(error);
