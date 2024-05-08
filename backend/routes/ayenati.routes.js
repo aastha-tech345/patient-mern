@@ -34,7 +34,7 @@ const ayenatiRoute = express.Router();
  *                    successfulResponse:
  *                      value:
  *                        success: true
- *                        message: "HL7 message successfully created and stored."
+ *                        message: "HL7 message successfully......"
  *          400:
  *              description: Bad request. This can happen if the request body is missing or malformed.
  *          500:
@@ -82,9 +82,7 @@ ayenatiRoute.post("/hl7/message", createData);
  *                         type: number
  *                         description: Version field.
  *       '400':
- *         description: Bad request. This can happen if the request is malformed.
- *       '401':
- *         description: Unauthorized. This can happen if the user is not authenticated.
+ *         description: Bad request .
  *       '500':
  *         description: Internal server error. Something went wrong on the server side.
  */

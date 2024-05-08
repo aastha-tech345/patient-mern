@@ -20,11 +20,11 @@ const options = {
       title: "Ayenati End Points",
       version: "1.0.0",
       description:
-        "[http://18.204.141.1:8090/api/ayenati-inbound/hl7.json](http://18.204.141.1:8090/api/ayenati-inbound/hl7.json)",
+        "[http://localhost:8090/api/ayenati-inbound/hl7.json](http://localhost:8090/api/ayenati-inbound/hl7.json)",
     },
     servers: [
       {
-        url: "http://18.204.141.1:8090",
+        url: "http://localhost:8090",
         description: "Ayenati testing server",
       },
     ],
@@ -33,8 +33,7 @@ const options = {
 };
 
 const swaggerSpec = swaggerJsDocs(options);
-app.use("/api/ayenati-inboard", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
-// const notificationScheduler = require("./schedulers/smsNotification");
+app.use("/apis/ayenati-inbound", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 app.use(cookieParser());
 app.use(express.json());
