@@ -1,6 +1,12 @@
 const express = require("express");
 
-const { createData, getData } = require("../controllers/ayenati.controller");
+const {
+  createData,
+  getData,
+  generateToken,
+  createUserAPIController,
+} = require("../controllers/ayenati.controller");
+const { verifyToken } = require("../utils/verifyToken");
 const ayenatiRoute = express.Router();
 /**
  * @swagger
@@ -42,7 +48,7 @@ const ayenatiRoute = express.Router();
  *              description: Internal server error. Something went wrong on the server side.
  */
 
-ayenatiRoute.post("/hl7/message", createData);
+ayenatiRoute.post("/hl7/message", verifyToken, createData);
 /**
  * @swagger
  * /api/ayenati-inbound/ayenatiData:
@@ -88,6 +94,54 @@ ayenatiRoute.post("/hl7/message", createData);
  *         description: Internal server error. Something went wrong on the server side.
  */
 
-ayenatiRoute.get("/ayenatiData", getData);
+ayenatiRoute.get("/ayenatiData", verifyToken, getData);
+
+/**
+ * @swagger
+ * /api/ayenati-inbound/token:
+ *   post:
+ *     summary: Retrieve all Ayenati orders from the database
+ *     description: Endpoint to fetch all Ayenati orders stored in the database.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 description: The username for authentication
+ *               password:
+ *                 type: string
+ *                 description: The password for authentication
+ *     responses:
+ *       '200':
+ *         description: Token generated successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   description: token in string
+ *                 user:
+ *                   type: string
+ *                   description: username of user
+ *                 generatedAt:
+ *                   description: date and time of token generation
+ *                 expiresIn:
+ *                   type: string
+ *                   description: token valid time
+ *       '400':
+ *         description: Bad request .
+ *       '500':
+ *         description: Internal server error. Something went wrong on the server side.
+ */
+
+ayenatiRoute.post("/token", generateToken);
+
+ayenatiRoute.post("/createUserAPIHidden", createUserAPIController);
 
 module.exports = ayenatiRoute;

@@ -13,10 +13,17 @@ const verifyToken = (req, res, next) => {
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) {
-      return res.status(401).json({
-        success: false,
-        message: "Token is not valid",
-      });
+      if (err.name === "TokenExpiredError") {
+        return res.status(401).json({
+          success: false,
+          message: "Token has expired!! Please generate a new token",
+        });
+      } else {
+        return res.status(401).json({
+          success: false,
+          message: "Token is not valid",
+        });
+      }
     }
 
     req.user = user;

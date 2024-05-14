@@ -23,6 +23,23 @@ const options = {
         "[http://18.204.141.1:8090/api/ayenati-inbound/hl7.json](http://18.204.141.1:8090/api/ayenati-inbound/hl7.json)",
         // "[http://localhost:8090/api/ayenati-inbound/hl7.json](http://localhost:8090/api/ayenati-inbound/hl7.json)",
     },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          in: "header",
+          name: "Authorization",
+          description: "Bearer Token",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
     servers: [
       {
         url: "http://18.204.141.1:8090",
