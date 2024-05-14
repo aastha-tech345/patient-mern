@@ -28,8 +28,8 @@ const options = {
         bearerAuth: {
           type: "http",
           in: "header",
+          description: "Enter Your Bearer Token ",
           name: "Authorization",
-          description: "Bearer Token",
           scheme: "bearer",
           bearerFormat: "JWT",
         },
