@@ -102,6 +102,13 @@ ayenatiRoute.post("/hl7/message", verifyToken, createData);
  *   get:
  *     summary: Retrieve all Ayenati orders from the database
  *     description: Endpoint to fetch all Ayenati orders stored in the database.
+ *     parameters:
+ *       - in: header
+ *         name: security
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: Bearer token for authentication.
  *     responses:
  *       '200':
  *         description: Successfully retrieved all Ayenati orders.
@@ -136,7 +143,7 @@ ayenatiRoute.post("/hl7/message", verifyToken, createData);
  *                         type: number
  *                         description: Version field.
  *       '400':
- *         description: Bad request .
+ *         description: Bad request.
  *       '500':
  *         description: Internal server error. Something went wrong on the server side.
  */

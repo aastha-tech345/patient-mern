@@ -44,6 +44,7 @@ const verifyUser = (req, res, next) => {
     }
   });
 };
+
 const verifyIsAdmin = (req, res, next) => {
   const token =
     req.cookies.access_token || req?.headers?.authorization?.split(" ")[1];
